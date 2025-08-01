@@ -96,7 +96,6 @@ export default defineComponent({
       const newValue = !this.modelValue
       const attrs = this.$attrs
 
-
       this.$emit("input", newValue);
       this.$emit('update:modelValue', newValue)
     },
