@@ -79,3 +79,173 @@ export * from './VTreeview'
 export * from './VVirtualScroll'
 export * from './VWindow'
 export * from './transitions'
+
+// Экспортируем объект components для совместимости с Vue 3
+import { VApp } from './VApp'
+import { VAppBar } from './VAppBar'
+import { VAlert } from './VAlert'
+import { VAutocomplete } from './VAutocomplete'
+import { VAvatar } from './VAvatar'
+import { VBadge } from './VBadge'
+import { VBanner } from './VBanner'
+import { VBottomNavigation } from './VBottomNavigation'
+import { VBottomSheet } from './VBottomSheet'
+import { VBreadcrumbs } from './VBreadcrumbs'
+import { VBtn } from './VBtn'
+import { VBtnToggle } from './VBtnToggle'
+import { VCalendar } from './VCalendar'
+import { VCard } from './VCard'
+import { VCarousel } from './VCarousel'
+import { VCheckbox } from './VCheckbox'
+import { VChip } from './VChip'
+import { VChipGroup } from './VChipGroup'
+import { VColorPicker } from './VColorPicker'
+import { VContent } from './VContent'
+import { VCombobox } from './VCombobox'
+import { VCounter } from './VCounter'
+import { VData } from './VData'
+import { VDataIterator } from './VDataIterator'
+import { VDataTable } from './VDataTable'
+import { VDatePicker } from './VDatePicker'
+import { VDialog } from './VDialog'
+import { VDivider } from './VDivider'
+import { VExpansionPanel } from './VExpansionPanel'
+import { VFileInput } from './VFileInput'
+import { VFooter } from './VFooter'
+import { VForm } from './VForm'
+import { VContainer, VCol, VRow, VSpacer, VLayout, VFlex } from './VGrid'
+import { VHover } from './VHover'
+import { VIcon } from './VIcon'
+import { VImg } from './VImg'
+import { VInput } from './VInput'
+import { VItemGroup } from './VItemGroup'
+import { VLabel } from './VLabel'
+import { VLazy } from './VLazy'
+import { VList } from './VList'
+import { VMain } from './VMain'
+import { VMenu } from './VMenu'
+import { VMessages } from './VMessages'
+import { VNavigationDrawer } from './VNavigationDrawer'
+import { VOtpInput } from './VOtpInput'
+import { VOverflowBtn } from './VOverflowBtn'
+import { VOverlay } from './VOverlay'
+import { VPagination } from './VPagination'
+import { VSheet } from './VSheet'
+import { VParallax } from './VParallax'
+import { VPicker } from './VPicker'
+import { VProgressCircular } from './VProgressCircular'
+import { VProgressLinear } from './VProgressLinear'
+import { VRadioGroup } from './VRadioGroup'
+import { VRangeSlider } from './VRangeSlider'
+import { VRating } from './VRating'
+import { VResponsive } from './VResponsive'
+import { VSelect } from './VSelect'
+import { VSkeletonLoader } from './VSkeletonLoader'
+import { VSlider } from './VSlider'
+import { VSlideGroup } from './VSlideGroup'
+import { VSnackbar } from './VSnackbar'
+import { VSparkline } from './VSparkline'
+import { VSpeedDial } from './VSpeedDial'
+import { VStepper } from './VStepper'
+import { VSubheader } from './VSubheader'
+import { VSwitch } from './VSwitch'
+import { VSystemBar } from './VSystemBar'
+import { VTabs } from './VTabs'
+import { VTextarea } from './VTextarea'
+import { VTextField } from './VTextField'
+import { VThemeProvider } from './VThemeProvider'
+import { VTimeline } from './VTimeline'
+import { VTimePicker } from './VTimePicker'
+import { VToolbar } from './VToolbar'
+import { VTooltip } from './VTooltip'
+import { VTreeview } from './VTreeview'
+import { VVirtualScroll } from './VVirtualScroll'
+import { VWindow } from './VWindow'
+
+export const components = {
+  VApp,
+  VAppBar,
+  VAlert,
+  VAutocomplete,
+  VAvatar,
+  VBadge,
+  VBanner,
+  VBottomNavigation,
+  VBottomSheet,
+  VBreadcrumbs,
+  VBtn,
+  VBtnToggle,
+  VCalendar,
+  VCard,
+  VCarousel,
+  VCheckbox,
+  VChip,
+  VChipGroup,
+  VColorPicker,
+  VContent,
+  VCombobox,
+  VCounter,
+  VData,
+  VDataIterator,
+  VDataTable,
+  VDatePicker,
+  VDialog,
+  VDivider,
+  VExpansionPanel,
+  VFileInput,
+  VFooter,
+  VForm,
+  VContainer,
+  VCol,
+  VRow,
+  VSpacer,
+  VLayout,
+  VFlex,
+  VHover,
+  VIcon,
+  VImg,
+  VInput,
+  VItemGroup,
+  VLabel,
+  VLazy,
+  VList,
+  VMain,
+  VMenu,
+  VMessages,
+  VNavigationDrawer,
+  VOtpInput,
+  VOverflowBtn,
+  VOverlay,
+  VPagination,
+  VSheet,
+  VParallax,
+  VPicker,
+  VProgressCircular,
+  VProgressLinear,
+  VRadioGroup,
+  VRangeSlider,
+  VRating,
+  VResponsive,
+  VSelect,
+  VSkeletonLoader,
+  VSlider,
+  VSlideGroup,
+  VSnackbar,
+  VSparkline,
+  VSpeedDial,
+  VStepper,
+  VSubheader,
+  VSwitch,
+  VSystemBar,
+  VTabs,
+  VTextarea,
+  VTextField,
+  VThemeProvider,
+  VTimeline,
+  VTimePicker,
+  VToolbar,
+  VTooltip,
+  VTreeview,
+  VVirtualScroll,
+  VWindow,
+}

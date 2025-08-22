@@ -1,8 +1,8 @@
 import { createApp, reactive } from 'vue'
-import { VuetifyUseOptions } from 'vuetify/types'
+import type { VuetifyUseOptions } from 'vuetify/types'
 import { consoleError } from './util/console'
 
-export function install (Vue: ReturnType<typeof createApp>, args: VuetifyUseOptions = {}) {
+export function install (app: ReturnType<typeof createApp>, args: VuetifyUseOptions = {}) {
   // if ((install as any).installed) return
   // (install as any).installed = true
 
@@ -19,7 +19,7 @@ export function install (Vue: ReturnType<typeof createApp>, args: VuetifyUseOpti
   for (const name in directives) {
     const directive = directives[name]
 
-    Vue.directive(name, directive)
+    app.directive(name, directive)
   }
 
 
@@ -28,7 +28,7 @@ export function install (Vue: ReturnType<typeof createApp>, args: VuetifyUseOpti
       for (const key in components) {
         const component = components[key]
         if (component && !registerComponents(component.$_vuetify_subcomponents)) {
-          Vue.component(key, component as typeof Vue)
+          app.component(key, component)
         }
       }
       return true
@@ -39,16 +39,19 @@ export function install (Vue: ReturnType<typeof createApp>, args: VuetifyUseOpti
   // Used to avoid multiple mixins being setup
   // when in dev mode and hot module reload
   // https://github.com/vuejs/vue/issues/5089#issuecomment-284260111
-  if (Vue.$_vuetify_installed) return
-  Vue.$_vuetify_installed = true
+  if ((app as any).$_vuetify_installed) return
+  ;(app as any).$_vuetify_installed = true
 
-  Vue.mixin({
+  // Добавляем глобальные свойства для Vue 3
+  app.config.globalProperties.$vuetify = reactive({})
+
+  app.mixin({
     beforeCreate () {
       const options = this.$options as any
 
       if (options.vuetify) {
         options.vuetify.init(this, this.$ssrContext)
-        Vue.config.globalProperties.$vuetify = reactive(options.vuetify.framework)
+        app.config.globalProperties.$vuetify = reactive(options.vuetify.framework)
       }
     },
     beforeMount () {

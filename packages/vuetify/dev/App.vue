@@ -6,12 +6,6 @@
   </v-app>
 </template>
 
-<script>
-  import Playground from './Playground'
-
-  export default {
-    components: {
-      Playground,
-    },
-  }
+<script setup>
+import Playground from './Playground.vue'
 </script>

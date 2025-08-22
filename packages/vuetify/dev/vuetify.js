@@ -1,22 +1,27 @@
-// import { createApp } from 'vue'
-import Vuetify from 'vuetify'
-import * as locales from '../src/locale'
+import Vuetify from '../src'
+import { locales } from '../src/locale'
 import '@mdi/font/css/materialdesignicons.css'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faTimesCircle } from '@fortawesome/free-solid-svg-icons/faTimesCircle'
+import '../src/styles/main.sass'
 
-// Vue.component('font-awesome-icon', FontAwesomeIcon)
-library.add(faTimesCircle)
+// Импортируем все компоненты и директивы
+import { components } from '../src/components'
+import { directives } from '../src/directives'
 
-// Vue.use(Vuetify)
-
-export default new Vuetify({
-  lang: {
-    locales,
+// Создаем экземпляр Vuetify с правильной конфигурацией
+const vuetify = new Vuetify({
+  components,
+  directives,
+  locale: {
+    locale: 'en',
+    fallback: 'en',
+    messages: locales,
   },
   icons: {
     iconfont: 'mdi',
-    // iconfont: 'faSvg',
   },
+  theme: {
+    defaultTheme: 'light'
+  }
 })
+
+export default vuetify

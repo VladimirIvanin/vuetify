@@ -85,8 +85,7 @@ export default defineComponent({
       const category = this.parsedCategories[categoryIndex]
       return h('div', {
         key: day.date + '-' + categoryIndex,
-        class: 'v-calendar-daily__day',
-        class: this.getRelativeClasses(day),
+        class: ['v-calendar-daily__day', this.getRelativeClasses(day)],
         on: this.getDefaultMouseEventHandlers(':time', e => {
           return this.getSlotScope(this.getTimestampAtEvent(e, day))
         }),

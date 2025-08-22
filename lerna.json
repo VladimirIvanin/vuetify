@@ -12,6 +12,7 @@
     }
   },
   "npmClient": "yarn",
+  "useNx": false,
   "version": "2.7.2",
-  "useWorkspaces": true
+
 }

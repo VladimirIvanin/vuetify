@@ -114,8 +114,7 @@ export default defineComponent({
 
       return h('div', this.setTextColor(color, {
         key: day.date,
-        class: 'v-calendar-weekly__head-weekday',
-        class: this.getRelativeClasses(day, outside),
+        class: ['v-calendar-weekly__head-weekday', this.getRelativeClasses(day, outside)],
         attrs: {
           role: 'columnheader',
         },
@@ -168,8 +167,7 @@ export default defineComponent({
 
       return h('div', {
         key: day.date,
-        class: 'v-calendar-weekly__day',
-        class: this.getRelativeClasses(day, outside),
+        class: ['v-calendar-weekly__day', this.getRelativeClasses(day, outside)],
         attrs: {
           role: 'cell',
         },

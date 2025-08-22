@@ -4,6 +4,11 @@ import Vuetify from './framework'
 
 export default Vuetify
 
+// Vue 3 compatibility function
+export function createVuetify(options = {}) {
+  return new Vuetify(options)
+}
+
 const install = Vuetify.install
 
 Vuetify.install = (Vue, args) => {

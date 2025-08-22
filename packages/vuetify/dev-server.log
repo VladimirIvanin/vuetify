@@ -1,0 +1,10 @@
+nohup: ввод игнорируется
+
+  VITE v4.5.14  ready in 206 ms
+
+  ➜  Local:   http://localhost:8080/
+19:55:04 [vite] vite.dev.config.js changed, restarting server...
+19:55:04 [vite] server restarted.
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose

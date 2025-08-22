@@ -82,8 +82,7 @@ export default defineComponent({
     genHeadDay (day: CalendarTimestamp, index: number): VNode {
       return h('div', {
         key: day.date,
-        class: 'v-calendar-daily_head-day',
-        class: this.getRelativeClasses(day),
+        class: ['v-calendar-daily_head-day', this.getRelativeClasses(day)],
         on: this.getDefaultMouseEventHandlers(':day', nativeEvent => {
           return { nativeEvent, ...this.getSlotScope(day) }
         }),
@@ -165,8 +164,7 @@ export default defineComponent({
     genDay (day: CalendarTimestamp, index: number): VNode {
       return h('div', {
         key: day.date,
-        class: 'v-calendar-daily__day',
-        class: this.getRelativeClasses(day),
+        class: ['v-calendar-daily__day', this.getRelativeClasses(day)],
         on: this.getDefaultMouseEventHandlers(':time', nativeEvent => {
           return { nativeEvent, ...this.getSlotScope(this.getTimestampAtEvent(nativeEvent, day)) }
         }),

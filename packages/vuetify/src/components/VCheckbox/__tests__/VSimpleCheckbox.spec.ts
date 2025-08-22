@@ -1,7 +1,4 @@
-import {
-  mount,
-  VueWrapper,
-} from '@vue/test-utils'
+import { mount, VueWrapper } from '@vue/test-utils'
 import VSimpleCheckbox from '../VSimpleCheckbox'
 
 describe('VSimpleCheckbox.ts', () => {

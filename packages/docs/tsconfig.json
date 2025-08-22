@@ -17,18 +17,15 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "vuetify": ["src"],
-      "vuetify/*": ["src/*"]
+      "@/*": ["src/*"],
+      "vuetify": ["../vuetify/src"]
     }
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
-    "src/**/*.vue",
-    "dev/**/*.ts",
-    "dev/**/*.js",
-    "dev/**/*.vue"
+    "src/**/*.vue"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

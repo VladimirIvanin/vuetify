@@ -1,12 +1,12 @@
 import { install } from './install'
 
 // Types
-import Vue from 'vue'
-import {
+import type { App } from 'vue'
+import type {
   UserVuetifyPreset,
   VuetifyPreset,
 } from 'vuetify/types/services/presets'
-import {
+import type {
   VuetifyService,
   VuetifyServiceContract,
 } from 'vuetify/types/services'
@@ -51,7 +51,7 @@ export default class Vuetify {
   // Called on the new vuetify instance
   // bootstrap in install beforeCreate
   // Exposes ssrContext if available
-  init (root: Vue, ssrContext?: object) {
+  init (root: App, ssrContext?: object) {
     this.installed.forEach(property => {
       const service = this.framework[property]
 

@@ -1,4 +1,4 @@
-import Router from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 const component1 = {
   template: `<div class="title">Page 1</div>`,
@@ -7,7 +7,8 @@ const component2 = {
   template: `<div class="title">Page 2</div>`,
 }
 
-const router = new Router({
+const router = createRouter({
+  history: createWebHistory(),
   routes: [
     {
       path: '/page1',
@@ -19,7 +20,7 @@ const router = new Router({
       name: 'Page 2',
       component: component2,
     },
-    { path: '*', redirect: '/page1' },
+    { path: '/:pathMatch(.*)*', redirect: '/page1' },
   ],
 })
 
