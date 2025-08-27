@@ -1,6 +1,7 @@
 import { FunctionalComponentOptions, VNode, VNodeData, Transition, TransitionGroup } from 'vue'
 import mergeData from '../../util/mergeData'
-import {h} from 'vue'
+import { getSlot } from '../../util/helpers'
+import { h } from 'vue'
 
 function mergeTransitions (
   dest: Function | Function[] = [],
@@ -88,7 +89,9 @@ export function createSimpleTransition (
           el.style.setProperty('display', 'none', 'important')
         })
       }
-      return h(tag, mergeData(this.$attrs, data), this.$slots.default())
+      return h(tag, mergeData(this.$attrs, data), {
+        default: () => getSlot(this) || [],
+      })
     },
   }
 }
@@ -117,7 +120,9 @@ export function createJavascriptTransition (
           name,
           ...functions,
         }),
-        this.$slots.default()
+        {
+          default: () => getSlot(this) || [],
+        }
       )
     },
   }
