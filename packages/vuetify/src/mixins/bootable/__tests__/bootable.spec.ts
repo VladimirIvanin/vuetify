@@ -4,26 +4,17 @@ import Bootable from '../index'
 // Utilities
 import {
   mount,
-  Wrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
+import { h, defineComponent, Comment } from 'vue'
 
 describe('Bootable.ts', () => {
-  type Instance = InstanceType<typeof Bootable>
-  let mountFunction: (options?: object) => Wrapper<Instance>
-
-  beforeEach(() => {
-    mountFunction = (options = {}) => {
-      return mount({
-        mixins: [Bootable],
-        render: h => h('div'),
-      }, {
-        ...options,
-      })
-    }
-  })
+  enableAutoUnmount(afterEach)
 
   it('should be booted after activation', async () => {
-    const wrapper = mountFunction({
+    const wrapper = mount({
+      mixins: [Bootable],
+      render: () => h('div'),
       data: () => ({
         isActive: false,
       }),
@@ -36,48 +27,80 @@ describe('Bootable.ts', () => {
   })
 
   it('should return lazy content', async () => {
-    const wrapper = mountFunction({
-      propsData: {
+    const TestComponent = defineComponent({
+      mixins: [Bootable],
+      props: {
+        eager: Boolean,
+      },
+      render: () => h('div'),
+    })
+
+    const wrapper = mount(TestComponent, {
+      props: {
         eager: true,
       },
     })
 
-    expect(wrapper.vm.showLazyContent(() => 'content')).toBe('content')
+    const content = wrapper.vm.showLazyContent(() => [h('div', 'content')])
+    expect(content).toHaveLength(1)
+    expect(content[0].type).toBe('div')
 
-    const wrapperLazy = mountFunction({
+    const wrapperLazy = mount({
+      mixins: [Bootable],
+      render: () => h('div'),
       data: () => ({
         isActive: false,
       }),
     })
 
-    expect(wrapperLazy.vm.showLazyContent(() => 'content')).toMatchObject([{ isComment: true }])
+    const lazyContent = wrapperLazy.vm.showLazyContent(() => [h('div', 'content')])
+    expect(lazyContent).toHaveLength(1)
+    expect(lazyContent[0].type).toBe(Comment)
+
     wrapperLazy.vm.isActive = true
     await wrapper.vm.$nextTick()
-    expect(wrapperLazy.vm.showLazyContent(() => 'content')).toBe('content')
+    const activeContent = wrapperLazy.vm.showLazyContent(() => [h('div', 'content')])
+    expect(activeContent).toHaveLength(1)
+    expect(activeContent[0].type).toBe('div')
+
     wrapperLazy.vm.isActive = false
     await wrapper.vm.$nextTick()
-    expect(wrapperLazy.vm.showLazyContent(() => 'content')).toBe('content')
+    const inactiveContent = wrapperLazy.vm.showLazyContent(() => [h('div', 'content')])
+    expect(inactiveContent).toHaveLength(1)
+    expect(inactiveContent[0].type).toBe('div')
   })
 
   it('should show if lazy and active at boot', async () => {
-    const wrapper = mountFunction({
-      propsData: {
+    const TestComponent = defineComponent({
+      mixins: [Bootable],
+      props: {
+        eager: Boolean,
+      },
+      render: () => h('div'),
+    })
+
+    const wrapper = mount(TestComponent, {
+      props: {
         eager: true,
       },
     })
 
-    expect(wrapper.vm.showLazyContent(() => 'content')).toBe('content')
+    const content = wrapper.vm.showLazyContent(() => [h('div', 'content')])
+    expect(content).toHaveLength(1)
+    expect(content[0].type).toBe('div')
   })
 
   it('should boot', async () => {
-    const wrapper = mountFunction({
+    const wrapper = mount({
+      mixins: [Bootable],
+      render: () => h('div'),
       data: () => ({ isActive: false }),
     })
 
     expect(wrapper.vm.isActive).toBe(false)
     expect(wrapper.vm.isBooted).toBe(false)
 
-    wrapper.setData({ isActive: true })
+    wrapper.vm.isActive = true
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.isBooted).toBe(true)
   })

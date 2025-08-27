@@ -1,9 +1,7 @@
 // Utilities
 import { removed } from '../../util/console'
-import {h} from 'vue'
+import { h, defineComponent, VNode, App, Comment } from 'vue'
 
-// Types
-import  { defineComponent, VNode, App } from 'vue'
 interface Toggleable extends App {
   isActive?: boolean
 }
@@ -49,7 +47,7 @@ export default defineComponent({
 
   methods: {
     showLazyContent (content?: () => VNode[]): VNode[] {
-      return (this.hasContent && content) ? content() : [h()]
+      return (this.hasContent && content) ? content() : [h(Comment)]
     },
   },
 })
