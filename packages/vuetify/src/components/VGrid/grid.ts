@@ -1,12 +1,11 @@
 // Types
 import { defineComponent, VNode, h } from 'vue'
+import { getSlot } from '../../util/helpers'
 
 export default function VGrid (name: string) {
   /* @vue/component */
   return defineComponent({
     name: `v-${name}`,
-
-    functional: true,
 
     props: {
       id: String,
@@ -16,43 +15,71 @@ export default function VGrid (name: string) {
       },
     },
 
-    render (): VNode {
-      const data = this.$attrs
-      const children = this.$slots.default()
-      const props = this.$props
+    methods: {
+      processClassesAndAttributes (data: any, baseClassName: string) {
+        const classes = [baseClassName]
+        const filteredData = { ...data }
 
-      data.staticClass = (`${name} ${data.staticClass || ''}`).trim()
+        if (data.attrs) {
+          const utilityClasses = this.extractUtilityClasses(data.attrs)
+          classes.push(...utilityClasses)
 
-      const { attrs } = data
-      if (attrs) {
-        // reset attrs to extract utility clases like pa-3
-        data.attrs = {}
-        const classes = Object.keys(attrs).filter(key => {
+          filteredData.attrs = this.filterDataAttributes(data.attrs)
+        }
+
+        return { classes, filteredData }
+      },
+
+      extractUtilityClasses (attrs: Record<string, any>): string[] {
+        return Object.keys(attrs).filter(key => {
           // TODO: Remove once resolved
           // https://github.com/vuejs/vue/issues/7841
           if (key === 'slot') return false
 
           const value = attrs[key]
 
-          // add back data attributes like data-test="foo" but do not
-          // add them as classes
           if (key.startsWith('data-')) {
-            data.attrs![key] = value
             return false
           }
 
           return value || typeof value === 'string'
         })
+      },
 
-        if (classes.length) data.staticClass += ` ${classes.join(' ')}`
-      }
+      filterDataAttributes (attrs: Record<string, any>): Record<string, any> {
+        const filteredAttrs: Record<string, any> = {}
 
-      if (props.id) {
-        data.domProps = data.domProps || {}
-        data.domProps.id = props.id
-      }
+        Object.keys(attrs).forEach(key => {
+          if (key.startsWith('data-')) {
+            filteredAttrs[key] = attrs[key]
+          }
+        })
 
-      return h(props.tag, data, children)
+        return filteredAttrs
+      },
+
+      processId (props: any, data: any) {
+        if (props.id) {
+          if (!data.domProps) {
+            data.domProps = {}
+          }
+          (data.domProps as Record<string, any>).id = props.id
+        }
+      },
+    },
+
+    render (): VNode {
+      const data = { ...this.$attrs }
+      const children = getSlot(this) || []
+      const props = this.$props
+
+      const { classes, filteredData } = this.processClassesAndAttributes(data, name)
+
+      filteredData.class = classes.join(' ')
+
+      this.processId(props, filteredData)
+
+      return h(props.tag, filteredData, children)
     },
   })
 }

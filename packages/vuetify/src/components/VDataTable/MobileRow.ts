@@ -5,8 +5,6 @@ import { DataTableHeader } from 'vuetify/types'
 export default defineComponent({
   name: 'row',
 
-  functional: true,
-
   props: {
     headers: Array as PropType<DataTableHeader[]>,
     hideDefaultHeader: Boolean,
@@ -30,16 +28,17 @@ export default defineComponent({
       const value = getObjectValueByPath(props.item, header.value)
 
       const slotName = header.value
-      const regularSlot = computedSlots.hasOwnProperty(slotName) && computedSlots[slotName]
+      const regularSlot = computedSlots[slotName]
 
       if (regularSlot) {
-        children.push(regularSlot({
+        const slotResult = regularSlot({
           item: props.item,
           isMobile: true,
           header,
           index: props.index,
           value,
-        }))
+        })
+        children.push(slotResult)
       } else {
         children.push(value == null ? value : String(value))
       }

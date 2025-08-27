@@ -6,14 +6,12 @@ import { DataTableHeader } from 'vuetify/types'
 import { getObjectValueByPath, wrapInArray } from '../../util/helpers'
 
 function needsTd (slot: VNode[] | undefined) {
-  return slot!.length !== 1 ||
-    !['td', 'th'].includes(slot![0]?.tag!)
+  return !slot || slot.length !== 1 ||
+    !['td', 'th'].includes(String(slot[0]?.type))
 }
 
 export default defineComponent({
   name: 'row',
-
-  functional: true,
 
   props: {
     headers: Array as PropType<DataTableHeader[]>,
@@ -31,16 +29,17 @@ export default defineComponent({
       const value = getObjectValueByPath(props.item, header.value)
 
       const slotName = header.value
-      const scopedSlot = this.$slots.hasOwnProperty(slotName) && this.$slots[slotName]
+      const scopedSlot = this.$slots[slotName]
 
       if (scopedSlot) {
-        children.push(...wrapInArray(scopedSlot({
+        const slotResult = scopedSlot({
           item: props.item,
           isMobile: false,
           header,
           index: props.index,
           value,
-        })))
+        })
+        children.push(...wrapInArray(slotResult))
       }
       else {
         children.push(value == null ? value : String(value))
@@ -61,6 +60,6 @@ export default defineComponent({
         : children
     })
 
-    return h('tr', data, columns)
+    return h('tr', data, columns.filter(Boolean))
   },
 })

@@ -1,32 +1,32 @@
 import Row from '../Row'
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
-import Vue from 'vue'
+import { h } from 'vue'
 
 describe('Table Row', () => {
-  type Instance = InstanceType<typeof Row>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: any) => VueWrapper<any>
+
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: any) => {
       return mount(Row, options)
     }
   })
 
+  enableAutoUnmount(afterEach)
+
   it('should render without slots', () => {
     const wrapper = mountFunction({
-      context: {
-        props: {
-          headers: [
-            { text: 'Petrol', value: 'petrol' },
-            { text: 'Diesel', value: 'diesel' },
-          ],
-          item: {
-            petrol: 0.68,
-            diesel: 0.65,
-          },
+      props: {
+        headers: [
+          { text: 'Petrol', value: 'petrol' },
+          { text: 'Diesel', value: 'diesel' },
+        ],
+        item: {
+          petrol: 0.68,
+          diesel: 0.65,
         },
       },
     })
@@ -38,25 +38,23 @@ describe('Table Row', () => {
 
   it('should render non-string values', () => {
     const wrapper = mountFunction({
-      context: {
-        props: {
-          headers: [
-            { value: 'string' },
-            { value: 'number' },
-            { value: 'array' },
-            { value: 'boolean' },
-            { value: 'object' },
-            { value: 'undefined' },
-            { value: 'null' },
-          ],
-          item: {
-            string: 'string',
-            number: 12.34,
-            array: [1, 2],
-            boolean: false,
-            object: { foo: 'bar' },
-            null: null,
-          },
+      props: {
+        headers: [
+          { text: 'String', value: 'string' },
+          { text: 'Number', value: 'number' },
+          { text: 'Array', value: 'array' },
+          { text: 'Boolean', value: 'boolean' },
+          { text: 'Object', value: 'object' },
+          { text: 'Undefined', value: 'undefined' },
+          { text: 'Null', value: 'null' },
+        ],
+        item: {
+          string: 'string',
+          number: 12.34,
+          array: [1, 2],
+          boolean: false,
+          object: { foo: 'bar' },
+          null: null,
         },
       },
     })
@@ -66,40 +64,36 @@ describe('Table Row', () => {
 
   it('should render with cellClass', () => {
     const wrapper = mountFunction({
-      context: {
-        props: {
-          headers: [
-            { text: 'Petrol', value: 'petrol', cellClass: 'a' },
-            { text: 'Diesel', value: 'diesel', cellClass: ['b', 'c'] },
-          ],
-          item: {
-            petrol: 0.68,
-            diesel: 0.65,
-          },
+      props: {
+        headers: [
+          { text: 'Petrol', value: 'petrol', cellClass: 'a' },
+          { text: 'Diesel', value: 'diesel', cellClass: ['b', 'c'] },
+        ],
+        item: {
+          petrol: 0.68,
+          diesel: 0.65,
         },
       },
     })
 
     const tds = wrapper.findAll('td')
-    expect(tds.at(0).classes()).toContain('a')
-    expect(tds.at(1).classes()).toContain('b')
-    expect(tds.at(1).classes()).toContain('c')
+    expect(tds[0].classes()).toContain('a')
+    expect(tds[1].classes()).toContain('b')
+    expect(tds[1].classes()).toContain('c')
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it.skip('should render with regular slots', () => {
+  it('should render with regular slots', () => {
     const wrapper = mountFunction({
-      context: {
-        props: {
-          headers: [
-            { text: 'Petrol', value: 'petrol' },
-            { text: 'Diesel', value: 'diesel' },
-          ],
-        },
+      props: {
+        headers: [
+          { text: 'Petrol', value: 'petrol' },
+          { text: 'Diesel', value: 'diesel' },
+        ],
       },
       slots: {
-        'column.petrol': '<p class="test">$0.68</p>',
-        'column.diesel': '<p class="test">$0.65</p>',
+        petrol: '<p class="test">$0.68</p>',
+        diesel: '<p class="test">$0.65</p>',
       },
     })
 
@@ -109,24 +103,21 @@ describe('Table Row', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it.skip('should render with scoped slots', () => {
-    const vm = new Vue()
+  it('should render with scoped slots', () => {
     const wrapper = mountFunction({
-      context: {
-        props: {
-          headers: [
-            { text: 'Petrol', value: 'petrol' },
-            { text: 'Diesel', value: 'diesel' },
-          ],
-          item: {
-            petrol: 0.68,
-            diesel: 0.65,
-          },
+      props: {
+        headers: [
+          { text: 'Petrol', value: 'petrol' },
+          { text: 'Diesel', value: 'diesel' },
+        ],
+        item: {
+          petrol: 0.68,
+          diesel: 0.65,
         },
       },
-      scopedSlots: {
-        'column.petrol': props => vm.$createElement('p', { class: `test ${props.header.value}` }, [props.value]),
-        'column.diesel': props => vm.$createElement('p', { class: `test ${props.header.value}` }, [props.value]),
+      slots: {
+        petrol: ({ header, value }: any) => h('p', { class: `test ${header.value}` }, [value]),
+        diesel: ({ header, value }: any) => h('p', { class: `test ${header.value}` }, [value]),
       },
     })
 

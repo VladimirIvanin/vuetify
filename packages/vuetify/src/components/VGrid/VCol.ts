@@ -1,8 +1,8 @@
 import './VGrid.sass'
 
-import { defineComponent, VNode, PropOptions, getCurrentInstance } from 'vue'
+import { defineComponent, VNode, PropType } from 'vue'
 import mergeData from '../../util/mergeData'
-import { upperFirst } from '../../util/helpers'
+import { upperFirst, getSlot } from '../../util/helpers'
 import {h} from 'vue'
 // no xs
 const breakpoints = ['sm', 'md', 'lg', 'xl']
@@ -10,31 +10,31 @@ const breakpoints = ['sm', 'md', 'lg', 'xl']
 const breakpointProps = (() => {
   return breakpoints.reduce((props, val) => {
     props[val] = {
-      type: [Boolean, String, Number],
+      type: [Boolean, String, Number] as PropType<boolean | string | number>,
       default: false,
     }
     return props
-  }, {} as Dictionary<PropOptions>)
+  }, {} as Dictionary<PropType<boolean | string | number>>)
 })()
 
 const offsetProps = (() => {
   return breakpoints.reduce((props, val) => {
     props['offset' + upperFirst(val)] = {
-      type: [String, Number],
+      type: [String, Number] as PropType<string | number>,
       default: null,
     }
     return props
-  }, {} as Dictionary<PropOptions>)
+  }, {} as Dictionary<PropType<string | number>>)
 })()
 
 const orderProps = (() => {
   return breakpoints.reduce((props, val) => {
     props['order' + upperFirst(val)] = {
-      type: [String, Number],
+      type: [String, Number] as PropType<string | number>,
       default: null,
     }
     return props
-  }, {} as Dictionary<PropOptions>)
+  }, {} as Dictionary<PropType<string | number>>)
 })()
 
 const propMap = {
@@ -71,34 +71,34 @@ export default defineComponent({
   inheritAttrs: false,
   props: {
     cols: {
-      type: [Boolean, String, Number],
+      type: [Boolean, String, Number] as PropType<boolean | string | number>,
       default: false,
     },
     ...breakpointProps,
     offset: {
-      type: [String, Number],
+      type: [String, Number] as PropType<string | number>,
       default: null,
     },
     ...offsetProps,
     order: {
-      type: [String, Number],
+      type: [String, Number] as PropType<string | number>,
       default: null,
     },
     ...orderProps,
     alignSelf: {
-      type: String,
+      type: String as PropType<string>,
       default: null,
       validator: (str: any) => ['auto', 'start', 'end', 'center', 'baseline', 'stretch'].includes(str),
     },
     tag: {
-      type: String,
+      type: String as PropType<string>,
       default: 'div',
     },
   },
   render (): VNode {
     const props = this.$props
     const data = this.$attrs
-    const children = this.$slots.default()
+    const children = getSlot(this) || []
     // const {parent} = getCurrentInstance()
 
     // Super-fast memoization based on props, 5x faster than JSON.stringify

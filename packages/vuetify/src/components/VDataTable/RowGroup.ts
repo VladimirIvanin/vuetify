@@ -1,9 +1,8 @@
 import { defineComponent, VNode, h } from 'vue'
+import { getSlot } from '@/util/helpers'
 
 export default defineComponent({
   name: 'row-group',
-
-  functional: true,
 
   props: {
     value: {
@@ -21,30 +20,60 @@ export default defineComponent({
     },
   },
 
-  render (): VNode {
-    const props = this.$props
+  methods: {
+    createHeaderElements (): VNode[] {
+      const { headerClass } = this.$props
 
-    const computedSlots = this.$slots
-    const children = []
+      const columnHeader = getSlot(this, 'column.header')
+      if (columnHeader) {
+        return [h('tr', { class: headerClass }, columnHeader)]
+      }
 
-    if (computedSlots['column.header']) {
-      children.push(h('tr', {
-        class: props.headerClass,
-      }, computedSlots['column.header']))
-    } else if (computedSlots['row.header']) {
-      children.push(...computedSlots['row.header'])
-    }
+      const rowHeader = getSlot(this, 'row.header')
+      if (rowHeader) {
+        return Array.isArray(rowHeader) ? rowHeader : [rowHeader]
+      }
 
-    if (computedSlots['row.content'] && props.value) children.push(...computedSlots['row.content'])
+      return []
+    },
 
-    if (computedSlots['column.summary']) {
-      children.push(h('tr', {
-        class: props.summaryClass,
-      }, computedSlots['column.summary']))
-    } else if (computedSlots['row.summary']) {
-      children.push(...computedSlots['row.summary'])
-    }
+    createContentElements (): VNode[] {
+      const { value } = this.$props
 
-    return children as any
+      if (!value) {
+        return []
+      }
+
+      const content = getSlot(this, 'row.content')
+      if (!content) {
+        return []
+      }
+
+      return Array.isArray(content) ? content : [content]
+    },
+
+    createSummaryElements (): VNode[] {
+      const { summaryClass } = this.$props
+
+      const columnSummary = getSlot(this, 'column.summary')
+      if (columnSummary) {
+        return [h('tr', { class: summaryClass }, columnSummary)]
+      }
+
+      const rowSummary = getSlot(this, 'row.summary')
+      if (rowSummary) {
+        return Array.isArray(rowSummary) ? rowSummary : [rowSummary]
+      }
+
+      return []
+    },
+  },
+
+  render (): VNode[] {
+    const headerElements = this.createHeaderElements()
+    const contentElements = this.createContentElements()
+    const summaryElements = this.createSummaryElements()
+
+    return [...headerElements, ...contentElements, ...summaryElements].filter(Boolean)
   },
 })

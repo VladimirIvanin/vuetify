@@ -1,16 +1,12 @@
 import './_grid.sass'
 import './VGrid.sass'
 
-import Grid from './grid'
-
 import mergeData from '../../util/mergeData'
 import { defineComponent, h } from 'vue'
 
 /* @vue/component */
 export default defineComponent({
   name: 'v-container',
-  extends: Grid('container'),
-  functional: true,
   props: {
     id: String,
     tag: {
@@ -22,45 +18,73 @@ export default defineComponent({
       default: false,
     },
   },
-  render () {
-    let classes
-    // const { attrs } = data
-
-    const attrs = this.$attrs
-
-    if (attrs) {
-      // reset attrs to extract utility clases like pa-3
-      classes = Object.keys(attrs).filter(key => {
+  methods: {
+    extractUtilityClasses (attrs: Record<string, any>): string[] {
+      return Object.keys(attrs).filter(key => {
         // TODO: Remove once resolved
         // https://github.com/vuejs/vue/issues/7841
         if (key === 'slot') return false
 
         const value = attrs[key]
 
-        // add back data attributes like data-test="foo" but do not
-        // add them as classes
+        // Keep data attributes but don't add them as classes
         if (key.startsWith('data-')) {
-          // data.attrs![key] = value
           return false
         }
 
         return value || typeof value === 'string'
       })
-    }
+    },
 
-    // if (props.id) {
-    //   data.domProps = data.domProps || {}
-    //   data.domProps.id = props.id
-    // }
+    filterDataAttributes (attrs: Record<string, any>): Record<string, any> {
+      return Object.keys(attrs).reduce((filtered, key) => {
+        if (key.startsWith('data-')) {
+          filtered[key] = attrs[key]
+        }
+        return filtered
+      }, {} as Record<string, any>)
+    },
+
+    generateClasses (utilityClasses: string[], fluid: boolean): any[] {
+      return [
+        {
+          'container--fluid': fluid,
+        },
+        ...utilityClasses,
+        'container',
+      ]
+    },
+
+    prepareRenderData (attrs: Record<string, any>, props: any) {
+      const utilityClasses = this.extractUtilityClasses(attrs)
+      const filteredAttrs = this.filterDataAttributes(attrs)
+
+      // Add id to attrs if provided
+      if (props.id) {
+        filteredAttrs.id = props.id
+      }
+
+      return {
+        utilityClasses,
+        filteredAttrs,
+        classes: this.generateClasses(utilityClasses, props.fluid),
+      }
+    },
+  },
+  render () {
+    const { utilityClasses, filteredAttrs, classes } = this.prepareRenderData(
+      this.$attrs,
+      this.$props,
+    )
+
+    const data = mergeData(filteredAttrs, {
+      class: classes,
+    })
 
     return h(
-      this.tag,
-      mergeData(this.$attrs, {
-        class: Array<any>({
-          'container--fluid': this.fluid,
-        }).concat(classes || []).concat('container'),
-      }),
-      this.$slots.default?.()
+      this.$props.tag,
+      data,
+      this.$slots.default?.(),
     )
   },
 })
