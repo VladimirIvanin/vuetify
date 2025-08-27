@@ -3,15 +3,20 @@ import {
   mount,
   MountOptions,
   Wrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 
 describe('proxyable.ts', () => {
-  const Mock = Proxyable.extend({
-    render: h => h('div'),
-  })
+  enableAutoUnmount(afterEach)
+
+  const Mock = {
+    mixins: [Proxyable],
+    template: '<div></div>',
+  }
 
   type Instance = InstanceType<typeof Mock>
   let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+
   beforeEach(() => {
     mountFunction = (options?: MountOptions<Instance>) => {
       return mount(Mock, options)
@@ -19,46 +24,42 @@ describe('proxyable.ts', () => {
   })
 
   it('should watch prop and emit event', async () => {
-    const change = jest.fn()
     const wrapper = mountFunction({
-      propsData: { value: 'foo' },
+      props: { modelValue: 'foo' },
     })
-
-    wrapper.vm.$on('change', change)
 
     expect(wrapper.vm.internalValue).toBe('foo')
 
     // Change by prop
-    wrapper.setProps({ value: 'bar' })
+    await wrapper.setProps({ modelValue: 'bar' })
 
     expect(wrapper.vm.internalValue).toBe('bar')
-    expect(change).not.toHaveBeenCalled()
+    expect(wrapper.emitted()).toEqual({})
 
     // Change internal
     wrapper.vm.internalValue = 'fizzbuzz'
 
     expect(wrapper.vm.internalValue).toBe('fizzbuzz')
 
-    expect(change).toHaveBeenCalledWith('fizzbuzz')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['fizzbuzz'])
   })
 
-  it('should use provided prop and event arguments', () => {
-    const input = jest.fn()
+  it('should use provided prop and event arguments', async () => {
     const wrapper = mount({
       mixins: [Proxy('input', 'update:input-value')],
-      render: h => h('div'),
+      template: '<div></div>',
     }, {
-      propsData: {
+      props: {
         input: 'foo',
       },
     })
-
-    wrapper.vm.$on('update:input-value', input)
 
     expect(wrapper.vm.input).toBe('foo')
 
     wrapper.vm.internalValue = 'bar'
 
-    expect(input).toHaveBeenCalledWith('bar')
+    expect(wrapper.emitted('update:input-value')).toBeTruthy()
+    expect(wrapper.emitted('update:input-value')?.[0]).toEqual(['bar'])
   })
 })
