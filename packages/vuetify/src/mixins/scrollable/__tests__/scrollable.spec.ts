@@ -2,28 +2,28 @@
 import Scrollable from '../'
 
 // Utilities
-import {
-  mount,
-  Wrapper,
-} from '@vue/test-utils'
+import { mount, VueWrapper } from '@vue/test-utils'
+import { defineComponent, h } from 'vue'
 import { scrollWindow } from '../../../../test'
 
 describe('Scrollable.ts', () => {
-  type Instance = InstanceType<typeof Scrollable>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  type Instance = InstanceType<typeof Scrollable>;
+  let mountFunction: (options?: object) => VueWrapper<Instance>
 
-  beforeEach(() => {
-    const Mock = {
+  const createMockComponent = (options = {}) => {
+    return defineComponent({
       mixins: [Scrollable],
-      render (h) {
+      ...options,
+      render () {
         return h('div', {
-          directives: [{
-            name: 'scroll',
-            value: this.onScroll,
-          }],
+          onScroll: this.onScroll,
         })
       },
-    }
+    })
+  }
+
+  beforeEach(() => {
+    const Mock = createMockComponent()
     mountFunction = (options = {}) => {
       return mount(Mock, {
         ...options,
@@ -34,15 +34,22 @@ describe('Scrollable.ts', () => {
   it('should set isScrollingUp', async () => {
     const wrapper = mountFunction()
 
+    // Сначала скроллим вниз
     await scrollWindow(1000)
+    wrapper.vm.onScroll()
+    await wrapper.vm.$nextTick()
     expect(wrapper.vm.isScrollingUp).toBe(false)
+
+    // Затем скроллим вверх
     await scrollWindow(0)
+    wrapper.vm.onScroll()
+    await wrapper.vm.$nextTick()
     expect(wrapper.vm.isScrollingUp).toBe(true)
   })
 
   it('should set a custom target', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         scrollTarget: 'body',
       },
     })
@@ -53,10 +60,12 @@ describe('Scrollable.ts', () => {
 
   it('should do nothing if !canScroll', async () => {
     const wrapper = mountFunction({
-      data: () => ({
-        currentScroll: 100,
-        previousScroll: 0,
-      }),
+      data () {
+        return {
+          currentScroll: 100,
+          previousScroll: 0,
+        }
+      },
       computed: {
         canScroll () {
           return false
@@ -65,6 +74,7 @@ describe('Scrollable.ts', () => {
     })
 
     await scrollWindow(1000)
+    wrapper.vm.onScroll()
 
     expect(wrapper.vm.currentScroll).toBe(100)
     expect(wrapper.vm.previousScroll).toBe(0)
@@ -72,40 +82,59 @@ describe('Scrollable.ts', () => {
 
   it('should accept a custom scrollThreshold', async () => {
     const thresholdMet = jest.fn()
-    const wrapper = mountFunction({
+
+    // Создаем специальный компонент с методом thresholdMet
+    const MockWithThreshold = createMockComponent({
+      props: {
+        scrollThreshold: {
+          type: Number,
+          default: 300,
+        },
+      },
       methods: {
         thresholdMet,
       },
-      propsData: {
+    })
+
+    const wrapper = mount(MockWithThreshold, {
+      props: {
         scrollThreshold: 1000,
       },
     })
 
+    // Скроллим меньше порога
     await scrollWindow(900)
+    wrapper.vm.onScroll()
     await wrapper.vm.$nextTick()
 
     expect(thresholdMet).not.toHaveBeenCalled()
 
+    // Скроллим больше порога
     await scrollWindow(1001)
+    wrapper.vm.onScroll()
     await wrapper.vm.$nextTick()
     expect(thresholdMet).toHaveBeenCalled()
   })
 
-  it('should reset savedScroll when isActive state changes', () => {
+  it('should reset savedScroll when isActive state changes', async () => {
     const wrapper = mountFunction({
-      data: () => ({
-        savedScroll: 100,
-      }),
+      data () {
+        return {
+          savedScroll: 100,
+        }
+      },
     })
 
-    wrapper.setData({ isActive: true })
+    // В Vue 3 используем прямое изменение данных
+    wrapper.vm.isActive = true
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.savedScroll).toBe(0)
   })
 
   it(`should warn if target isn't present`, async () => {
     mountFunction({
-      propsData: {
+      props: {
         scrollTarget: '#test',
       },
     })
