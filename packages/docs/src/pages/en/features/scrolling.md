@@ -34,10 +34,11 @@ The **goTo** function can be individually imported and invoked anywhere. This is
 ```js
 // src/router.js
 
-import Router from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import goTo from 'vuetify/lib/services/goto'
 
-export default new Router({
+export default createRouter({
+  history: createWebHistory(),
   scrollBehavior: (to, from, savedPosition) => {
     let scrollTo = 0
 

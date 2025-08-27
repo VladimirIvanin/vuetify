@@ -30,7 +30,7 @@ module.exports = {
     '!**/*.d.ts',
   ],
   transformIgnorePatterns: [
-    'node_modules/(?!vue-router)',
+    'node_modules/(?!.*)',
   ],
   snapshotSerializers: [
     'jest-serializer-html',

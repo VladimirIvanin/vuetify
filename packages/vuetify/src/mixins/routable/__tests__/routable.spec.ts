@@ -1,17 +1,17 @@
 import Routable from '../'
-import { createLocalVue, mount, Wrapper } from '@vue/test-utils'
-import Router from 'vue-router'
-import Vue, { VNode, withDirectives } from 'vue'
+import { mount, Wrapper } from '@vue/test-utils'
+import { createRouter, createWebHistory } from 'vue-router'
+import { VNode, withDirectives, h } from 'vue'
 
 describe('routable.ts', () => {
-  let mountFunction: (options?: object) => Wrapper<Vue>
-  let router: Router
-  let localVue: typeof Vue
+  let mountFunction: (options?: object) => Wrapper<any>
+  let router: any
 
   beforeEach(() => {
-    router = new Router()
-    localVue = createLocalVue()
-    localVue.use(Router)
+    router = createRouter({
+      history: createWebHistory(),
+      routes: [],
+    })
 
     mountFunction = (options = {}) => {
       return mount({
@@ -40,15 +40,16 @@ describe('routable.ts', () => {
           )
         },
       }, {
-        localVue,
-        router,
+        global: {
+          plugins: [router],
+        },
         ...options,
       })
     }
   })
   it('should generate exact route link with to="/" and undefined exact', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         to: '/',
       },
     })
@@ -58,7 +59,7 @@ describe('routable.ts', () => {
 
   it('should reflect the link state to isActive', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         to: '/',
       },
     })
@@ -66,13 +67,13 @@ describe('routable.ts', () => {
     expect(wrapper.vm.isActive).toBe(true)
 
     // Simulate route changing
-    wrapper.vm.$router.push('/foo')
+    await router.push('/foo')
 
     await wrapper.vm.$nextTick()
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.isActive).toBe(false)
 
-    wrapper.vm.$router.push('/')
+    await router.push('/')
     await wrapper.vm.$nextTick()
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.isActive).toBe(true)
@@ -80,7 +81,7 @@ describe('routable.ts', () => {
 
   it('should reflect the link state to isActive if not exact', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         to: '/foo',
       },
     })
@@ -88,7 +89,7 @@ describe('routable.ts', () => {
     expect(wrapper.vm.isActive).toBe(false)
 
     // Simulate route changing
-    wrapper.vm.$router.push('/foo')
+    await router.push('/foo')
 
     await wrapper.vm.$nextTick()
     await wrapper.vm.$nextTick()
