@@ -83,15 +83,17 @@ export default defineComponent({
 
   methods: {
     genCheckbox () {
-      const { title, ...checkboxAttrs } = this.attrs$
+      const { title, class: cls, ...checkboxAttrs } = this.attrs$ as any
       return h('div', {
         class: 'v-input--selection-controls__input',
       }, [
         h(VIcon, this.setTextColor(this.validationState, {
           dense: this.dense,
           dark: this.dark,
-          light: this.light
-        }), this.computedIcon),
+          light: this.light,
+        }), {
+          default: () => this.computedIcon,
+        }),
         this.genInput('checkbox', {
           ...checkboxAttrs,
           'aria-checked': this.inputIndeterminate

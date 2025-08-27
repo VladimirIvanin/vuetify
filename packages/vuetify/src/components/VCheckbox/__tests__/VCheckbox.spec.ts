@@ -1,93 +1,85 @@
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 import VCheckbox from '../VCheckbox'
 
 describe('VCheckbox.ts', () => { // eslint-disable-line max-statements
-  type Instance = InstanceType<typeof VCheckbox>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: any) => VueWrapper<any>
+
+  enableAutoUnmount(afterEach)
+
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: any) => {
       return mount(VCheckbox, options)
     }
   })
 
-  it('should return true when clicked', () => {
+  it('should return true when clicked', async () => {
     const wrapper = mountFunction({
-      propsData: {
-        inputValue: false,
-      },
+      props: {
+        modelValue: false,
+      } as any,
     })
 
     const input = wrapper.find('input')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    input.trigger('click')
-    expect(change).toHaveBeenCalledTimes(1)
-    expect(change).toHaveBeenCalledWith(true)
+    await input.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([true])
   })
 
-  it('should return a value when toggled on with a specified value', () => {
+  it('should return a value when toggled on with a specified value', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: 'John',
-        inputValue: null,
-      },
+        modelValue: null,
+      } as any,
     })
 
     const input = wrapper.find('input')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    input.trigger('click')
-    expect(change).toHaveBeenCalledWith('John')
+    await input.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual(['John'])
   })
 
-  it('should return null when toggled off with a specified value', () => {
+  it('should return null when toggled off with a specified value', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: 'John',
-        inputValue: 'John',
-      },
+        modelValue: 'John',
+      } as any,
     })
 
     const ripple = wrapper.find('input')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    ripple.trigger('click')
-    expect(change).toHaveBeenCalledWith(null)
+    await ripple.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([null])
   })
 
-  it('should toggle when label is clicked', () => {
+  it('should toggle when label is clicked', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         label: 'Label',
         value: null,
-      },
+      } as any,
       attrs: {},
     })
 
     const label = wrapper.find('label')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    label.trigger('click')
-    expect(change).toHaveBeenCalled()
+    await label.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
   })
 
   it('should render role and aria-checked attributes on input group', async () => {
     const wrapper = mountFunction({
-      propsData: {
-        inputValue: false,
-      },
+      props: {
+        modelValue: false,
+      } as any,
     })
 
     const input = wrapper.find('input')
@@ -95,41 +87,41 @@ describe('VCheckbox.ts', () => { // eslint-disable-line max-statements
     expect(input.element.getAttribute('role')).toBe('checkbox')
     expect(input.element.getAttribute('aria-checked')).toBe('false')
 
-    wrapper.setProps({ inputValue: true })
+    await wrapper.setProps({ modelValue: true } as any)
     expect(input.element.getAttribute('aria-checked')).toBe('true')
 
-    wrapper.setProps({ indeterminate: true })
+    await wrapper.setProps({ indeterminate: true } as any)
     await wrapper.vm.$nextTick()
     expect(input.element.getAttribute('aria-checked')).toBe('mixed')
   })
 
   it('should toggle on keypress', async () => {
     const wrapper = mountFunction({
-      propsData: {
-        inputValue: false,
-      },
+      props: {
+        modelValue: false,
+      } as any,
     })
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
     const input = wrapper.find('input')
 
-    input.trigger('focus')
+    await input.trigger('focus')
     await wrapper.vm.$nextTick()
 
-    input.trigger('change')
+    await input.trigger('change')
     await wrapper.vm.$nextTick()
-    input.trigger('change')
+    await input.trigger('change')
 
-    expect(change.mock.calls).toEqual([[true], [false]])
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([true])
+    expect(wrapper.emitted('update:modelValue')![1]).toEqual([false])
   })
 
-  it('should enable ripple', () => {
+  it('should enable ripple', async () => {
     const wrapper = mountFunction({
-      propsData: {
-        inputValue: false,
+      props: {
+        modelValue: false,
         disabled: false,
-      },
+      } as any,
     })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
@@ -137,29 +129,29 @@ describe('VCheckbox.ts', () => { // eslint-disable-line max-statements
     expect((ripple.element as any)._ripple.enabled).toBeTruthy()
     expect((ripple.element as any)._ripple.centered).toBeTruthy()
 
-    wrapper.setProps({ disabled: true })
+    await wrapper.setProps({ disabled: true } as any)
 
-    expect(wrapper.contains('.v-input--selection-controls__ripple')).toBeTruthy()
+    expect(wrapper.find('.v-input--selection-controls__ripple').exists()).toBeTruthy()
   })
 
   it('should not render ripple when ripple prop is false', () => {
     const wrapper = mountFunction({
-      propsData: {
-        inputValue: false,
+      props: {
+        modelValue: false,
         ripple: false,
-      },
+      } as any,
     })
 
     const ripple = wrapper.findAll('.v-input--selection-controls__ripple')
 
-    expect(ripple.wrappers).toHaveLength(0)
+    expect(ripple).toHaveLength(0)
   })
 
   it('should render ripple when ripple prop is true', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         ripple: true,
-      },
+      } as any,
     })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
@@ -168,182 +160,167 @@ describe('VCheckbox.ts', () => { // eslint-disable-line max-statements
     expect((ripple.element as any)._ripple.centered).toBeTruthy()
   })
 
-  it('should return a value when toggled on with a specified object value', () => {
+  it('should return a value when toggled on with a specified object value', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: { x: 1, y: 2 },
-        inputValue: null,
-      },
+        modelValue: null,
+      } as any,
     })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    ripple.trigger('click')
-    expect(change).toHaveBeenCalledWith({ x: 1, y: 2 })
+    await ripple.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([{ x: 1, y: 2 }])
   })
 
-  it('should return a value when toggled on with a specified array value', () => {
+  it('should return a value when toggled on with a specified array value', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, '2', { x: 1, y: 2 }],
-        inputValue: null,
-      },
+        modelValue: null,
+      } as any,
     })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    ripple.trigger('click')
-    expect(change).toHaveBeenCalledWith([1, '2', { x: 1, y: 2 }])
+    await ripple.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([[1, '2', { x: 1, y: 2 }]])
   })
 
-  it('should push value to array when toggled on and is multiple', () => {
+  it('should push value to array when toggled on and is multiple', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: 'John',
-        inputValue: [],
-      },
+        modelValue: [],
+      } as any,
     })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    ripple.trigger('click')
-    expect(change).toHaveBeenCalledWith(['John'])
+    await ripple.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([['John']])
   })
 
-  it('should push array value to array when toggled on and is multiple', () => {
+  it('should push array value to array when toggled on and is multiple', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 2, { x: 1, y: 2 }],
-        inputValue: ['Existing'],
-      },
+        modelValue: ['Existing'],
+      } as any,
     })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    ripple.trigger('click')
-    expect(change).toHaveBeenCalledWith(['Existing', [1, 2, { x: 1, y: 2 }]])
+    await ripple.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([['Existing', [1, 2, { x: 1, y: 2 }]]])
   })
 
-  it('should return null when toggled off with a specified array value', () => {
+  it('should return null when toggled off with a specified array value', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         multiple: false, // must use multiple flag for array values
         value: ['John'],
-        inputValue: ['John'],
-      },
+        modelValue: ['John'],
+      } as any,
     })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    ripple.trigger('click')
-    expect(change).toHaveBeenCalledWith(null)
+    await ripple.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([null])
   })
 
-  it('should remove value(s) from array when toggled off and multiple', () => {
+  it('should remove value(s) from array when toggled off and multiple', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: 1,
-        inputValue: [1, 2, 1, 3],
-      },
+        modelValue: [1, 2, 1, 3],
+      } as any,
     })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    ripple.trigger('click')
-    expect(change).toHaveBeenCalledWith([2, 3])
+    await ripple.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([[2, 3]])
   })
 
-  it('should remove value(s) from array when toggled off and multiple - with objects', () => {
+  it('should remove value(s) from array when toggled off and multiple - with objects', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: { a: 1 },
-        inputValue: [{ a: 1 }, { b: 1 }, { a: 1 }, { c: 1 }],
-      },
+        modelValue: [{ a: 1 }, { b: 1 }, { a: 1 }, { c: 1 }],
+      } as any,
     })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
-    ripple.trigger('click')
-    expect(change).toHaveBeenCalledWith([{ b: 1 }, { c: 1 }])
+    await ripple.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([[{ b: 1 }, { c: 1 }]])
   })
 
-  it('should work with custom true- and false-value', () => {
+  it('should work with custom true- and false-value', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         trueValue: 'on',
         falseValue: 'off',
-        inputValue: null,
-      },
+        modelValue: null,
+      } as any,
     })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
+    await ripple.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual(['on'])
 
-    ripple.trigger('click')
-    expect(change).toHaveBeenCalledWith('on')
+    await ripple.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![1]).toEqual(['off'])
 
-    ripple.trigger('click')
-    expect(change).toHaveBeenCalledWith('off')
-
-    expect(change).toHaveBeenCalledTimes(2)
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(2)
   })
 
   // https://github.com/vuetifyjs/vuetify/issues/2119
   it('should put id on internal input', () => {
     const wrapper = mountFunction({
-      propsData: { id: 'foo' },
+      props: { id: 'foo' } as any,
     })
 
     const input = wrapper.find('input')
     expect(input.element.id).toBe('foo')
   })
 
-  it('should use custom icons', () => {
+  it('should use custom icons', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         indeterminateIcon: 'fizzbuzz',
         onIcon: 'foo',
         offIcon: 'bar',
         indeterminate: true,
         value: 'fizz',
-      },
+      } as any,
     })
 
     expect(wrapper.html()).toMatchSnapshot()
-    wrapper.setProps({ inputValue: true })
+    await wrapper.setProps({ modelValue: true } as any)
     expect(wrapper.html()).toMatchSnapshot()
-    wrapper.setProps({ inputValue: false })
+    await wrapper.setProps({ modelValue: false } as any)
     expect(wrapper.html()).toMatchSnapshot()
   })
 
   it('should render themed component', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         light: true,
-      },
+      } as any,
     })
 
     expect(wrapper.html()).toMatchSnapshot()
@@ -351,7 +328,7 @@ describe('VCheckbox.ts', () => { // eslint-disable-line max-statements
 
   it('should be disabled', () => {
     const wrapper = mountFunction({
-      propsData: { disabled: true },
+      props: { disabled: true } as any,
     })
     const input = wrapper.find('input')
 
@@ -360,9 +337,37 @@ describe('VCheckbox.ts', () => { // eslint-disable-line max-statements
 
   it('should be render colored checkbox', () => {
     const wrapper = mountFunction({
-      propsData: { color: 'yellow' },
+      props: { color: 'yellow' } as any,
     })
 
     expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should apply classes to root element', () => {
+    const wrapper = mountFunction({
+      props: {
+        modelValue: true,
+        class: 'shrink mr-2 mt-0',
+      } as any,
+    })
+
+    const rootElement = wrapper.element
+
+    // Проверяем что корневой элемент имеет основные классы VInput
+    expect(rootElement.classList.contains('v-input')).toBe(true)
+    expect(rootElement.classList.contains('v-input--selection-controls')).toBe(true)
+    expect(rootElement.classList.contains('v-input--checkbox')).toBe(true)
+    expect(rootElement.classList.contains('v-input--is-dirty')).toBe(true)
+
+    // Проверяем что переданные классы применены к корневому элементу
+    expect(rootElement.classList.contains('shrink')).toBe(true)
+    expect(rootElement.classList.contains('mr-2')).toBe(true)
+    expect(rootElement.classList.contains('mt-0')).toBe(true)
+
+    // Проверяем что HTML input НЕ содержит эти классы
+    const input = wrapper.find('input')
+    expect(input.element.classList.contains('shrink')).toBe(false)
+    expect(input.element.classList.contains('mr-2')).toBe(false)
+    expect(input.element.classList.contains('mt-0')).toBe(false)
   })
 })
