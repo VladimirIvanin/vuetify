@@ -5,10 +5,10 @@ import { mount, enableAutoUnmount } from '@vue/test-utils'
 
 function genDependentMixin () {
   return defineComponent({
-    mixins: [dependent, toggleable.factory('value')],
+    mixins: [dependent, toggleable.factory('open')],
 
     props: {
-      value: Boolean,
+      open: Boolean,
     },
 
     render () {
@@ -35,9 +35,9 @@ describe('dependent.ts', () => {
 
   it('should set open dependents value to false when deactivated', async () => {
     const ChildComponent = defineComponent({
-      mixins: [dependent, toggleable.factory('value')],
+      mixins: [dependent, toggleable.factory('open')],
       props: {
-        value: Boolean,
+        open: Boolean,
       },
       render () {
         return h('div', 'child')
@@ -45,19 +45,19 @@ describe('dependent.ts', () => {
     })
 
     const wrapper = mount(genDependentMixin(), {
-      props: { value: false },
+      props: { open: false },
       slots: {
-        default: () => h(ChildComponent, { value: false }),
+        default: () => h(ChildComponent, { open: false }),
       },
     })
 
-    await wrapper.setProps({ value: true })
+    await wrapper.setProps({ open: true })
     await nextTick()
 
     // Parent should be active
     expect(wrapper.vm.isActive).toBe(true)
 
-    await wrapper.setProps({ value: false })
+    await wrapper.setProps({ open: false })
     await nextTick()
 
     // Parent should be deactivated
@@ -66,9 +66,9 @@ describe('dependent.ts', () => {
 
   it('should conditionally get open dependents', async () => {
     const ChildComponent = defineComponent({
-      mixins: [dependent, toggleable.factory('value')],
+      mixins: [dependent, toggleable.factory('open')],
       props: {
-        value: Boolean,
+        open: Boolean,
       },
       render () {
         return h('div', 'child')
@@ -76,9 +76,9 @@ describe('dependent.ts', () => {
     })
 
     const wrapper = mount(genDependentMixin(), {
-      props: { value: false },
+      props: { open: false },
       slots: {
-        default: () => h(ChildComponent, { value: false }),
+        default: () => h(ChildComponent, { open: false }),
       },
     })
 
@@ -98,9 +98,9 @@ describe('dependent.ts', () => {
 
   it('should get open dependent elements', async () => {
     const ChildComponent1 = defineComponent({
-      mixins: [dependent, toggleable.factory('value')],
+      mixins: [dependent, toggleable.factory('open')],
       props: {
-        value: Boolean,
+        open: Boolean,
       },
       render () {
         return h('div', 'child1')
@@ -108,9 +108,9 @@ describe('dependent.ts', () => {
     })
 
     const ChildComponent2 = defineComponent({
-      mixins: [dependent, toggleable.factory('value')],
+      mixins: [dependent, toggleable.factory('open')],
       props: {
-        value: Boolean,
+        open: Boolean,
       },
       render () {
         return h('div', 'fizzbuzz')
@@ -124,11 +124,11 @@ describe('dependent.ts', () => {
     })
 
     const wrapper = mount(genDependentMixin(), {
-      props: { value: false },
+      props: { open: false },
       slots: {
         default: () => [
-          h(ChildComponent1, { value: false }),
-          h(ChildComponent2, { value: false }),
+          h(ChildComponent1, { open: false }),
+          h(ChildComponent2, { open: false }),
           h(SimpleComponent),
         ],
       },
