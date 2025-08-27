@@ -8,7 +8,7 @@ import colors from '../../util/colors'
 
 // Types
 import { VuetifyThemeVariant } from 'types/services/theme'
-import { VNode, VNodeDirective } from 'vue'
+import { VNode, VNodeDirective, ObjectDirective } from 'vue'
 
 interface BorderModifiers {
   top?: Boolean
@@ -71,9 +71,15 @@ function setGradientColor (
 function updateColor (
   el: HTMLElement,
   binding: VNodeDirective,
-  node: VNode
+  vnode: VNode
 ) {
-  const currentTheme = node.context!.$vuetify.theme.currentTheme
+  let currentTheme = vnode.ctx?.$vuetify?.theme?.currentTheme
+
+  if (!currentTheme && binding.instance) {
+    currentTheme = (binding.instance as any).$vuetify?.theme?.currentTheme
+  }
+
+  if (!currentTheme) return
 
   if (binding.arg === undefined) {
     setBackgroundColor(el, binding.value, currentTheme)
@@ -86,19 +92,19 @@ function updateColor (
   }
 }
 
-function update (
+function updated (
   el: HTMLElement,
   binding: VNodeDirective,
-  node: VNode
+  vnode: VNode
 ) {
   if (binding.value === binding.oldValue) return
 
-  updateColor(el, binding, node)
+  updateColor(el, binding, vnode)
 }
 
-export const Color = {
-  bind: updateColor,
-  update,
+export const Color: ObjectDirective = {
+  mounted: updateColor,
+  updated,
 }
 
 export default Color
