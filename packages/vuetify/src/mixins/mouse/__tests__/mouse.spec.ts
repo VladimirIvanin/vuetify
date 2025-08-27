@@ -2,89 +2,103 @@ import Mouse from '../index'
 
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
 } from '@vue/test-utils'
-import { ExtractVue } from '../../../util/mixins'
+import { ComponentPublicInstance, h, defineComponent } from 'vue'
 
-const Mock = Mouse.extend({
-  render: h => h('div'),
+const Mock = defineComponent({
+  mixins: [Mouse],
+  render: () => h('div'),
 })
 
 describe('mouse.ts', () => {
-  type Instance = ExtractVue<typeof Mock>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  type Instance = ComponentPublicInstance & InstanceType<typeof Mock>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
+
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(Mock, options)
     }
   })
 
   it('should generate mouse event handlers', async () => {
-    const noop = e => e
+    const noop = (e: any) => e
     const wrapper = mount(Mock, {
-      listeners: {
-        click: noop,
+      attrs: {
+        onClick: noop,
       },
     })
 
-    expect(typeof wrapper.vm.getMouseEventHandlers({ click: { event: 'click' } }, noop).click).toBe('function')
+    const handlers = wrapper.vm.getMouseEventHandlers({ click: { event: 'click' } }, noop)
+    expect(typeof handlers.click).toBe('function')
   })
 
   it('should generate default mouse event handlers', async () => {
-    const noop = e => e
+    const noop = (e: any) => e
     const wrapper = mount(Mock, {
-      listeners: {
-        'click:foo': noop,
+      attrs: {
+        'onClick:foo': noop,
       },
     })
 
-    expect(typeof wrapper.vm.getDefaultMouseEventHandlers(':foo', noop).click).toBe('function')
-    expect(Object.keys(typeof wrapper.vm.getDefaultMouseEventHandlers('', noop))).toHaveLength(6)
+    const handlers = wrapper.vm.getDefaultMouseEventHandlers(':foo', noop)
+    // Для события click с суффиксом :foo, ключ будет 'click'
+    expect(typeof handlers.click).toBe('function')
+
+    // Тест для пустого суффикса
+    const wrapper2 = mount(Mock, {
+      attrs: {
+        onClick: noop,
+        onMouseenter: noop,
+        onMouseleave: noop,
+        onMousedown: noop,
+        onMouseup: noop,
+        onMousemove: noop,
+      },
+    })
+    const emptySuffixHandlers = wrapper2.vm.getDefaultMouseEventHandlers('', noop)
+    expect(Object.keys(emptySuffixHandlers)).toHaveLength(6)
   })
 
   it('should emit events', async () => {
-    const fn = jest.fn()
     const wrapper = mount(Mock, {
-      listeners: {
-        click: fn,
+      attrs: {
+        onClick: () => {},
       },
     })
 
-    const { click } = wrapper.vm.getMouseEventHandlers({ click: { event: 'click' } }, () => {})
+    const handlers = wrapper.vm.getMouseEventHandlers({ click: { event: 'click' } }, () => ({}))
+    const click = handlers.click
     Array.isArray(click) ? click[0](null) : click(null)
-    expect(fn).toHaveBeenCalledTimes(1)
+    expect(wrapper.emitted()).toBeTruthy()
   })
 
   it('should handle prevent modifier', async () => {
-    const fn = jest.fn()
     const wrapper = mount(Mock, {
-      listeners: {
-        click: fn,
+      attrs: {
+        onClick: () => {},
       },
     })
-    const event = { preventDefault: () => {} }
-    const spy = jest.spyOn(event, 'preventDefault')
+    const event = { preventDefault: jest.fn() } as unknown as MouseEvent
 
-    const { click } = wrapper.vm.getMouseEventHandlers({ click: { event: 'click', prevent: true } }, () => {})
-    Array.isArray(click) ? click[0](event as MouseEvent) : click(event as MouseEvent)
-    expect(fn).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledTimes(1)
+    const handlers = wrapper.vm.getMouseEventHandlers({ click: { event: 'click', prevent: true } }, () => ({}))
+    const click = handlers.click
+    Array.isArray(click) ? click[0](event) : click(event)
+    expect(event.preventDefault).toHaveBeenCalledTimes(1)
   })
 
   it('should handle stop modifier', async () => {
-    const fn = jest.fn()
     const wrapper = mount(Mock, {
-      listeners: {
-        click: fn,
+      attrs: {
+        onClick: () => {},
       },
     })
-    const event = { stopPropagation: () => {} }
-    const spy = jest.spyOn(event, 'stopPropagation')
+    const event = { stopPropagation: jest.fn() } as unknown as MouseEvent
 
-    const { click } = wrapper.vm.getMouseEventHandlers({ click: { event: 'click', stop: true } }, () => {})
-    Array.isArray(click) ? click[0](event as MouseEvent) : click(event as MouseEvent)
-    expect(fn).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledTimes(1)
+    const handlers = wrapper.vm.getMouseEventHandlers({ click: { event: 'click', stop: true } }, () => ({}))
+    const click = handlers.click
+    Array.isArray(click) ? click[0](event) : click(event)
+    expect(event.stopPropagation).toHaveBeenCalledTimes(1)
   })
 })

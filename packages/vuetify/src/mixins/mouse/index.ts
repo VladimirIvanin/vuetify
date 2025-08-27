@@ -1,4 +1,5 @@
-import {defineComponent} from 'vue'
+import { defineComponent } from 'vue'
+import { upperFirst } from '../../util/helpers'
 
 export type MouseHandler = (e: MouseEvent | TouchEvent) => any
 
@@ -12,6 +13,7 @@ export type MouseEvents = {
     prevent?: boolean
     button?: number
     result?: any
+    originalKey?: string
   }
 }
 
@@ -19,9 +21,8 @@ export type MouseEventsMap = {
   [event: string]: MouseHandler | MouseHandler[]
 }
 
-function mapEventName(str) {
-  let newStr = "on" + str;
-  return newStr.charAt(0).toUpperCase() + newStr.slice(1);
+function mapEventName (str: string): string {
+  return `on${upperFirst(str)}`
 }
 
 export default defineComponent({
@@ -32,7 +33,11 @@ export default defineComponent({
       const listeners = Object.keys(this.$attrs)
         .filter(key => key.endsWith(suffix))
         .reduce((acc, key) => {
-          acc[key] = { event: key.slice(0, -suffix.length) }
+          const eventName = suffix ? key.slice(0, -suffix.length) : key
+          // Убираем префикс 'on' из имени события и приводим к нижнему регистру
+          const cleanEventName = eventName.startsWith('on') ? eventName.slice(2).toLowerCase() : eventName.toLowerCase()
+          // Сохраняем оригинальный ключ для поиска в $attrs
+          acc[cleanEventName] = { event: cleanEventName, originalKey: key }
           return acc
         }, {} as MouseEvents)
 
@@ -47,7 +52,9 @@ export default defineComponent({
       for (const event in events) {
         const eventOptions = events[event]
 
-        if (!this.$attrs[mapEventName(event)]) continue
+        // Для событий с суффиксом нужно искать атрибут с суффиксом
+        const attrName = eventOptions.originalKey || (event.includes(':') ? event : mapEventName(event))
+        if (!this.$attrs[attrName]) continue
 
         // TODO somehow pull in modifiers
 
