@@ -27,7 +27,7 @@ import { getSlot } from '../../util/helpers'
 
 // Types
 import { VNode } from 'vue'
-import { Route } from 'vue-router'
+import { RouteLocationNormalized } from 'vue-router'
 
 const baseMixins = mixins(
   BindsAttrs,
@@ -44,7 +44,7 @@ interface options extends ExtractVue<typeof baseMixins> {
   $refs: {
     group: HTMLElement
   }
-  $route: Route
+  $route: RouteLocationNormalized
 }
 
 export default baseMixins.extend({
