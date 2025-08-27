@@ -106,8 +106,10 @@ export default mixins(
 
   render (): VNode {
     const data = this.setBackgroundColor(this.color, {
-      class: 'v-footer',
-      class: this.classes,
+      class: {
+        'v-footer': true,
+        ...this.classes,
+      },
       style: this.styles,
     })
 
