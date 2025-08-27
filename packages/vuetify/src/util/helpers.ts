@@ -371,21 +371,6 @@ export function searchItems<T extends any = any> (items: T[], search: string): T
   return items.filter((item: any) => Object.keys(item).some(key => defaultFilter(getObjectValueByPath(item, key), search, item)))
 }
 
-/**
- * Returns:
- *  - 'normal' for old style slots - `<template slot="default">`
- *  - 'scoped' for old style scoped slots (`<template slot="default" slot-scope="data">`) or bound v-slot (`#default="data"`)
- *  - 'v-slot' for unbound v-slot (`#default`) - only if the third param is true, otherwise counts as scoped
- */
-export function getSlotType<T extends boolean = false> (vm: Vue, name: string, split?: T): (T extends true ? 'v-slot' : never) | 'normal' | 'scoped' | void {
-  if (vm.$slots.hasOwnProperty(name) && (vm.$slots[name] as any).name) {
-    return split ? 'v-slot' as any : 'scoped'
-  }
-  if (vm.$slots.hasOwnProperty(name)) return 'normal'
-  if (vm.$slots.hasOwnProperty(name)) return 'scoped'
-  return 'scoped'
-}
-
 export function debounce (fn: Function, delay: number) {
   let timeoutId = 0 as any
   return (...args: any[]) => {
@@ -537,7 +522,9 @@ export function normalizeAttrs (attrs) {
  * @param classes - классы в виде строки, объекта или массива
  * @returns объект с нормализованными классами
  */
-export function normalizeClasses (classes: string | Record<string, any> | Array<string | Record<string, any>> | undefined): Record<string, any> {
+export function normalizeClasses (
+  classes: string | Record<string, any> | Array<string | Record<string, any>> | undefined
+): Record<string, any> {
   if (!classes) return {}
 
   if (typeof classes === 'object' && !Array.isArray(classes)) {

@@ -9,7 +9,7 @@ import Dependent from '../../mixins/dependent'
 import Menuable from '../../mixins/menuable'
 
 // Helpers
-import { convertToUnit, keyCodes, getSlotType } from '../../util/helpers'
+import { convertToUnit, keyCodes } from '../../util/helpers'
 import { consoleError } from '../../util/console'
 
 // Types
@@ -142,9 +142,6 @@ export default mixins(Colorable, Delayable, Dependent, Menuable).extend({
   },
 
   mounted () {
-    if (getSlotType(this, 'activator', true) === 'v-slot') {
-      consoleError(`v-tooltip's activator slot must be bound, try '<template #activator="data"><v-btn v-on="data.on>'`, this)
-    }
   },
 
   methods: {
