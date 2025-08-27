@@ -4,6 +4,7 @@ exports[`activatable.ts should render activator slot with hover 1`] = `
 <div>
   <button aria-haspopup="true"
           aria-expanded="false"
+          value="false"
   >
   </button>
 </div>
@@ -14,6 +15,7 @@ exports[`activatable.ts should render activator slot with listeners 1`] = `
   <button role="button"
           aria-haspopup="true"
           aria-expanded="false"
+          value="false"
   >
   </button>
 </div>

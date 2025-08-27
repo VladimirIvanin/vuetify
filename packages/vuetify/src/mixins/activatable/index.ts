@@ -78,7 +78,13 @@ export default baseMixins.extend({
       const keys = Object.keys(this.listeners)
 
       for (const key of keys) {
-        this.getActivator()!.addEventListener(key, this.listeners[key] as any)
+        let eventName = 'click'
+        if (key === 'onClick') eventName = 'click'
+        else if (key === 'onMouseenter') eventName = 'mouseenter'
+        else if (key === 'onMouseleave') eventName = 'mouseleave'
+        else if (key === 'onFocus') eventName = 'focus'
+
+        this.getActivator()!.addEventListener(eventName, this.listeners[key] as any)
       }
     },
     genActivator () {
@@ -148,7 +154,8 @@ export default baseMixins.extend({
       let activator = null
 
       if (this.activator) {
-        const target = this.internalActivator ? this.$el : document
+        // In Vue 3, we need to handle $el differently
+        const target = this.internalActivator ? (this.$el || document) : document
 
         if (typeof this.activator === 'string') {
           // Selector
@@ -208,7 +215,14 @@ export default baseMixins.extend({
       const keys = Object.keys(this.listeners)
 
       for (const key of keys) {
-        (this.activatorElement as any).removeEventListener(key, this.listeners[key])
+        // Convert 'onClick' to 'click' for removeEventListener
+        let eventName = 'click' // default
+        if (key === 'onClick') eventName = 'click'
+        else if (key === 'onMouseenter') eventName = 'mouseenter'
+        else if (key === 'onMouseleave') eventName = 'mouseleave'
+        else if (key === 'onFocus') eventName = 'focus'
+
+        (this.activatorElement as any).removeEventListener(eventName, this.listeners[key])
       }
 
       this.listeners = {}
