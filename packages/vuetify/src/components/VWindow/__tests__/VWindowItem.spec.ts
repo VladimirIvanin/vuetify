@@ -1,205 +1,217 @@
 // Libraries
-import { h, nextTick } from 'vue'
+import { h, nextTick } from "vue";
 
 // Components
-import VWindow from '../VWindow'
-import VWindowItem from '../VWindowItem'
+import VWindow from "../VWindow";
+import VWindowItem from "../VWindowItem";
 
 // Utilities
 import {
   mount,
   VueWrapper,
   MountingOptions,
-  enableAutoUnmount,
-} from '@vue/test-utils'
-import { waitAnimationFrame } from '../../../../test'
+  enableAutoUnmount
+} from "@vue/test-utils";
+import { waitAnimationFrame } from "../../../../test";
 
-describe('VWindowItem.ts', () => {
-  type Instance = InstanceType<typeof VWindowItem>
-  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
+describe("VWindowItem.ts", () => {
+  type Instance = InstanceType<typeof VWindowItem>;
+  let mountFunction: (
+    options?: MountingOptions<Instance>
+  ) => VueWrapper<Instance>;
 
   // Включаем автоматическое размонтирование после каждого теста
-  enableAutoUnmount(afterEach)
+  enableAutoUnmount(afterEach);
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
       return mount(VWindowItem, {
         global: {
           config: {
-            warnHandler: () => {}, // Подавляем предупреждения Vue
-          },
+            warnHandler: () => {} // Подавляем предупреждения Vue
+          }
         },
-        ...options,
-      })
-    }
-  })
+        ...options
+      });
+    };
+  });
 
   // eslint-disable-next-line max-statements
-  it('should transition content', async () => {
+  it("should transition content", async () => {
     const wrapper = mount(VWindow, {
       slots: {
-        default: () => [h(VWindowItem)],
+        default: () => [h(VWindowItem)]
       },
       global: {
         config: {
-          warnHandler: () => {}, // Подавляем предупреждения Vue
+          warnHandler: () => {} // Подавляем предупреждения Vue
         },
         mocks: {
           $vuetify: {
-            rtl: false,
-          },
-        },
-      },
-    })
+            rtl: false
+          }
+        }
+      }
+    });
 
-    await waitAnimationFrame()
+    await waitAnimationFrame();
 
-    const item = wrapper.findComponent(VWindowItem)
+    const item = wrapper.findComponent(VWindowItem);
+    const windowVm = wrapper.vm as any;
+    const itemVm = item.vm as any;
+
     // Before enter
-    expect(wrapper.vm.isActive).toBeFalsy()
-    expect(wrapper.vm.transitionHeight).toBeUndefined()
-    item.vm.onBeforeTransition()
-    expect(wrapper.vm.isActive).toBeTruthy()
-    expect(wrapper.vm.transitionHeight).toBe('0px')
+    expect(windowVm.isActive).toBeFalsy();
+    expect(windowVm.transitionHeight).toBeUndefined();
+    itemVm.onBeforeTransition();
+    expect(windowVm.isActive).toBeTruthy();
+    expect(windowVm.transitionHeight).toBe("0px");
 
     // Enter
-    const el = { clientHeight: 50 }
-    item.vm.onEnter(el)
-    await wrapper.vm.$nextTick()
-    expect(wrapper.vm.transitionHeight).toBe('50px')
+    const el = { clientHeight: 50 };
+    itemVm.onEnter(el);
+    await nextTick();
+    expect(windowVm.transitionHeight).toBe("50px");
 
     // After enter
-    item.vm.onAfterTransition()
-    expect(wrapper.vm.transitionHeight).toBeUndefined()
-    expect(wrapper.vm.isActive).toBeFalsy()
+    itemVm.onAfterTransition();
+    expect(windowVm.transitionHeight).toBeUndefined();
+    expect(windowVm.isActive).toBeFalsy();
 
     // Canceling
-    item.vm.onBeforeTransition()
-    item.vm.onEnter(el)
-    item.vm.onTransitionCancelled()
+    itemVm.onBeforeTransition();
+    itemVm.onEnter(el);
+    itemVm.onTransitionCancelled();
 
-    expect(item.vm.inTransition).toBeFalsy()
-    expect(wrapper.vm.isActive).toBeFalsy()
+    expect(itemVm.inTransition).toBeFalsy();
+    expect(windowVm.isActive).toBeFalsy();
 
     // Normal path.
-    item.vm.onBeforeTransition()
-    expect(wrapper.vm.isActive).toBeTruthy()
-    item.vm.onAfterTransition()
+    itemVm.onBeforeTransition();
+    expect(windowVm.isActive).toBeTruthy();
+    itemVm.onAfterTransition();
 
-    expect(wrapper.vm.isActive).toBeFalsy()
-  })
+    expect(windowVm.isActive).toBeFalsy();
+  });
 
-  it('should use custom transition', async () => {
+  it("should use custom transition", async () => {
     const wrapper = mountFunction({
       props: {
-        transition: 'foo',
-        reverseTransition: 'bar',
+        transition: "foo",
+        reverseTransition: "bar"
       },
       data: () => ({
         windowGroup: {
           internalReverse: false,
           register: () => {},
-          unregister: () => {},
-        },
-      }),
-    })
+          unregister: () => {}
+        }
+      })
+    });
 
-    expect(wrapper.vm.computedTransition).toBe('foo')
+    const vm = wrapper.vm as any;
 
-    await wrapper.setProps({ transition: false })
-    await nextTick()
+    expect(vm.computedTransition).toBe("foo");
+
+    await wrapper.setProps({ transition: false });
+    await nextTick();
     // В Vue 3 нужно дождаться обновления computed
-    expect(wrapper.vm.computedTransition).toBe('')
+    expect(vm.computedTransition).toBe("");
 
-    wrapper.vm.windowGroup.internalReverse = true
-    await nextTick()
-    expect(wrapper.vm.computedTransition).toBe('bar')
+    vm.windowGroup.internalReverse = true;
+    await nextTick();
+    expect(vm.computedTransition).toBe("bar");
 
-    await wrapper.setProps({ reverseTransition: false })
-    await nextTick()
-    expect(wrapper.vm.computedTransition).toBe('')
-  })
+    await wrapper.setProps({ reverseTransition: false });
+    await nextTick();
+    expect(vm.computedTransition).toBe("");
+  });
 
-  it('should not set initial height if no computedTransition', async () => {
-    const heightChanged = jest.fn()
+  it("should not set initial height if no computedTransition", async () => {
+    const heightChanged = jest.fn();
     const wrapper = mount(VWindow, {
       props: {
         transition: false,
-        reverseTransition: false,
+        reverseTransition: false
       },
       watch: {
-        transitionHeight: heightChanged,
+        transitionHeight: heightChanged
       },
       slots: {
-        default: () => [h(VWindowItem)],
+        default: () => [h(VWindowItem)]
       },
       global: {
         config: {
-          warnHandler: () => {}, // Подавляем предупреждения Vue
+          warnHandler: () => {} // Подавляем предупреждения Vue
         },
         mocks: {
           $vuetify: {
-            rtl: false,
-          },
-        },
-      },
-    })
+            rtl: false
+          }
+        }
+      }
+    });
 
-    const item = wrapper.findComponent(VWindowItem)
-    expect(wrapper.vm.computedTransition).toBeFalsy()
+    const item = wrapper.findComponent(VWindowItem);
+    const windowVm = wrapper.vm as any;
+    const itemVm = item.vm as any;
 
-    item.vm.onBeforeTransition()
-    expect(wrapper.vm.isActive).toBeTruthy()
+    expect(windowVm.computedTransition).toBeFalsy();
+
+    itemVm.onBeforeTransition();
+    expect(windowVm.isActive).toBeTruthy();
     // В Vue 3 watch может не срабатывать сразу, поэтому проверяем после nextTick
-    await nextTick()
-    expect(heightChanged).toHaveBeenCalledTimes(1)
+    await nextTick();
+    expect(heightChanged).toHaveBeenCalledTimes(1);
 
-    item.vm.onEnter(wrapper.element)
-    await waitAnimationFrame()
-    expect(wrapper.vm.isActive).toBeTruthy()
+    itemVm.onEnter(wrapper.element);
+    await waitAnimationFrame();
+    expect(windowVm.isActive).toBeTruthy();
 
-    expect(heightChanged).toHaveBeenCalledTimes(1)
-  })
+    expect(heightChanged).toHaveBeenCalledTimes(1);
+  });
 
-  it('should increase and decrease transition count correctly', () => {
+  it("should increase and decrease transition count correctly", () => {
     const wrapper = mount(VWindow, {
       slots: {
-        default: () => [h(VWindowItem), h(VWindowItem), h(VWindowItem)],
+        default: () => [h(VWindowItem), h(VWindowItem), h(VWindowItem)]
       },
       global: {
         config: {
-          warnHandler: () => {}, // Подавляем предупреждения Vue
+          warnHandler: () => {} // Подавляем предупреждения Vue
         },
         mocks: {
           $vuetify: {
-            rtl: false,
-          },
-        },
-      },
-    })
+            rtl: false
+          }
+        }
+      }
+    });
 
-    const items = wrapper.vm.items as any[]
-    expect(items).toHaveLength(3)
+    const windowVm = wrapper.vm as any;
+    const items = windowVm.items as any[];
+    expect(items).toHaveLength(3);
 
-    expect(wrapper.vm.transitionCount).toBe(0)
-    expect(wrapper.vm.isActive).toBeFalsy()
-    items[0].onBeforeTransition()
-    expect(wrapper.vm.transitionCount).toBe(1)
-    expect(wrapper.vm.isActive).toBeTruthy()
-    items[1].onBeforeTransition()
-    expect(wrapper.vm.transitionCount).toBe(2)
-    expect(wrapper.vm.isActive).toBeTruthy()
-    items[0].onTransitionCancelled()
-    expect(wrapper.vm.transitionCount).toBe(1)
-    expect(wrapper.vm.isActive).toBeTruthy()
-    items[2].onBeforeTransition()
-    expect(wrapper.vm.transitionCount).toBe(2)
-    expect(wrapper.vm.isActive).toBeTruthy()
-    items[1].onAfterTransition()
-    expect(wrapper.vm.transitionCount).toBe(1)
-    expect(wrapper.vm.isActive).toBeTruthy()
-    items[2].onAfterTransition()
-    expect(wrapper.vm.transitionCount).toBe(0)
-    expect(wrapper.vm.isActive).toBeFalsy()
-  })
-})
+    expect(windowVm.transitionCount).toBe(0);
+    expect(windowVm.isActive).toBeFalsy();
+    items[0].onBeforeTransition();
+    expect(windowVm.transitionCount).toBe(1);
+    expect(windowVm.isActive).toBeTruthy();
+    items[1].onBeforeTransition();
+    expect(windowVm.transitionCount).toBe(2);
+    expect(windowVm.isActive).toBeTruthy();
+    items[0].onTransitionCancelled();
+    expect(windowVm.transitionCount).toBe(1);
+    expect(windowVm.isActive).toBeTruthy();
+    items[2].onBeforeTransition();
+    expect(windowVm.transitionCount).toBe(2);
+    expect(windowVm.isActive).toBeTruthy();
+    items[1].onAfterTransition();
+    expect(windowVm.transitionCount).toBe(1);
+    expect(windowVm.isActive).toBeTruthy();
+    items[2].onAfterTransition();
+    expect(windowVm.transitionCount).toBe(0);
+    expect(windowVm.isActive).toBeFalsy();
+  });
+});
+
