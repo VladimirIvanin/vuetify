@@ -1,36 +1,29 @@
 // Libraries
-import Vue from 'vue'
-
-// Plugins
-import Router from 'vue-router'
+import { h } from 'vue'
 
 // Components
 import VChipGroup from '../VChipGroup'
 
 // Utilities
 import {
-  createLocalVue,
   mount,
-  Wrapper,
+  VueWrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 
 describe('VChipGroup.ts', () => {
-  let mountFunction: (options?: object) => Wrapper<Vue>
-  let router: Router
-  let localVue: typeof Vue
+  let mountFunction: (options?: object) => VueWrapper<any>
+
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
-    router = new Router()
-    localVue = createLocalVue()
-    localVue.use(Router)
-
     mountFunction = (options = {}) => {
       return mount(VChipGroup, {
-        localVue,
-        router,
-        mocks: {
-          $vuetify: {
-            breakpoint: {},
+        global: {
+          mocks: {
+            $vuetify: {
+              breakpoint: {},
+            },
           },
         },
         ...options,
@@ -47,7 +40,7 @@ describe('VChipGroup.ts', () => {
 
   it('should render column', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         column: true,
       },
     })
@@ -56,13 +49,13 @@ describe('VChipGroup.ts', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it('should switch to column', () => {
+  it('should switch to column', async () => {
     const wrapper = mountFunction()
 
     expect(wrapper.classes()).not.toContain('v-chip-group--column')
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       column: true,
     })
 
