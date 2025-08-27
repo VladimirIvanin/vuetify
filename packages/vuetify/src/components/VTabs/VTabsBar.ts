@@ -13,7 +13,7 @@ import SSRBootable from '../../mixins/ssr-bootable'
 import mixins from '../../util/mixins'
 
 // Types
-import { Route } from 'vue-router'
+import { RouteLocationNormalized } from 'vue-router'
 import { VNode } from 'vue'
 
 type VTabInstance = InstanceType<typeof VTab>
@@ -64,7 +64,7 @@ export default mixins(
 
       return render
     },
-    onRouteChange (val: Route, oldVal: Route) {
+    onRouteChange (val: RouteLocationNormalized, oldVal: RouteLocationNormalized) {
       /* istanbul ignore next */
       if (this.mandatory) return
 
