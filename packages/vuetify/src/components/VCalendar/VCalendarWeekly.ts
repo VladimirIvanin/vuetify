@@ -114,13 +114,16 @@ export default defineComponent({
 
       return h('div', this.setTextColor(color, {
         key: day.date,
-        class: 'v-calendar-weekly__head-weekday',
-        class: this.getRelativeClasses(day, outside),
+        class: {
+          'v-calendar-weekly__head-weekday': true,
+          ...this.getRelativeClasses(day, outside),
+        },
         attrs: {
           role: 'columnheader',
         },
       }), this.weekdayFormatter(day, this.shortWeekdays))
     },
+
     genWeeks (): VNode[] {
       const days = this.days
       const weekDays = this.parsedWeekdays.length
@@ -168,8 +171,10 @@ export default defineComponent({
 
       return h('div', {
         key: day.date,
-        class: 'v-calendar-weekly__day',
-        class: this.getRelativeClasses(day, outside),
+        class: {
+          'v-calendar-weekly__day': true,
+          ...this.getRelativeClasses(day, outside),
+        },
         attrs: {
           role: 'cell',
         },
@@ -215,8 +220,10 @@ export default defineComponent({
 
   render (): VNode {
     return h('div', {
-      class: this.staticClass,
-      class: this.classes,
+      class: {
+        ...this.staticClass,
+        ...this.classes,
+      },
       on: {
         dragstart: (e: MouseEvent) => {
           e.preventDefault()

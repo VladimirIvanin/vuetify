@@ -250,8 +250,8 @@ export default defineComponent({
       const scope = { eventParsed: event, day, start, end, timed: false }
 
       return this.genEvent(event, scope, false, {
-        class: 'v-event',
         class: {
+          'v-event': true,
           'v-event-start': start,
           'v-event-end': end,
         },
@@ -375,8 +375,9 @@ export default defineComponent({
       const eventMarginBottom = this.eventMarginBottom
 
       return h('div', {
-        class: 'v-event-more pl-1',
         class: {
+          'v-event-more': true,
+          'pl-1': true,
           'v-outside': day.outside,
         },
         attrs: {

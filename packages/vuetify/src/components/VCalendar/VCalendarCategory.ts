@@ -81,18 +81,19 @@ export default defineComponent({
       })
       return days
     },
-    genDay (day: CalendarTimestamp, index: number, categoryIndex: number): VNode {
-      const category = this.parsedCategories[categoryIndex]
+    genDay (day: CalendarTimestamp): VNode {
       return h('div', {
-        key: day.date + '-' + categoryIndex,
-        class: 'v-calendar-daily__day',
-        class: this.getRelativeClasses(day),
-        on: this.getDefaultMouseEventHandlers(':time', e => {
-          return this.getSlotScope(this.getTimestampAtEvent(e, day))
+        key: day.date,
+        class: {
+          'v-calendar-daily__day': true,
+          ...this.getRelativeClasses(day),
+        },
+        on: this.getDefaultMouseEventHandlers(':day', nativeEvent => {
+          return { nativeEvent, ...this.getSlotScope(day) }
         }),
       }, [
-        ...this.genDayIntervals(index, category),
-        ...this.genDayBody(day, category),
+        this.genDayLabel(day),
+        ...this.genDayBody(day),
       ])
     },
     genDayIntervals (index: number, category: CalendarCategory): VNode[] {
