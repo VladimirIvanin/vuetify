@@ -1,3 +1,4 @@
+import { defineComponent, h } from 'vue'
 import Roundable from '../'
 import {
   mount,
@@ -5,11 +6,12 @@ import {
   Wrapper,
 } from '@vue/test-utils'
 
-describe('rippleable.ts', () => {
-  const Mock = Roundable.extend({
-    render (h) {
+describe('roundable.ts', () => {
+  const Mock = defineComponent({
+    mixins: [Roundable],
+    render () {
       return h('div', {
-        class: this.roundableClasses,
+        class: this.roundedClasses,
       })
     },
   })
@@ -31,7 +33,7 @@ describe('rippleable.ts', () => {
     [{ rounded: false }, {}],
     [{ rounded: 'tr-xl br-lg' }, { 'rounded-tr-xl rounded-br-lg': true }],
   ])('should return correct rounded classes', (propsData, expected: any) => {
-    const wrapper = mountFunction({ propsData })
+    const wrapper = mountFunction({ props: propsData })
 
     expect(wrapper.vm.roundedClasses).toEqual(expected)
   })
