@@ -5,6 +5,7 @@ import Mobile from '../'
 import { mount, Wrapper } from '@vue/test-utils'
 import { preset } from '../../../presets/default'
 import { resizeWindow } from '../../../../test'
+import { defineComponent, h } from 'vue'
 
 // Types
 import { Breakpoint } from '../../../services/breakpoint'
@@ -14,16 +15,18 @@ describe('mobile.ts', () => {
   let mountFunction: (options?: object) => Wrapper<Instance>
 
   beforeEach(() => {
-    const Mock = {
+    const Mock = defineComponent({
       mixins: [Mobile],
-      render: h => h('div'),
-    }
+      render: () => h('div'),
+    })
 
     mountFunction = (options = {}) => {
       return mount(Mock, {
         ...options,
-        mocks: {
-          $vuetify: { breakpoint: new Breakpoint(preset) },
+        global: {
+          mocks: {
+            $vuetify: { breakpoint: new Breakpoint(preset) },
+          },
         },
       })
     }
@@ -45,7 +48,7 @@ describe('mobile.ts', () => {
     await resizeWindow(resizeTo as number)
 
     const wrapper = mountFunction({
-      propsData: { mobileBreakpoint },
+      props: { mobileBreakpoint },
     })
 
     expect(wrapper.vm.isMobile).toBe(isMobile)
