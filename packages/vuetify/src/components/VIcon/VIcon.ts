@@ -7,10 +7,10 @@ import Sizeable from '../../mixins/sizeable'
 import Themeable from '../../mixins/themeable'
 
 // Util
-import { convertToUnit, keys, remapInternalIcon } from '../../util/helpers'
+import { convertToUnit, keys, remapInternalIcon, getSlot } from '../../util/helpers'
 
 // Types
-import { defineComponent, CreateElement, VNode, VNodeChildren, VNodeData, h } from 'vue'
+import { defineComponent, VNode, h } from 'vue'
 import mixins from '../../util/mixins'
 import { VuetifyIcon, VuetifyIconComponent } from 'vuetify/types/services/icons'
 import { normalizeAttrs } from '../../util/helpers'
@@ -69,11 +69,12 @@ const VIcon = mixins(
   methods: {
     getIcon (): VuetifyIcon {
       let iconName = ''
-      if (this.$slots.default) {
-        const children = this.$slots.default()[0].children
-        if(typeof children === 'string')
-          iconName = this.$slots.default()[0].children!.trim()
-
+      const slotContent = getSlot(this, 'default')
+      if (slotContent && slotContent.length > 0) {
+        const firstSlot = slotContent[0]
+        if (firstSlot && typeof firstSlot.children === 'string') {
+          iconName = firstSlot.children.trim()
+        }
       }
       return remapInternalIcon(this, iconName)
     },
@@ -93,8 +94,8 @@ const VIcon = mixins(
       )
     },
     // Component data for both font icon and SVG wrapper span
-    getDefaultData (): VNodeData {
-      const data = {
+    getDefaultData (): Record<string, any> {
+      const data: Record<string, any> = {
         class: {
           'v-icon--disabled': this.disabled,
           'v-icon--left': this.left,
@@ -129,12 +130,12 @@ const VIcon = mixins(
 
       return wrapperData
     },
-    applyColors (data: VNodeData): void {
+    applyColors (data: Record<string, any>): void {
       data.class = { ...data.class, ...this.themeClasses }
       this.setTextColor(this.color, data)
     },
     renderFontIcon (icon: string): VNode {
-      const newChildren: VNodeChildren = []
+      const newChildren: any[] = []
       let data = this.getDefaultData()
 
       let iconType = 'material-icons'
@@ -152,7 +153,7 @@ const VIcon = mixins(
       }
 
       if(typeof data.class === 'string') {
-        data.class = data.class.split(' ').reduce((classes, className) => {
+        data.class = data.class.split(' ').reduce((classes: Record<string, any>, className: string) => {
           classes[className] = true
           return classes
         }, {})
@@ -169,14 +170,12 @@ const VIcon = mixins(
       return h(this.hasClickListener ? 'button' : this.tag, normalizeAttrs(data), {default: () => newChildren})
     },
     renderSvgIcon (icon: string): VNode {
-      const svgData: VNodeData = {
+      const svgData: Record<string, any> = {
         class: 'v-icon__svg',
-        attrs: {
-          xmlns: 'http://www.w3.org/2000/svg',
-          viewBox: '0 0 24 24',
-          role: 'img',
-          'aria-hidden': true,
-        },
+        xmlns: 'http://www.w3.org/2000/svg',
+        viewBox: '0 0 24 24',
+        role: 'img',
+        'aria-hidden': true,
       }
 
       const size = this.getSize()
@@ -191,9 +190,7 @@ const VIcon = mixins(
       return h(this.hasClickListener ? 'button' : 'span', this.getSvgWrapperData(), [
         h('svg', svgData, [
           h('path', {
-            attrs: {
-              d: icon,
-            },
+            d: icon,
           }),
         ]),
       ])
@@ -201,7 +198,7 @@ const VIcon = mixins(
     renderSvgIconComponent (
       icon: VuetifyIconComponent
     ): VNode {
-      const data: VNodeData = {
+      const data: Record<string, any> = {
         class: {
           'v-icon__component': true,
         },
@@ -219,7 +216,7 @@ const VIcon = mixins(
       this.applyColors(data)
 
       const component = icon.component
-      data.props = icon.props
+      Object.assign(data, icon.props)
       data.nativeOn = data.on
 
       return h(this.hasClickListener ? 'button' : 'span', this.getSvgWrapperData(), {default: () =>[
@@ -240,7 +237,7 @@ const VIcon = mixins(
 
     return this.renderSvgIconComponent(icon)
   },
-})
+}) as any
 
 export default defineComponent({
   name: 'v-icon',
@@ -248,10 +245,6 @@ export default defineComponent({
   $_wrapperFor: VIcon,
 
   functional: true,
-
-  mounted() {
-    this.$el.innerHTML = ''
-  },
 
   render (): VNode {
     const data = { ...this.$attrs }
