@@ -1,10 +1,9 @@
-import {h} from 'vue'
+import { h, VNode } from 'vue'
 import './VSimpleTable.sass'
 
 import { convertToUnit, getSlot } from '../../util/helpers'
 import Themeable from '../../mixins/themeable'
 import mixins from '../../util/mixins'
-import { VNode } from 'vue'
 
 export default mixins(Themeable).extend({
   name: 'v-simple-table',
@@ -21,8 +20,8 @@ export default mixins(Themeable).extend({
         'v-data-table--dense': this.dense,
         'v-data-table--fixed-height': !!this.height && !this.fixedHeader,
         'v-data-table--fixed-header': this.fixedHeader,
-        'v-data-table--has-top': !!this.$slots.top,
-        'v-data-table--has-bottom': !!this.$slots.bottom,
+        'v-data-table--has-top': !!getSlot(this, 'top'),
+        'v-data-table--has-bottom': !!getSlot(this, 'bottom'),
         ...this.themeClasses,
       }
     },
@@ -30,24 +29,32 @@ export default mixins(Themeable).extend({
 
   methods: {
     genWrapper () {
-      return this.$slots.wrapper || h('div', {
+      const wrapperSlot = getSlot(this, 'wrapper')
+      return wrapperSlot ? wrapperSlot() : h('div', {
         class: 'v-data-table__wrapper',
         style: {
           height: convertToUnit(this.height),
         },
       }, [
-        h('table', getSlot(this)),
+        h('table', getSlot(this) ? getSlot(this)() : undefined),
       ])
     },
   },
 
   render (): VNode {
+    const children = []
+    const topSlot = getSlot(this, 'top')
+    if (topSlot) {
+      children.push(topSlot())
+    }
+    children.push(this.genWrapper())
+    const bottomSlot = getSlot(this, 'bottom')
+    if (bottomSlot) {
+      children.push(bottomSlot())
+    }
+
     return h('div', {
       class: ['v-data-table', this.classes],
-    }, [
-      getSlot(this, 'top'),
-      this.genWrapper(),
-      getSlot(this, 'bottom'),
-    ])
+    }, children.filter(Boolean))
   },
 })

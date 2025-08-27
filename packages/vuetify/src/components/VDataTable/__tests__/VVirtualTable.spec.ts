@@ -1,29 +1,27 @@
 import VVirtualTable from '../VVirtualTable'
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
 } from '@vue/test-utils'
-import Vue from 'vue'
+import { h } from 'vue'
 
 describe('VVirtualTable.ts', () => {
   type Instance = InstanceType<typeof VVirtualTable>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(VVirtualTable, options)
     }
   })
 
   it('should render', () => {
-    const vm = new Vue()
-
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: ['a', 'b', 'c'],
       },
-      scopedSlots: {
-        items: props => vm.$createElement('div', { class: 'test' }, [JSON.stringify(props)]),
+      slots: {
+        items: (props: any) => h('div', { class: 'test' }, [JSON.stringify(props)]),
       },
     })
 
@@ -32,19 +30,19 @@ describe('VVirtualTable.ts', () => {
 
   it('should re-render when items change', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: ['a', 'b', 'c'],
       },
-      scopedSlots: {
-        items (props) {
-          return h('div', props.items.map(i => h('div', [i])))
+      slots: {
+        items (props: any) {
+          return h('div', props.items.map((i: any) => h('div', [i])))
         },
       },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       items: ['d', 'e', 'f'],
     })
 

@@ -153,8 +153,7 @@ export default baseMixins.extend({
 
   render (): VNode {
     return h('div', {
-      class: 'v-data-table v-virtual-table',
-      class: this.classes,
+      class: ['v-data-table', 'v-virtual-table', this.classes],
     }, [
       getSlot(this, 'top'),
       this.genWrapper(),

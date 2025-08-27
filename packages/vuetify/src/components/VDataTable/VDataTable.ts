@@ -491,13 +491,11 @@ export default mixins(
       })])
 
       return h(RowGroup, {
-        props: {
-          value: isExpanded,
-        },
-      }, [
-        h('template', { slot: 'row.header' }, [headerRow]),
-        h('template', { slot: 'row.content' }, [expandedRow]),
-      ])
+        value: isExpanded,
+      }, {
+        'row.header': () => headerRow,
+        'row.content': () => expandedRow,
+      })
     },
     genDefaultSimpleRow (item: any, index: number, classes: Record<string, boolean> = {}): VNode {
       const scopedSlots = getPrefixedScopedSlots('item.', this.$slots)
@@ -531,6 +529,7 @@ export default mixins(
         }, [this.expandIcon])
       }
 
+      const eventHandlers = data.on || {}
       return h(this.isMobile ? MobileRow : Row, {
         key: getObjectValueByPath(item, this.itemKey),
         class: mergeClasses(
@@ -543,7 +542,7 @@ export default mixins(
         index,
         item,
         rtl: this.$vuetify.rtl,
-        on: data.on,
+        ...eventHandlers,
       }, scopedSlots)
     },
     genBody (props: DataScopeProps): VNode | string | VNodeChildren {
