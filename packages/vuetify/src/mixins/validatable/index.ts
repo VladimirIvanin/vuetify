@@ -6,21 +6,18 @@ import { inject as RegistrableInject } from '../registrable'
 // Utilities
 import { deepEqual } from '../../util/helpers'
 import { consoleError } from '../../util/console'
-import mixins from '../../util/mixins'
+import { defineComponent, PropType } from 'vue'
 
 // Types
-import { PropValidator } from 'vue/types/options'
 import { InputMessage, InputValidationRules } from 'vuetify/types'
 
-const baseMixins = mixins(
-  Colorable,
-  RegistrableInject<'form', any>('form'),
-  Themeable,
-)
-
 /* @vue/component */
-export default baseMixins.extend({
+export default defineComponent({
   name: 'validatable',
+
+  extends: RegistrableInject<'form', any>('form'),
+
+  mixins: [Colorable, Themeable],
 
   props: {
     disabled: {
@@ -33,26 +30,26 @@ export default baseMixins.extend({
       default: 1,
     },
     errorMessages: {
-      type: [String, Array],
+      type: [String, Array] as PropType<InputMessage | null>,
       default: () => [],
-    } as PropValidator<InputMessage | null>,
+    },
     messages: {
-      type: [String, Array],
+      type: [String, Array] as PropType<InputMessage | null>,
       default: () => [],
-    } as PropValidator<InputMessage | null>,
+    },
     readonly: {
       type: Boolean,
       default: null,
     },
     rules: {
-      type: Array,
+      type: Array as PropType<InputValidationRules>,
       default: () => [],
-    } as PropValidator<InputValidationRules>,
+    },
     success: Boolean,
     successMessages: {
-      type: [String, Array],
+      type: [String, Array] as PropType<InputMessage | null>,
       default: () => [],
-    } as PropValidator<InputMessage | null>,
+    },
     validateOnBlur: Boolean,
     modelValue: { required: false },
   },
@@ -65,7 +62,7 @@ export default baseMixins.extend({
       hasInput: false,
       isFocused: false,
       isResetting: false,
-      lazyValue: this.value,
+      lazyValue: this.modelValue ?? null,
       valid: false,
     }
   },
@@ -128,6 +125,7 @@ export default baseMixins.extend({
         this.lazyValue = val
 
         this.$emit('input', val)
+        this.$emit('update:modelValue', val)
       },
     },
     isDisabled (): boolean {
