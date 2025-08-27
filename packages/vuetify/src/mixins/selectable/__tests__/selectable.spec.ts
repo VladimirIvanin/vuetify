@@ -40,4 +40,14 @@ describe('Selectable.ts', () => {
     expect(wrapper.vm.lazyValue).toBe(true)
     expect(wrapper.vm.hasColor).toBe(true)
   })
+
+  it('should handle disabled state', async () => {
+    const wrapper = mountFunction({
+      props: {
+        disabled: true,
+      },
+    })
+
+    expect(wrapper.vm.rippleState).toBeUndefined()
+  })
 })
