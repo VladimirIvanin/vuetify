@@ -4,17 +4,22 @@ import Selectable from '../index'
 // Utilities
 import {
   mount,
-  MountOptions,
-  Wrapper,
+  VueWrapper,
+  MountingOptions,
+  enableAutoUnmount,
 } from '@vue/test-utils'
+import { ComponentPublicInstance, h, defineComponent } from 'vue'
 
 describe('Selectable.ts', () => {
-  const Mock = Selectable.extend({
-    render: h => h('div'),
+  const Mock = defineComponent({
+    mixins: [Selectable],
+    render: () => h('div'),
   })
 
-  type Instance = InstanceType<typeof Mock>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  type Instance = ComponentPublicInstance & InstanceType<typeof Mock>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
+
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
@@ -30,9 +35,7 @@ describe('Selectable.ts', () => {
     expect(wrapper.vm.lazyValue).toBeUndefined()
     expect(wrapper.vm.hasColor).toBeUndefined()
 
-    wrapper.setProps({ inputValue: true })
-
-    await wrapper.vm.$nextTick()
+    await wrapper.setProps({ modelValue: true })
 
     expect(wrapper.vm.lazyValue).toBe(true)
     expect(wrapper.vm.hasColor).toBe(true)
