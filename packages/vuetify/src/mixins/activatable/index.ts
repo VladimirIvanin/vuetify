@@ -3,23 +3,17 @@ import Delayable from '../delayable'
 import Toggleable from '../toggleable'
 
 // Utilities
-import mixins from '../../util/mixins'
+import { defineComponent, VNode, PropType } from 'vue'
 import { getSlot } from '../../util/helpers'
 import { consoleError } from '../../util/console'
 
-// Types
-import { VNode, PropType } from 'vue'
-
 type Listeners = Dictionary<(e: MouseEvent & KeyboardEvent & FocusEvent) => void>
 
-const baseMixins = mixins(
-  Delayable,
-  Toggleable
-)
-
 /* @vue/component */
-export default baseMixins.extend({
+export default defineComponent({
   name: 'activatable',
+
+  mixins: [Delayable, Toggleable],
 
   props: {
     activator: {
@@ -61,9 +55,9 @@ export default baseMixins.extend({
   },
 
   computed: {
-    isActivatable() {
+    isActivatable () {
       return true
-    }
+    },
   },
 
   methods: {
@@ -92,7 +86,7 @@ export default baseMixins.extend({
         attrs: {
           ...this.genActivatorListeners(),
           ...this.genActivatorAttributes(),
-        }
+        },
       })) || []
 
       node = Array.isArray(node) ? node : [node]
@@ -168,7 +162,6 @@ export default baseMixins.extend({
           activator = this.activator
         }
       } else if (this.activatorNode.length === 1 || (this.activatorNode.length && !e)) {
-
         // Use the contents of the activator slot
         // There's either only one element in it or we
         // don't have a click event to use as a last resort
@@ -217,10 +210,15 @@ export default baseMixins.extend({
       for (const key of keys) {
         // Convert 'onClick' to 'click' for removeEventListener
         let eventName = 'click' // default
-        if (key === 'onClick') eventName = 'click'
-        else if (key === 'onMouseenter') eventName = 'mouseenter'
-        else if (key === 'onMouseleave') eventName = 'mouseleave'
-        else if (key === 'onFocus') eventName = 'focus'
+        if (key === 'onClick') {
+          eventName = 'click'
+        } else if (key === 'onMouseenter') {
+          eventName = 'mouseenter'
+        } else if (key === 'onMouseleave') {
+          eventName = 'mouseleave'
+        } else if (key === 'onFocus') {
+          eventName = 'focus'
+        }
 
         (this.activatorElement as any).removeEventListener(eventName, this.listeners[key])
       }
@@ -232,6 +230,6 @@ export default baseMixins.extend({
       this.activatorElement = null
       this.getActivator()
       this.addActivatorEvents()
-    }
+    },
   },
 })

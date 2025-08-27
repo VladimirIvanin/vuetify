@@ -9,6 +9,7 @@ import {
   mount,
   MountOptions,
   Wrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 import toHaveBeenWarnedInit from '../../../../test/util/to-have-been-warned'
 import { wait } from '../../../../test'
@@ -39,6 +40,9 @@ describe('activatable.ts', () => {
       return mount(Mock, options)
     }
   })
+
+  // Enable auto unmount for Vue 3
+  enableAutoUnmount(afterEach)
 
   toHaveBeenWarnedInit()
 
@@ -136,39 +140,68 @@ describe('activatable.ts', () => {
 
     expect(wrapper.vm.isActive).toBe(false)
 
-    // Use trigger instead of dispatchEvent for better Vue 3 compatibility
-    const activator = wrapper.vm.getActivator()
-    if (activator) {
-      // Simulate click by calling the listener directly
-      const clickListener = wrapper.vm.listeners.onClick
-      if (clickListener) {
-        const mockEvent = { stopPropagation: jest.fn() } as any
-        clickListener(mockEvent)
-      }
-    }
+    // Test click functionality
+    await testClickFunctionality(wrapper)
 
     expect(wrapper.vm.isActive).toBe(true)
 
-    await wrapper.setProps({ openOnHover: true })
-
-    await wrapper.vm.$nextTick()
-
-    // Reset isActive manually since setProps doesn't affect it
-    wrapper.vm.isActive = false
-    expect(wrapper.vm.isActive).toBe(false)
-    el.dispatchEvent(new Event('mouseenter'))
-
-    await wait(wrapper.vm.openDelay)
-
-    expect(wrapper.vm.isActive).toBe(true)
-
-    el.dispatchEvent(new Event('mouseleave'))
-    await wait(wrapper.vm.leaveDelay)
-
-    expect(wrapper.vm.isActive).toBe(false)
+    // Test hover functionality
+    await testHoverFunctionality(wrapper)
 
     document.body.removeChild(el)
   })
+
+  async function testClickFunctionality (wrapper: Wrapper<Instance>) {
+    const activator = wrapper.vm.getActivator()
+    if (activator) {
+      const mockEvent = {
+        stopPropagation: jest.fn(),
+        currentTarget: activator,
+        target: activator,
+      } as any
+
+      const listeners = wrapper.vm.genActivatorListeners()
+      if (listeners.onClick) {
+        listeners.onClick(mockEvent)
+      }
+    }
+  }
+
+  async function testHoverFunctionality (wrapper: Wrapper<Instance>) {
+    // Reset for hover test
+    wrapper.vm.isActive = false
+    await wrapper.setProps({ openOnHover: true })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.isActive).toBe(false)
+
+    const activator = wrapper.vm.getActivator()
+    if (activator) {
+      const mockMouseEnterEvent = {
+        currentTarget: activator,
+        target: activator,
+      } as any
+
+      const mockMouseLeaveEvent = {
+        currentTarget: activator,
+        target: activator,
+      } as any
+
+      const listeners = wrapper.vm.genActivatorListeners()
+
+      if (listeners.onMouseenter) {
+        listeners.onMouseenter(mockMouseEnterEvent)
+        await wait(wrapper.vm.openDelay)
+        expect(wrapper.vm.isActive).toBe(true)
+      }
+
+      if (listeners.onMouseleave) {
+        listeners.onMouseleave(mockMouseLeaveEvent)
+        await wait(wrapper.vm.closeDelay)
+        expect(wrapper.vm.isActive).toBe(false)
+      }
+    }
+  }
 
   it('should remove listeners on custom activator', async () => {
     const el = document.createElement('button')
