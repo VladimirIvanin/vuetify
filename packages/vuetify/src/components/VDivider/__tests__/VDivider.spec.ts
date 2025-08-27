@@ -1,26 +1,22 @@
-// Libraries
-import Vue from 'vue'
-
 // Components
 import VDivider from '../VDivider'
 
 // Utilities
 import {
-  createLocalVue,
   mount,
-  Wrapper,
+  VueWrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 
 describe('VDivider', () => {
-  let mountFunction: (options?: object) => Wrapper<Vue>
-  let localVue: typeof Vue
+  type Instance = InstanceType<typeof VDivider>
+  let mountFunction: (options?: object) => VueWrapper<Instance>
+
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
-    localVue = createLocalVue()
-
     mountFunction = (options = {}) => {
       return mount(VDivider, {
-        localVue,
         ...options,
       })
     }
@@ -34,7 +30,7 @@ describe('VDivider', () => {
 
   it('should render an inset component', () => {
     const wrapper = mountFunction({
-      propsData: { inset: true },
+      props: { inset: true },
     })
 
     expect(wrapper.classes('v-divider--inset')).toBe(true)
@@ -42,7 +38,7 @@ describe('VDivider', () => {
 
   it('should render a light component', () => {
     const wrapper = mountFunction({
-      propsData: { light: true },
+      props: { light: true },
     })
 
     expect(wrapper.classes('theme--light')).toBe(true)
@@ -50,7 +46,7 @@ describe('VDivider', () => {
 
   it('should render a dark component', () => {
     const wrapper = mountFunction({
-      propsData: { dark: true },
+      props: { dark: true },
     })
 
     expect(wrapper.classes('theme--dark')).toBe(true)
@@ -58,7 +54,7 @@ describe('VDivider', () => {
 
   it('should render a vertical component', () => {
     const wrapper = mountFunction({
-      propsData: { vertical: true },
+      props: { vertical: true },
     })
 
     expect(wrapper.classes('v-divider--vertical')).toBe(true)
@@ -78,7 +74,7 @@ describe('VDivider', () => {
 
   it('should have aria-orientation vertical if vertical prop is set', () => {
     const wrapper = mountFunction({
-      propsData: { vertical: true },
+      props: { vertical: true },
     })
 
     expect(wrapper.attributes('aria-orientation')).toBe('vertical')

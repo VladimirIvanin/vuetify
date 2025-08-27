@@ -19,12 +19,12 @@ import ripple from '../../directives/ripple'
 
 // Utilities
 import { attachedRoot } from '../../util/dom'
-import { convertToUnit, getSlot, keyCodes } from '../../util/helpers'
+import { convertToUnit, getSlot, keyCodes, normalizeClasses } from '../../util/helpers'
 import { breaking, consoleWarn } from '../../util/console'
 
 // Types
 import mixins from '../../util/mixins'
-import { VNode, PropType } from 'vue/types'
+import { VNode, PropType } from 'vue'
 import { withDirectives, h } from 'vue'
 
 const baseMixins = mixins(
@@ -52,6 +52,8 @@ const dirtyTypes = ['color', 'file', 'time', 'date', 'datetime-local', 'week', '
 /* @vue/component */
 export default baseMixins.extend({
   name: 'v-text-field',
+
+  inheritAttrs: false,
 
   directives: {
     resize,
@@ -193,6 +195,14 @@ export default baseMixins.extend({
     labelValue (): boolean {
       return this.isFocused || this.isLabelActive || this.persistentPlaceholder
     },
+    // Only pass class and style to root div, everything else goes to input
+    rootAttrs (): object {
+      const { class: classList, style: styleList } = this.$attrs
+      return {
+        ...(styleList ? { style: styleList } : {}),
+        class: undefined // class will be handled separately in render
+      }
+    },
   },
 
   watch: {
@@ -207,7 +217,7 @@ export default baseMixins.extend({
     isFocused: 'updateValue',
     modelValue (val) {
       this.lazyValue = val
-    },
+    }
   },
 
   created () {
@@ -262,7 +272,7 @@ export default baseMixins.extend({
       const slot = []
 
       if (this.$slots['append-outer']) {
-        slot.push(this.$slots['append-outer'] as VNode[])
+        slot.push(this.$slots['append-outer']() as VNode[])
       } else if (this.appendOuterIcon) {
         slot.push(this.genIcon('appendOuter'))
       }
@@ -284,7 +294,7 @@ export default baseMixins.extend({
       const slot = []
 
       if (this.$slots.append) {
-        slot.push(this.$slots.append as VNode[])
+        slot.push(this.$slots.append() as VNode[])
       } else if (this.appendIcon) {
         slot.push(this.genIcon('append'))
       }
@@ -368,7 +378,9 @@ export default baseMixins.extend({
         value: this.labelValue
       }
 
-      return h(VLabel, data, getSlot(this, 'label') || this.label)
+      return h(VLabel, data, {
+        default: () => getSlot(this, "label") || this.label
+      });
     },
     genLegend () {
       const width = !this.singleLine && (this.labelValue || this.isDirty) ? this.labelWidth : 0
@@ -385,11 +397,11 @@ export default baseMixins.extend({
     },
     genInput () {
       const listeners = Object.assign({}, this.listeners$)
-      delete listeners.change // Change should not be bound externally
-      const { title, ...inputAttrs } = this.attrs$
+      delete listeners.change
+
+      const { class: _, style: __, ...inputAttrs } = this.$attrs
 
       const node = h('input', {
-        style: {},
         value: (this.type === 'number' && Object.is(this.lazyValue, -0)) ? '-0' : this.lazyValue,
         ...inputAttrs,
         autofocus: this.autofocus,
@@ -475,7 +487,7 @@ export default baseMixins.extend({
     },
     onKeyDown (e: KeyboardEvent) {
       if (
-        e.keyCode === keyCodes.enter &&
+        (e.keyCode === keyCodes.enter || e.key === 'Enter') &&
         this.lazyValue !== this.initialValue
       ) {
         this.initialValue = this.lazyValue
@@ -543,5 +555,16 @@ export default baseMixins.extend({
       this.setPrefixWidth()
       this.setPrependWidth()
     },
+  },
+
+  render (): VNode {
+    const additionalClasses = this.rootAttrs.class
+
+    return h('div', this.setTextColor(this.validationState, {
+      ...this.rootAttrs,
+      class: {'v-input': true, ...this.classes, ...normalizeClasses(additionalClasses)},
+    }), {
+      default: () => this.genContent()
+    })
   },
 })

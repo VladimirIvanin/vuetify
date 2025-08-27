@@ -342,7 +342,9 @@ export const BaseSlideGroup = mixins<options &
       }, [slot])
     },
     genTransition (location: 'prev' | 'next') {
-      return h(VFadeTransition, [this.genIcon(location)])
+      return h(VFadeTransition, {}, {
+        default: () => [this.genIcon(location)]
+      })
     },
     genWrapper (): VNode {
       return withDirectives(h('div', {

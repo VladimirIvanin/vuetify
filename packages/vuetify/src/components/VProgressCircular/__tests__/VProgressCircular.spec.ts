@@ -4,12 +4,15 @@ import VProgressCircular from '../VProgressCircular'
 // Utilities
 import {
   mount,
-  Wrapper,
+  VueWrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 
 describe('VProgressCircular.ts', () => {
   type Instance = InstanceType<typeof VProgressCircular>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  let mountFunction: (options?: Record<string, any>) => VueWrapper<Instance>
+
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
@@ -17,12 +20,12 @@ describe('VProgressCircular.ts', () => {
     }
   })
 
-  it('should render component and match snapshot', () => {
+  it('should render component and match snapshot', async () => {
     const wrapper = mountFunction({
       data: () => ({
         isVisible: false,
       }),
-      propsData: {
+      props: {
         value: 33,
       },
       slots: {
@@ -32,32 +35,32 @@ describe('VProgressCircular.ts', () => {
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({ value: -1 })
+    await wrapper.setProps({ value: -1 })
     const htmlMinus1 = wrapper.html()
 
-    wrapper.setProps({ value: 0 })
+    await wrapper.setProps({ value: 0 })
     const html0 = wrapper.html()
 
-    wrapper.setProps({ value: 100 })
+    await wrapper.setProps({ value: 100 })
     const html100 = wrapper.html()
 
-    wrapper.setProps({ value: 101 })
+    await wrapper.setProps({ value: 101 })
     const html101 = wrapper.html()
 
     expect(htmlMinus1).toBe(html0)
     expect(html100).toBe(html101)
     expect(html0).not.toBe(html100)
 
-    wrapper.setProps({ value: '-1' })
+    await wrapper.setProps({ value: '-1' })
     const htmlMinus1String = wrapper.html()
 
-    wrapper.setProps({ value: '0' })
+    await wrapper.setProps({ value: '0' })
     const html0String = wrapper.html()
 
-    wrapper.setProps({ value: '100' })
+    await wrapper.setProps({ value: '100' })
     const html100String = wrapper.html()
 
-    wrapper.setProps({ value: '101' })
+    await wrapper.setProps({ value: '101' })
     const html101String = wrapper.html()
 
     expect(htmlMinus1String).toBe(html0String)
@@ -67,7 +70,7 @@ describe('VProgressCircular.ts', () => {
 
   it('should render component with color prop and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: 33,
         color: 'orange lighten-1',
       },
@@ -78,7 +81,7 @@ describe('VProgressCircular.ts', () => {
 
   it('should render component with button prop and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: 33,
         button: true,
       },
@@ -89,7 +92,7 @@ describe('VProgressCircular.ts', () => {
 
   it('should render component with rotate prop and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: 33,
         rotate: 29,
       },
@@ -100,7 +103,7 @@ describe('VProgressCircular.ts', () => {
 
   it('should render component with size prop and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: 33,
         size: 17,
       },
@@ -111,7 +114,7 @@ describe('VProgressCircular.ts', () => {
 
   it('should render component with indeterminate prop and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         indeterminate: true,
       },
     })
@@ -121,7 +124,7 @@ describe('VProgressCircular.ts', () => {
 
   it('should render component with width prop and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: 33,
         width: 13,
       },
@@ -132,7 +135,7 @@ describe('VProgressCircular.ts', () => {
 
   it('should render component with fill prop and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: 33,
         fill: 'green lighten-1',
       },
@@ -142,10 +145,14 @@ describe('VProgressCircular.ts', () => {
   })
 
   it('should set isVisible with onObserve', () => {
-    expect((new VProgressCircular()).isVisible).toEqual(true)
     const wrapper = mountFunction()
     expect(wrapper.vm.isVisible).toEqual(false)
-    wrapper.vm.onObserve(null, null, true)
+    
+    // Создаем мок-объекты для IntersectionObserverEntry
+    const mockEntries = [] as IntersectionObserverEntry[]
+    const mockObserver = {} as IntersectionObserver
+    
+    wrapper.vm.onObserve(mockEntries, mockObserver, true)
     expect(wrapper.vm.isVisible).toEqual(true)
   })
 })

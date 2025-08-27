@@ -66,6 +66,7 @@ export const BaseItemGroup = mixins(
         ...this.themeClasses,
       }
     },
+
     selectedIndex (): number {
       return (this.selectedItem && this.items.indexOf(this.selectedItem)) || -1
     },
@@ -136,7 +137,7 @@ export const BaseItemGroup = mixins(
 
       // If no value provided and mandatory,
       // assign first registered item
-      if (this.mandatory && !this.selectedValues.length) {
+      if (this.mandatory && this.modelValue === undefined && this.internalValue === undefined) {
         this.updateMandatory()
       }
 

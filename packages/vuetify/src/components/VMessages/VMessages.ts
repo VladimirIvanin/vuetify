@@ -30,19 +30,26 @@ export default mixins(Colorable, Themeable).extend({
         class: 'v-messages__wrapper',
         name: 'message-transition',
         tag: 'div',
-      }, this.value.map(this.genMessage))
+      }, {
+        default: () => this.value.map(this.genMessage)
+      })
     },
     genMessage (message: string, key: number) {
+      const slotContent = getSlot(this, 'default', { message, key })
       return h('div', {
         class: 'v-messages__message',
         key,
-      }, getSlot(this, 'default', { message, key }) || [message])
+      }, {
+        default: slotContent ? () => slotContent : () => message
+      })
     },
   },
 
   render (): VNode {
     return h('div', this.setTextColor(this.color, {
       class: ['v-messages', this.themeClasses],
-    }), [this.genChildren()])
+    }), {
+      default: () => [this.genChildren()]
+    })
   },
 })

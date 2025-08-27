@@ -5,15 +5,12 @@ import VTab from '../VTab'
 import {
   mount,
   RouterLinkStub,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
 
-// Types
-import { ExtractVue } from './../../../util/mixins'
-
 describe('VTab.ts', () => {
-  type Instance = ExtractVue<typeof VTab>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  type Instance = InstanceType<typeof VTab>
+  let mountFunction: (options?: object) => VueWrapper<Instance>
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
@@ -23,28 +20,33 @@ describe('VTab.ts', () => {
     }
   })
 
-  it('should have the correct value', () => {
+  it('should have the correct value', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         href: '#foo',
       },
-      mocks: {
-        $route: { path: '/' },
-        $router: {
-          resolve: to => {
-            let href
-            if (to.path) href = to.path
+      global: {
+        mocks: {
+          $route: { path: '/' },
+          $router: {
+            resolve: (to: any) => {
+              let href
+              if (to.path) href = to.path
 
-            return { href }
+              return { href }
+            },
           },
+        },
+        stubs: {
+          'router-link': RouterLinkStub,
         },
       },
     })
 
     expect(wrapper.vm.value).toBe('foo')
-    wrapper.setProps({ href: null, to: '/foo' })
+    await wrapper.setProps({ href: null, to: '/foo' })
     expect(wrapper.vm.value).toBe('/foo')
-    wrapper.setProps({ to: { path: 'bar' } })
+    await wrapper.setProps({ to: { path: 'bar' } })
     expect(wrapper.vm.value).toBe('bar')
   })
 
@@ -52,18 +54,22 @@ describe('VTab.ts', () => {
   it('should react to route change', async () => {
     const toggle = jest.fn()
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         activeClass: 'bar',
         to: 'foo',
       },
-      methods: { toggle },
-      mocks: {
-        $route: { path: '/' },
-      },
-      stubs: {
-        RouterLink: RouterLinkStub,
+      global: {
+        mocks: {
+          $route: { path: '/' },
+        },
+        stubs: {
+          'router-link': RouterLinkStub,
+        },
       },
     })
+
+    // Mock the toggle method
+    wrapper.vm.toggle = toggle
 
     // Mock route change being called
     wrapper.vm.onRouteChange()
@@ -73,15 +79,19 @@ describe('VTab.ts', () => {
 
     // explicitly mock class added
     // by vue router
-    ;(wrapper.vm.$refs.link as any)._vnode.data = {
-      class: { 'bar v-tab--active': true },
+    if (wrapper.vm.$refs.link) {
+      ;(wrapper.vm.$refs.link as any)._vnode = {
+        data: {
+          class: { 'bar v-tab--active': true },
+        }
+      }
     }
     ;(wrapper.vm as any).$route.path = '/foo'
 
     wrapper.vm.onRouteChange()
     await wrapper.vm.$nextTick()
 
-    wrapper.setProps({ to: undefined })
+    await wrapper.setProps({ to: undefined })
 
     wrapper.vm.onRouteChange()
     await wrapper.vm.$nextTick()
@@ -89,26 +99,27 @@ describe('VTab.ts', () => {
     expect(toggle).toHaveBeenCalledTimes(1)
   })
 
-  it('should respond to clicks and mousedown.enter', () => {
+  it('should respond to clicks and mousedown.enter', async () => {
     const event = { preventDefault: jest.fn() }
     const toggle = jest.fn()
-    const wrapper = mountFunction({
-      methods: { toggle },
-    })
+    const wrapper = mountFunction()
 
-    wrapper.trigger('click', event)
+    // Mock the toggle method
+    wrapper.vm.toggle = toggle
+
+    await wrapper.trigger('click', event)
 
     expect(event.preventDefault).not.toHaveBeenCalled()
     expect(toggle).toHaveBeenCalled()
 
-    wrapper.setProps({ href: '#foo' })
+    await wrapper.setProps({ href: '#foo' })
 
-    wrapper.trigger('click', event)
+    await wrapper.trigger('click', event)
 
     expect(event.preventDefault).toHaveBeenCalled()
 
-    wrapper.trigger('keydown.enter', event)
-    wrapper.trigger('keydown.space', event)
+    await wrapper.trigger('keydown.enter', event)
+    await wrapper.trigger('keydown.space', event)
 
     expect(event.preventDefault).toHaveBeenCalledTimes(2)
     expect(toggle).toHaveBeenCalledTimes(3)

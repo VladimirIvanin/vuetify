@@ -4,12 +4,11 @@ import VBtn from '../VBtn/VBtn'
 
 // Types
 import {defineComponent, h} from 'vue'
+import { getSlot } from '../../util/helpers'
 
 /* @vue/component */
 export default defineComponent({
   name: 'v-app-bar-nav-icon',
-
-  functional: true,
 
   render () {
     const data = this.$attrs
@@ -19,8 +18,10 @@ export default defineComponent({
       icon: true,
     })
 
-    const defaultSlot = this.$slots.default?.()
+    const defaultSlot = getSlot(this)
 
-    return h(VBtn, d, defaultSlot || [h(VIcon, '$menu')])
+    return h(VBtn, d, {
+      default: () => defaultSlot || [h(VIcon, {}, { default: () => '$menu' })]
+    })
   },
 })

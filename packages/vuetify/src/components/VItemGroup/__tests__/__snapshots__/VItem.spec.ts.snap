@@ -1,11 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`VItem should match snapshot activeClass 1`] = `
+exports[`VItem should apply activeClass when active 1`] = `
 <div class>
+  State: false
 </div>
 `;
 
-exports[`VItem should match snapshot activeClass 2`] = `
+exports[`VItem should apply activeClass when active 2`] = `
 <div class="foo">
+  State: true
 </div>
 `;

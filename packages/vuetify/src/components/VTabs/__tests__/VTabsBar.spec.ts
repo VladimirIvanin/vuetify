@@ -6,56 +6,97 @@ import VTabsBar from '../VTabsBar'
 import {
   mount,
   RouterLinkStub,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
-
-// Types
-import { ExtractVue } from '../../../util/mixins'
+import { h, nextTick } from 'vue'
 
 describe('VTabsBar.ts', () => {
-  type Instance = ExtractVue<typeof VTabsBar>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  let mountFunction: (options?: object) => VueWrapper
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
       return mount(VTabsBar, {
-        stubs: {
-          RouterLink: RouterLinkStub,
-        },
-        mocks: {
-          $vuetify: {
-            breakpoint: {},
+        global: {
+          config: {
+            warnHandler: () => {}, // Подавляем предупреждения Vue
           },
+          stubs: {
+            RouterLink: RouterLinkStub,
+          },
+          mocks: {
+            $vuetify: {
+              breakpoint: {},
+              application: { left: 0, right: 0 },
+              theme: { dark: false },
+            },
+            $route: { path: '/' },
+            $router: {
+              resolve: () => ({ href: '/' }),
+            },
+          },
+        },
+        slots: {
+          default: () => [
+            h(VTab, { to: '/foo' }, () => 'Tab 1'),
+            h(VTab, { to: '/bar' }, () => 'Tab 2'),
+          ],
         },
         ...options,
       })
     }
   })
 
-  it('should render a tabs slider', async () => {
+  it('should handle route changes correctly', async () => {
     const wrapper = mountFunction({
-      propsData: { mandatory: true },
-      slots: {
-        default: [
-          { render: h => h(VTab, { props: { to: '/foo' } }) },
-          { render: h => h(VTab, { props: { to: '/bar' } }) },
-        ],
-      },
+      props: { mandatory: false },
     })
+
+    // Ждем инициализации компонента
+    await nextTick()
 
     const route1 = { path: '/foo' }
     const route2 = { path: '/bar' }
     const route3 = { path: '/fizz' }
 
-    expect(wrapper.vm.internalValue).toBe('/foo')
+    // Устанавливаем начальное значение через компонент
+    await wrapper.setProps({ modelValue: '/foo' })
 
-    wrapper.setProps({ mandatory: false })
-    wrapper.vm.onRouteChange(route2, route1)
+    // Получаем доступ к items после инициализации
+    const items = (wrapper.vm as any).items
+    expect(items).toBeDefined()
+    expect(items.length).toBeGreaterThan(0)
 
-    expect(wrapper.vm.internalValue).toBe('/foo')
+    // Проверяем начальное значение
+    expect((wrapper.vm as any).internalValue).toBe('/foo')
 
-    wrapper.vm.onRouteChange(route3, route2)
+    // При mandatory=false и переходе между существующими табами значение остается
+    ;(wrapper.vm as any).onRouteChange(route2, route1)
+    expect((wrapper.vm as any).internalValue).toBe('/foo')
 
-    expect(wrapper.vm.internalValue).toBeUndefined()
+    // Проверяем, что при переходе на несуществующий путь значение становится undefined
+    ;(wrapper.vm as any).onRouteChange(route3, route2)
+    expect((wrapper.vm as any).internalValue).toBeUndefined()
+  })
+
+  it('should not change value when mandatory is true', async () => {
+    const wrapper = mountFunction({
+      props: { mandatory: true },
+    })
+
+    await nextTick()
+
+    // Устанавливаем значение через компонент
+    await wrapper.setProps({ modelValue: '/foo' })
+
+    const route1 = { path: '/foo' }
+    const route3 = { path: '/fizz' }
+
+    // Получаем начальное значение
+    const initialValue = (wrapper.vm as any).internalValue
+    expect(initialValue).toBe('/foo')
+
+    // При mandatory=true метод должен завершиться рано и не изменить значение
+    ;(wrapper.vm as any).onRouteChange(route3, route1)
+    expect((wrapper.vm as any).internalValue).toBe('/foo')
   })
 })

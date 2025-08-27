@@ -13,7 +13,7 @@ import intersect, { Intersect } from '../../directives/intersect'
 // Mixins
 import Colorable from '../../mixins/colorable'
 import { factory as PositionableFactory } from '../../mixins/positionable'
-import Proxyable from '../../mixins/proxyable'
+import { factory as ProxyableFactory } from '../../mixins/proxyable'
 import Themeable from '../../mixins/themeable'
 
 // Utilities
@@ -21,13 +21,12 @@ import { convertToUnit, getSlot } from '../../util/helpers'
 import mixins from '../../util/mixins'
 
 // Types
-import { FunctionalComponentOptions } from 'vue/types'
 import { VNode } from 'vue'
 
 const baseMixins = mixins(
   Colorable,
   PositionableFactory(['absolute', 'fixed', 'top', 'bottom']),
-  Proxyable,
+  ProxyableFactory('modelValue', 'update:modelValue'),
   Themeable
 )
 
@@ -63,11 +62,16 @@ export default baseMixins.extend({
       default: 4,
     },
     indeterminate: Boolean,
+    modelValue: {
+      type: [Number, String],
+      default: 0,
+    },
     query: Boolean,
     reverse: Boolean,
     rounded: Boolean,
     stream: Boolean,
     striped: Boolean,
+    // Оставляем value для обратной совместимости
     value: {
       type: [Number, String],
       default: 0,
@@ -76,7 +80,7 @@ export default baseMixins.extend({
 
   data () {
     return {
-      internalLazyValue: this.value || 0,
+      internalLazyValue: this.modelValue || this.value || 0,
       isVisible: true,
     }
   },
@@ -89,7 +93,9 @@ export default baseMixins.extend({
       }))
     },
     __cachedBar (): VNode {
-      return h(this.computedTransition, [this.__cachedBarType])
+      return h(this.computedTransition, {}, {
+        default: () => [this.__cachedBarType]
+      })
     },
     __cachedBarType (): VNode {
       return this.indeterminate ? this.__cachedIndeterminate : this.__cachedDeterminate
@@ -154,7 +160,7 @@ export default baseMixins.extend({
         ...this.themeClasses,
       }
     },
-    computedTransition (): FunctionalComponentOptions {
+    computedTransition (): any {
       return this.indeterminate ? VFadeTransition : VSlideXTransition
     },
     isReversed (): boolean {
@@ -167,7 +173,7 @@ export default baseMixins.extend({
       return this.normalize(this.internalLazyValue)
     },
     reactive (): boolean {
-      return Boolean(this.$listeners.change)
+      return Boolean(this.$listeners.onChange) || Boolean(this.$listeners['onUpdate:modelValue'])
     },
     styles (): object {
       const styles: Record<string, any> = {}
@@ -184,17 +190,32 @@ export default baseMixins.extend({
     },
   },
 
+  watch: {
+    modelValue (val) {
+      this.internalLazyValue = val
+    },
+    value (val) {
+      this.internalLazyValue = val
+    },
+  },
+
   methods: {
     genContent () {
       const slot = getSlot(this, 'default', { value: this.internalLazyValue })
 
       if (!slot) return null
 
-      return h('div', {
-        class: 'v-progress-linear__content',
-      }, slot)
+      return h(
+        "div",
+        {
+          class: "v-progress-linear__content"
+        },
+        {
+          default: () => slot
+        }
+      );
     },
-    genListeners () {
+    genListeners (): any {
       const listeners = this.$listeners
 
       if (this.reactive) {
@@ -203,7 +224,7 @@ export default baseMixins.extend({
 
       return listeners
     },
-    genProgressBar (name: 'long' | 'short') {
+    genProgressBar (name: 'long' | 'short'): VNode {
       return h('div', this.setBackgroundColor(this.color, {
         class: ['v-progress-linear__indeterminate',
           {
@@ -222,22 +243,21 @@ export default baseMixins.extend({
     onObserve (entries: IntersectionObserverEntry[], observer: IntersectionObserver, isIntersecting: boolean) {
       this.isVisible = isIntersecting
     },
-    normalize (value: string | number) {
-      if (value < 0) return 0
-      if (value > 100) return 100
-      return parseFloat(value)
+    normalize (value: string | number): number {
+      const numValue = typeof value === 'string' ? parseFloat(value) : value
+      if (numValue < 0) return 0
+      if (numValue > 100) return 100
+      return numValue
     },
   },
 
   render (): VNode {
     const data = {
       class: ['v-progress-linear', this.classes],
-      attrs: {
-        role: 'progressbar',
-        'aria-valuemin': 0,
-        'aria-valuemax': this.normalizedBuffer,
-        'aria-valuenow': this.indeterminate ? undefined : this.normalizedValue,
-      },
+      role: 'progressbar',
+      'aria-valuemin': 0,
+      'aria-valuemax': this.normalizedBuffer,
+      'aria-valuenow': this.indeterminate ? undefined : this.normalizedValue,
       style: {
         bottom: this.bottom ? 0 : undefined,
         height: this.active ? convertToUnit(this.height) : 0,

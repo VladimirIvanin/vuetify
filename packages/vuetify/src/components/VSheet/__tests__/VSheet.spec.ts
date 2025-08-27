@@ -1,5 +1,5 @@
 // Libraries
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 
 // Components
 import VSheet from '../VSheet'
@@ -7,11 +7,11 @@ import VSheet from '../VSheet'
 // Utilities
 import {
   shallowMount,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
 
 describe('VSheet.ts', () => {
-  let mountFunction: (options?: object) => Wrapper<Vue>
+  let mountFunction: (options?: Record<string, any>) => VueWrapper<any>
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
@@ -27,7 +27,7 @@ describe('VSheet.ts', () => {
 
   it('should render a colored paper', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         color: 'blue lighten-1',
       },
     })
@@ -38,7 +38,7 @@ describe('VSheet.ts', () => {
 
   it('should render a tile paper', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         tile: true,
       },
     })

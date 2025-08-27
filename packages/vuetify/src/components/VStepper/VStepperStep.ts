@@ -149,8 +149,10 @@ export default baseMixins.extend({
       attrs: {
         tabindex: this.editable ? 0 : -1,
       },
-      class: 'v-stepper__step',
-      class: this.classes,
+      class: {
+        'v-stepper__step': true,
+        ...this.classes,
+      },
       directives: [{
         name: 'ripple',
         value: this.editable,

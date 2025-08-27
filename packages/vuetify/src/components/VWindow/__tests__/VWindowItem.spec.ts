@@ -1,8 +1,5 @@
 // Libraries
-import Vue from 'vue'
-
-// Plugins
-import Router from 'vue-router'
+import { h, nextTick } from 'vue'
 
 // Components
 import VWindow from '../VWindow'
@@ -10,28 +7,28 @@ import VWindowItem from '../VWindowItem'
 
 // Utilities
 import {
-  createLocalVue,
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 import { waitAnimationFrame } from '../../../../test'
 
 describe('VWindowItem.ts', () => {
   type Instance = InstanceType<typeof VWindowItem>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
-  let router: Router
-  let localVue: typeof Vue
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
+
+  // Включаем автоматическое размонтирование после каждого теста
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
-    router = new Router()
-    localVue = createLocalVue()
-    localVue.use(Router)
-
     mountFunction = (options = {}) => {
       return mount(VWindowItem, {
-        localVue,
-        router,
+        global: {
+          config: {
+            warnHandler: () => {}, // Подавляем предупреждения Vue
+          },
+        },
         ...options,
       })
     }
@@ -41,18 +38,23 @@ describe('VWindowItem.ts', () => {
   it('should transition content', async () => {
     const wrapper = mount(VWindow, {
       slots: {
-        default: [VWindowItem],
+        default: () => [h(VWindowItem)],
       },
-      mocks: {
-        $vuetify: {
-          rtl: false,
+      global: {
+        config: {
+          warnHandler: () => {}, // Подавляем предупреждения Vue
+        },
+        mocks: {
+          $vuetify: {
+            rtl: false,
+          },
         },
       },
     })
 
     await waitAnimationFrame()
 
-    const item = wrapper.find(VWindowItem.options)
+    const item = wrapper.findComponent(VWindowItem)
     // Before enter
     expect(wrapper.vm.isActive).toBeFalsy()
     expect(wrapper.vm.transitionHeight).toBeUndefined()
@@ -87,9 +89,9 @@ describe('VWindowItem.ts', () => {
     expect(wrapper.vm.isActive).toBeFalsy()
   })
 
-  it('should use custom transition', () => {
+  it('should use custom transition', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         transition: 'foo',
         reverseTransition: 'bar',
       },
@@ -104,20 +106,24 @@ describe('VWindowItem.ts', () => {
 
     expect(wrapper.vm.computedTransition).toBe('foo')
 
-    wrapper.setProps({ transition: false })
+    await wrapper.setProps({ transition: false })
+    await nextTick()
+    // В Vue 3 нужно дождаться обновления computed
     expect(wrapper.vm.computedTransition).toBe('')
 
     wrapper.vm.windowGroup.internalReverse = true
+    await nextTick()
     expect(wrapper.vm.computedTransition).toBe('bar')
 
-    wrapper.setProps({ reverseTransition: false })
+    await wrapper.setProps({ reverseTransition: false })
+    await nextTick()
     expect(wrapper.vm.computedTransition).toBe('')
   })
 
   it('should not set initial height if no computedTransition', async () => {
     const heightChanged = jest.fn()
     const wrapper = mount(VWindow, {
-      propsData: {
+      props: {
         transition: false,
         reverseTransition: false,
       },
@@ -125,23 +131,30 @@ describe('VWindowItem.ts', () => {
         transitionHeight: heightChanged,
       },
       slots: {
-        default: [VWindowItem],
+        default: () => [h(VWindowItem)],
       },
-      mocks: {
-        $vuetify: {
-          rtl: false,
+      global: {
+        config: {
+          warnHandler: () => {}, // Подавляем предупреждения Vue
+        },
+        mocks: {
+          $vuetify: {
+            rtl: false,
+          },
         },
       },
     })
 
-    const item = wrapper.find(VWindowItem.options)
+    const item = wrapper.findComponent(VWindowItem)
     expect(wrapper.vm.computedTransition).toBeFalsy()
 
     item.vm.onBeforeTransition()
     expect(wrapper.vm.isActive).toBeTruthy()
+    // В Vue 3 watch может не срабатывать сразу, поэтому проверяем после nextTick
+    await nextTick()
     expect(heightChanged).toHaveBeenCalledTimes(1)
 
-    item.vm.onEnter(wrapper.$el)
+    item.vm.onEnter(wrapper.element)
     await waitAnimationFrame()
     expect(wrapper.vm.isActive).toBeTruthy()
 
@@ -151,16 +164,21 @@ describe('VWindowItem.ts', () => {
   it('should increase and decrease transition count correctly', () => {
     const wrapper = mount(VWindow, {
       slots: {
-        default: [VWindowItem, VWindowItem, VWindowItem],
+        default: () => [h(VWindowItem), h(VWindowItem), h(VWindowItem)],
       },
-      mocks: {
-        $vuetify: {
-          rtl: false,
+      global: {
+        config: {
+          warnHandler: () => {}, // Подавляем предупреждения Vue
+        },
+        mocks: {
+          $vuetify: {
+            rtl: false,
+          },
         },
       },
     })
 
-    const items = wrapper.vm.items
+    const items = wrapper.vm.items as any[]
     expect(items).toHaveLength(3)
 
     expect(wrapper.vm.transitionCount).toBe(0)

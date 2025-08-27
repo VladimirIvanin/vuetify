@@ -4,12 +4,12 @@ import VOverlay from '../VOverlay'
 // Utilities
 import {
   mount,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
 
 describe('VOverlay.ts', () => {
   type Instance = InstanceType<typeof VOverlay>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  let mountFunction: (options?: object) => VueWrapper<Instance>
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
@@ -21,18 +21,18 @@ describe('VOverlay.ts', () => {
 
   it('should have a conditional opacity', async () => {
     const wrapper = mountFunction({
-      propsData: { value: false },
+      props: { modelValue: false },
     })
 
     expect(wrapper.vm.computedOpacity).toBe(0)
 
-    wrapper.setProps({ value: true })
+    await wrapper.setProps({ modelValue: true })
     expect(wrapper.vm.computedOpacity).toBe(0.46)
 
-    wrapper.setProps({ opacity: 0.55 })
+    await wrapper.setProps({ opacity: 0.55 })
     expect(wrapper.vm.computedOpacity).toBe(0.55)
 
-    wrapper.setProps({ value: false })
+    await wrapper.setProps({ modelValue: false })
     expect(wrapper.vm.computedOpacity).toBe(0)
   })
 })

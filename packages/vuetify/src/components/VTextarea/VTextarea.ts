@@ -9,6 +9,8 @@ import mixins from '../../util/mixins'
 
 // Types
 import Vue from 'vue'
+import { withDirectives, h } from 'vue'
+import resize from '../../directives/resize'
 
 interface options extends Vue {
   $refs: {
@@ -89,15 +91,43 @@ export default baseMixins.extend({
       // to update the DOM causes ugly layout jumping
       input.style.height = Math.max(minHeight, height) + 'px'
     },
+    getInputProps () {
+      const listeners = Object.assign({}, this.listeners$)
+      delete listeners.change
+
+      const { class: _, style: __, ...inputAttrs } = this.$attrs
+
+      return {
+        ...inputAttrs,
+        autofocus: this.autofocus,
+        disabled: this.isDisabled,
+        id: this.computedId,
+        placeholder: this.persistentPlaceholder || this.isFocused || !this.hasLabel ? this.placeholder : undefined,
+        readonly: this.isReadonly,
+        onBlur: this.onBlur,
+        onInput: this.onInput,
+        onFocus: this.onFocus,
+        onKeydown: this.onKeyDown,
+        ...listeners,
+        ref: 'input',
+      }
+    },
     genInput () {
-      const input = VTextField.methods.genInput.call(this)
+      const props = this.getInputProps()
 
-      input.tag = 'textarea'
-      input.type = 'textarea'
-      delete input.props.type
-      input.rows = this.rows
+      const node = h('textarea', {
+        ...props,
+        rows: this.rows,
+      }, this.lazyValue || '')
 
-      return input
+      return withDirectives(node, [
+        [
+          resize,
+          this.onResize,
+          '',
+          { quiet: true },
+        ],
+      ])
     },
     onInput (e: Event) {
       VTextField.methods.onInput.call(this, e)

@@ -1,4 +1,4 @@
-import {h} from 'vue'
+import {h, withDirectives} from 'vue'
 // Styles
 import './VVirtualScroll.sass'
 
@@ -16,7 +16,6 @@ import {
 
 // Types
 import { VNode, defineComponent } from 'vue'
-import { PropValidator } from 'vue/types/options'
 
 export default defineComponent({
   name: 'v-virtual-scroll',
@@ -37,7 +36,7 @@ export default defineComponent({
     items: {
       type: Array,
       default: () => [],
-    } as PropValidator<any[]>,
+    },
   },
 
   data: () => ({
@@ -111,15 +110,17 @@ export default defineComponent({
       },
     }, this.getChildren())
 
-    return h('div', {
-      class: 'v-virtual-scroll',
-      style: this.measurableStyles,
-      directives: [{
-        name: 'scroll',
-        modifiers: { self: true },
-        value: this.onScroll,
-      }],
-      on: this.$listeners,
-    }, [content])
+    return withDirectives(
+      h('div', {
+        class: 'v-virtual-scroll',
+        style: this.measurableStyles,
+        ...(this as any).$listeners,
+      }, {
+        default: () => [content]
+      }),
+      [
+        [Scroll, this.onScroll, '', { self: true }]
+      ]
+    )
   },
 })

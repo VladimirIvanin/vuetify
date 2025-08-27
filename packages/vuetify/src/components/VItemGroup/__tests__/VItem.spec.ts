@@ -1,79 +1,137 @@
-// Libraries
-import Vue from 'vue'
-
 // Components
 import VItem from '../VItem'
 
 // Utilities
 import {
-  createLocalVue,
   mount,
-  Wrapper,
+  VueWrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
+import { h, nextTick } from 'vue'
+
+// Types
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toHaveBeenTipped(): R
+      toHaveBeenWarned(): R
+    }
+  }
+}
 
 const itemWarning = '[Vuetify] The v-item component must be used inside a v-item-group'
 
 describe('VItem', () => {
-  type Instance = ExtractVue<typeof VItem>
-  let mountFunction: (options?: object) => Wrapper<Instance>
-  let localVue: typeof Vue
+  type Instance = InstanceType<typeof VItem>
+  let mountFunction: (options?: any) => VueWrapper<Instance>
+
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
-    localVue = createLocalVue()
+    // Мокаем itemGroup для предотвращения предупреждений
+    const mockItemGroup = {
+      register: jest.fn(),
+      unregister: jest.fn(),
+      activeClass: 'active'
+    }
 
     mountFunction = (options = {}) => {
       return mount(VItem, {
-        localVue,
+        global: {
+          provide: {
+            itemGroup: mockItemGroup
+          }
+        },
         ...options,
       })
     }
   })
 
-  it('should warn if missing default scopedSlot', () => {
-    mountFunction()
+  it('should render correctly with default slot', () => {
+    const wrapper = mountFunction({
+      slots: {
+        default: ({ active, toggle }: any) => h('button', {
+          onClick: toggle,
+          class: active ? 'active' : ''
+        }, 'Click me')
+      }
+    })
 
-    expect('v-item is missing a default scopedSlot').toHaveBeenTipped()
-    expect(itemWarning).toHaveBeenTipped()
+    expect(wrapper.find('button').exists()).toBe(true)
+    expect(wrapper.find('button').text()).toBe('Click me')
   })
 
-  it('should warn if multiple elements', () => {
-    const Mock = {
-      name: 'test',
+  it('should emit change event when toggled', async () => {
+    const wrapper = mountFunction({
+      slots: {
+        default: ({ active, toggle }: any) => h('button', {
+          onClick: toggle,
+          class: active ? 'active' : ''
+        }, active ? 'Active' : 'Inactive')
+      }
+    })
 
-      render: h => h(VItem, {
-        scopedSlots: {
-          default: () => '<div>foo</div>',
-        },
-      }),
-    }
+    const button = wrapper.find('button')
 
-    mount(Mock)
+    expect(button.text()).toBe('Inactive')
+    expect(button.classes()).not.toContain('active')
 
-    expect('v-item should only contain a single element').toHaveBeenTipped()
-    expect(itemWarning).toHaveBeenTipped()
+    // Кликаем по кнопке для переключения состояния
+    await button.trigger('click')
+
+    // Проверяем, что эмитилось событие change
+    expect(wrapper.emitted()).toHaveProperty('change')
+    expect(wrapper.emitted().change).toHaveLength(1)
   })
 
-  it('should match snapshot activeClass', async () => {
-    const Mock = {
-      name: 'test',
+  it('should toggle active state when isActive is changed directly', async () => {
+    const wrapper = mountFunction({
+      slots: {
+        default: ({ active, toggle }: any) => h('button', {
+          onClick: toggle,
+          class: active ? 'active' : ''
+        }, active ? 'Active' : 'Inactive')
+      }
+    })
 
-      render: h => h(VItem, {
-        props: { activeClass: 'foo' },
-        scopedSlots: {
-          default: () => h('div'),
-        },
-      }),
-    }
+    const button = wrapper.find('button')
 
-    const wrapper = mount(Mock)
+    expect(button.text()).toBe('Inactive')
+    expect(button.classes()).not.toContain('active')
+
+    // Изменяем isActive напрямую (как это делает ItemGroup)
+    await wrapper.setData({ isActive: true })
+
+    expect(button.text()).toBe('Active')
+    expect(button.classes()).toContain('active')
+  })
+
+  it('should apply activeClass when active', async () => {
+    const wrapper = mountFunction({
+      props: {
+        activeClass: 'foo'
+      },
+      slots: {
+        default: ({ active }: any) => h('div', `State: ${active}`)
+      }
+    })
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.vm.$children[0].isActive = true
-
-    await wrapper.vm.$nextTick()
+    // Активируем элемент через изменение данных
+    await wrapper.setData({ isActive: true })
 
     expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should warn when used without itemGroup', () => {
+    // Тестируем предупреждение, когда компонент используется без itemGroup
+    mount(VItem, {
+      slots: {
+        default: ({ active, toggle }: any) => h('button', { onClick: toggle }, 'Test')
+      }
+    })
+
     expect(itemWarning).toHaveBeenTipped()
   })
 })

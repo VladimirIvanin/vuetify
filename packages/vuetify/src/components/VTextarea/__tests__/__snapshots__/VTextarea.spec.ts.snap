@@ -9,16 +9,27 @@ exports[`VTextarea.ts should calculate element height when using auto-grow prop 
                   rows="5"
                   style="height: 120px;"
         >
+          this
+is
+a
+really
+long
+text
+that
+should
+hopefully
+make
+auto-grow
+kick
+in.
+maybe?
         </textarea>
       </div>
     </div>
     <div class="v-text-field__details">
       <div class="v-messages theme--light primary--text">
-        <span name="message-transition"
-              tag="div"
-              class="v-messages__wrapper"
-        >
-        </span>
+        <div class="v-messages__wrapper">
+        </div>
       </div>
     </div>
   </div>

@@ -126,7 +126,7 @@ export default defineComponent({
 
       const image = this.$slots.img
         ? this.$slots.img({ props })
-        : h(VImg, { props })
+        : h(VImg, props)
 
       return h('div', {
         class: 'v-toolbar__image',

@@ -204,7 +204,7 @@ export default baseMixins.extend({
         nextIcon: this.nextIcon,
         prevIcon: this.prevIcon,
         showArrows: this.showArrows,
-        value: this.internalValue,
+        modelValue: this.internalValue,
         'onCall:slider': this.callSlider,
         'onUpdate:modelValue': (val: any) => {
           this.internalValue = val

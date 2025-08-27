@@ -158,11 +158,15 @@ export default defineComponent({
       }) ?? [h(VBtn, {
         icon: true,
         ...attrs,
-      }, [
-        h(VIcon, {
-          large: true,
-        }, icon),
-      ])]
+      }, {
+        default: () => [
+          h(VIcon, {
+            large: true,
+          }, {
+            default: () => icon
+          }),
+        ]
+      })]
 
       return h('div', {
         class: `v-window__${direction}`,

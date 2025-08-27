@@ -59,8 +59,8 @@ export default mixins(
     },
     genAmPm () {
       return h('div', {
-        class: 'v-time-picker-title__ampm',
         class: {
+          'v-time-picker-title__ampm': true,
           'v-time-picker-title__ampm--readonly': this.ampmReadonly,
         },
       }, [

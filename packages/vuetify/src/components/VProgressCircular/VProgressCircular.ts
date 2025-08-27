@@ -12,7 +12,7 @@ import Colorable from '../../mixins/colorable'
 import { convertToUnit, getSlot } from '../../util/helpers'
 
 // Types
-import { VNode, VNodeChildren, defineComponent } from 'vue'
+import { VNode, VNodeChild, defineComponent } from 'vue'
 
 /* @vue/component */
 export default defineComponent({
@@ -66,15 +66,16 @@ export default defineComponent({
     },
 
     normalizedValue (): number {
-      if (this.value < 0) {
+      const numValue = parseFloat(this.value)
+      if (numValue < 0) {
         return 0
       }
 
-      if (this.value > 100) {
+      if (numValue > 100) {
         return 100
       }
 
-      return parseFloat(this.value)
+      return numValue
     },
 
     strokeDashArray (): number {
@@ -124,7 +125,7 @@ export default defineComponent({
       const children = [
         this.indeterminate || this.genCircle('underlay', 0),
         this.genCircle('overlay', this.strokeDashOffset),
-      ] as VNodeChildren
+      ] as VNodeChild[]
 
       return h('svg', {
         style: this.svgStyles,

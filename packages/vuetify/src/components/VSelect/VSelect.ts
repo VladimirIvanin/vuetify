@@ -190,7 +190,7 @@ export default baseMixins.extend({
       return this.selectedItems.length > 0
     },
     listData (): object {
-      const scopeId = this.$vnode && (this.$vnode.context!.$options as { [key: string]: any })._scopeId
+      const scopeId = this.$options._scopeId || this.$options.__scopeId
       const attrs = scopeId ? {
         [scopeId]: true,
       } : {}

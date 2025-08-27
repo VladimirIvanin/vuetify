@@ -15,6 +15,7 @@ import {
   convertToUnit,
   getSlot,
   kebabCase,
+  normalizeClasses,
 } from '../../util/helpers'
 import mergeData from '../../util/mergeData'
 
@@ -94,7 +95,7 @@ export default baseMixins.extend({
         (this.persistentHint || this.isFocused)
     },
     hasLabel (): boolean {
-      return !!(this.$slots.label || this.label)
+      return !!(getSlot(this, 'label') || this.label)
     },
     // Proxy for `lazyValue`
     // This allows an input
@@ -157,10 +158,12 @@ export default baseMixins.extend({
       return h('div', {
         class: 'v-input__control',
         title: this.attrs$.title,
-      }, [
-        this.genInputSlot(),
-        this.genMessages(),
-      ])
+      }, {
+        default: () => [
+          this.genInputSlot(),
+          this.genMessages(),
+        ]
+      })
     },
     genDefaultSlot () {
       return [
@@ -219,13 +222,17 @@ export default baseMixins.extend({
           'v-input__icon': true,
           [`v-input__icon--${kebabCase(type)}`]: type
         },
-      }, [
-        h(
-          VIcon,
-          data,
-          icon
-        ),
-      ])
+      }, {
+        default: () => [
+          h(
+            VIcon,
+            data,
+            {
+              default: () => icon
+            }
+          ),
+        ]
+      })
     },
     genInputSlot () {
       return h('div', this.setBackgroundColor(this.backgroundColor, {
@@ -235,10 +242,14 @@ export default baseMixins.extend({
         onMousedown: this.onMouseDown,
         onMouseup: this.onMouseUp,
         ref: 'input-slot',
-      }), [this.genDefaultSlot()])
+      }), {
+        default: () => this.genDefaultSlot()
+      })
     },
     genLabel () {
       if (!this.hasLabel) return null
+
+      const slotContent = getSlot(this, 'label')
 
       return h(VLabel, {
         color: this.validationState,
@@ -247,7 +258,9 @@ export default baseMixins.extend({
         focused: this.hasState,
         for: this.computedId,
         light: this.light,
-      }, getSlot(this, 'label') || this.label)
+      }, {
+        default: slotContent ? () => slotContent : () => this.label
+      })
     },
     genMessages () {
       if (!this.showDetails) return null
@@ -274,13 +287,16 @@ export default baseMixins.extend({
       return h('div', {
         class: `v-input__${ref}`,
         ref,
-      }, slot)
+      }, {
+        default: () => slot
+      })
     },
     genPrependSlot () {
       const slot = []
 
-      if (this.$slots.prepend) {
-        slot.push(this.$slots.prepend)
+      const prependSlot = getSlot(this, 'prepend')
+      if (prependSlot) {
+        slot.push(prependSlot)
       } else if (this.prependIcon) {
         slot.push(this.genIcon('prepend'))
       }
@@ -294,8 +310,9 @@ export default baseMixins.extend({
       // an appended inner icon, v-text-field
       // will overwrite this method in order to obtain
       // backwards compat
-      if (this.$slots.append) {
-        slot.push(this.$slots.append)
+      const appendSlot = getSlot(this, 'append')
+      if (appendSlot) {
+        slot.push(appendSlot)
       } else if (this.appendIcon) {
         slot.push(this.genIcon('append'))
       }
@@ -316,8 +333,13 @@ export default baseMixins.extend({
   },
 
   render (): VNode {
+    const { class: additionalClasses, ...restAttrs } = this.attrs$ as Record<string, any>
+
     return h('div', this.setTextColor(this.validationState, {
-      class: {'v-input': true, ...this.classes},
-    }), this.genContent())
+      class: {'v-input': true, ...this.classes, ...normalizeClasses(additionalClasses)},
+      ...restAttrs
+    }), {
+      default: () => this.genContent()
+    })
   },
 })

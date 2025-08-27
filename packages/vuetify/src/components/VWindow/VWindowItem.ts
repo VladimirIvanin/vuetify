@@ -151,6 +151,8 @@ export default baseMixins.extend({
 
       // Enter handler for height transition.
       onEnter: this.onEnter,
-    }, this.showLazyContent(() => [this.genWindowItem()]))
+    }, {
+      default: () => this.showLazyContent(() => [this.genWindowItem()])
+    })
   },
 })

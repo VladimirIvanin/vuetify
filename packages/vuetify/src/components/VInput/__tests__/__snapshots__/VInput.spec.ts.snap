@@ -1,43 +1,62 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`VInput.ts should apply attrs to root element 1`] = `
+<div class="v-input theme--light"
+     foo="bar"
+>
+  <div class="v-input__control">
+    <div class="v-input__slot">
+    </div>
+    <div class="v-messages theme--light">
+      <div class="v-messages__wrapper">
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`VInput.ts should apply theme to label, counter, messages and icons 1`] = `
 <div class="v-input theme--light">
   <div class="v-input__prepend-outer">
     <div class="v-input__icon v-input__icon--prepend">
-      <i aria-hidden="true"
-         class="v-icon notranslate material-icons theme--light"
+      <span class="v-icon notranslate theme--light"
+            aria-hidden="true"
       >
-        prepend
-      </i>
+        <mdi class="v-icon__component theme--light"
+             icon="prepend"
+        >
+        </mdi>
+      </span>
     </div>
   </div>
   <div class="v-input__control">
     <div class="v-input__slot">
-      <label for="input-68"
-             class="v-label theme--light"
+      <label class="v-label theme--light"
+             for="input-50"
+             aria-hidden="false"
              style="left: 0px; position: relative;"
       >
         foo
       </label>
     </div>
     <div class="v-messages theme--light">
-      <span name="message-transition"
-            tag="div"
-            class="v-messages__wrapper"
-      >
+      <div class="v-messages__wrapper">
         <div class="v-messages__message">
           bar
         </div>
-      </span>
+      </div>
     </div>
   </div>
   <div class="v-input__append-outer">
     <div class="v-input__icon v-input__icon--append">
-      <i aria-hidden="true"
-         class="v-icon notranslate material-icons theme--light"
+      <span class="v-icon notranslate theme--light"
+            aria-hidden="true"
       >
-        append
-      </i>
+        <mdi class="v-icon__component theme--light"
+             icon="append"
+        >
+        </mdi>
+      </span>
     </div>
   </div>
 </div>
@@ -49,11 +68,8 @@ exports[`VInput.ts should be in an error state 1`] = `
     <div class="v-input__slot">
     </div>
     <div class="v-messages theme--light error--text">
-      <span name="message-transition"
-            tag="div"
-            class="v-messages__wrapper"
-      >
-      </span>
+      <div class="v-messages__wrapper">
+      </div>
     </div>
   </div>
 </div>
@@ -67,14 +83,11 @@ exports[`VInput.ts should be in an error state 2`] = `
     <div class="v-messages theme--light error--text"
          role="alert"
     >
-      <span name="message-transition"
-            tag="div"
-            class="v-messages__wrapper"
-      >
-        <div class="v-messages__message">
+      <div class="v-messages__wrapper">
+        <div class="v-messages__message message-transition-enter-from message-transition-enter-active">
           required
         </div>
-      </span>
+      </div>
     </div>
   </div>
 </div>
@@ -84,22 +97,22 @@ exports[`VInput.ts should generate an icon and match snapshot 1`] = `
 <div class="v-input theme--light">
   <div class="v-input__prepend-outer">
     <div class="v-input__icon v-input__icon--prepend">
-      <i aria-hidden="true"
-         class="v-icon notranslate material-icons theme--light"
+      <span class="v-icon notranslate theme--light"
+            aria-hidden="true"
       >
-        list
-      </i>
+        <mdi class="v-icon__component theme--light"
+             icon="list"
+        >
+        </mdi>
+      </span>
     </div>
   </div>
   <div class="v-input__control">
     <div class="v-input__slot">
     </div>
     <div class="v-messages theme--light">
-      <span name="message-transition"
-            tag="div"
-            class="v-messages__wrapper"
-      >
-      </span>
+      <div class="v-messages__wrapper">
+      </div>
     </div>
   </div>
 </div>
@@ -111,20 +124,20 @@ exports[`VInput.ts should generate an icon and match snapshot 2`] = `
     <div class="v-input__slot">
     </div>
     <div class="v-messages theme--light">
-      <span name="message-transition"
-            tag="div"
-            class="v-messages__wrapper"
-      >
-      </span>
+      <div class="v-messages__wrapper">
+      </div>
     </div>
   </div>
   <div class="v-input__append-outer">
     <div class="v-input__icon v-input__icon--append">
-      <i aria-hidden="true"
-         class="v-icon notranslate material-icons theme--light"
+      <span class="v-icon notranslate theme--light"
+            aria-hidden="true"
       >
-        list
-      </i>
+        <mdi class="v-icon__component theme--light"
+             icon="list"
+        >
+        </mdi>
+      </span>
     </div>
   </div>
 </div>
@@ -136,11 +149,8 @@ exports[`VInput.ts should generate append and prepend slots 1`] = `
     <div class="v-input__slot">
     </div>
     <div class="v-messages theme--light">
-      <span name="message-transition"
-            tag="div"
-            class="v-messages__wrapper"
-      >
-      </span>
+      <div class="v-messages__wrapper">
+      </div>
     </div>
   </div>
   <div class="v-input__append-outer">
@@ -162,27 +172,8 @@ exports[`VInput.ts should generate append and prepend slots 2`] = `
     <div class="v-input__slot">
     </div>
     <div class="v-messages theme--light">
-      <span name="message-transition"
-            tag="div"
-            class="v-messages__wrapper"
-      >
-      </span>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`VInput.ts should not apply attrs to element 1`] = `
-<div class="v-input theme--light">
-  <div class="v-input__control">
-    <div class="v-input__slot">
-    </div>
-    <div class="v-messages theme--light">
-      <span name="message-transition"
-            tag="div"
-            class="v-messages__wrapper"
-      >
-      </span>
+      <div class="v-messages__wrapper">
+      </div>
     </div>
   </div>
 </div>
@@ -201,43 +192,17 @@ exports[`VInput.ts should render a label 1`] = `
 <div class="v-input theme--light">
   <div class="v-input__control">
     <div class="v-input__slot">
-      <label for="input-59"
-             class="v-label theme--light"
+      <label class="v-label theme--light"
+             for="input-45"
+             aria-hidden="false"
              style="left: 0px; position: relative;"
       >
         foo
       </label>
     </div>
     <div class="v-messages theme--light">
-      <span name="message-transition"
-            tag="div"
-            class="v-messages__wrapper"
-      >
-      </span>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`VInput.ts should render a label 2`] = `
-<div class="v-input theme--light">
-  <div class="v-input__control">
-    <div class="v-input__slot">
-      <label for="input-63"
-             class="v-label theme--light"
-             style="left: 0px; position: relative;"
-      >
-        <div>
-          foo
-        </div>
-      </label>
-    </div>
-    <div class="v-messages theme--light">
-      <span name="message-transition"
-            tag="div"
-            class="v-messages__wrapper"
-      >
-      </span>
+      <div class="v-messages__wrapper">
+      </div>
     </div>
   </div>
 </div>

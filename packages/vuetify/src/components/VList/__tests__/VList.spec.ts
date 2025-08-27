@@ -4,12 +4,12 @@ import VList from '../VList'
 // Utilities
 import {
   mount,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
 
 describe('VList.ts', () => {
   type Instance = InstanceType<typeof VList>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  let mountFunction: (options?: any) => VueWrapper<Instance>
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
@@ -27,7 +27,7 @@ describe('VList.ts', () => {
 
   it('should render a dense component and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         dense: true,
       },
     })
@@ -37,7 +37,7 @@ describe('VList.ts', () => {
 
   it('should render a subheader component and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         subheader: true,
       },
     })
@@ -47,7 +47,7 @@ describe('VList.ts', () => {
 
   it('should render a threeLine component and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         threeLine: true,
       },
     })
@@ -57,7 +57,7 @@ describe('VList.ts', () => {
 
   it('should render a twoLine component and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         twoLine: true,
       },
     })
@@ -67,13 +67,17 @@ describe('VList.ts', () => {
 
   it('should have an inferred role from injections', () => {
     const wrapper = mountFunction({
-      provide: { isInMenu: true },
+      global: {
+        provide: { isInMenu: true },
+      },
     })
 
     expect(wrapper.element.getAttribute('role')).toBeNull()
 
     const wrapper2 = mountFunction({
-      provide: { isInNav: true },
+      global: {
+        provide: { isInNav: true },
+      },
     })
 
     expect(wrapper2.element.getAttribute('role')).toBeNull()
