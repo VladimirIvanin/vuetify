@@ -1,19 +1,22 @@
 import Colorable from '../'
 import {
   mount,
-  MountOptions,
-  Wrapper,
+  MountingOptions,
+  VueWrapper,
 } from '@vue/test-utils'
+import { defineComponent } from 'vue'
 
 describe('colorable.ts', () => {
-  const Mock = Colorable.extend({
-    render: h => h('div'),
+  const Mock = defineComponent({
+    mixins: [Colorable],
+    render: () => null,
   })
 
   type Instance = InstanceType<typeof Mock>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
+
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(Mock, options)
     }
   })
