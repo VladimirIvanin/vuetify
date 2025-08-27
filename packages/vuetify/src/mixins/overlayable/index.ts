@@ -11,7 +11,7 @@ import {
 } from '../../util/helpers'
 
 // Types
-import {defineComponent, App, createApp, h} from 'vue'
+import { defineComponent, App, createApp, h } from 'vue'
 
 interface Toggleable extends App {
   isActive?: boolean

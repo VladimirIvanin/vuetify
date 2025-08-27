@@ -87,7 +87,7 @@ export default mixins(
     if (this.isActive) children.push(this.genContent())
 
     return h('div', {
-      on: this.$listeners,
+      ...this.$attrs,
       class: ['v-overlay', this.classes],
       style: this.styles,
     }, children)
