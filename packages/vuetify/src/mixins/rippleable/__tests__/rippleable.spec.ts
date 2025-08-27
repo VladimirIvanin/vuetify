@@ -1,21 +1,24 @@
 import Rippleable from '../'
 import {
   mount,
-  MountOptions,
-  Wrapper,
+  MountingOptions,
+  VueWrapper,
 } from '@vue/test-utils'
+import { defineComponent } from 'vue'
 
 describe('rippleable.ts', () => {
-  const Mock = Rippleable.extend({
+  const Mock = defineComponent({
+    mixins: [Rippleable],
     render () {
       return this.genRipple()
     },
   })
 
   type Instance = InstanceType<typeof Mock>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
+
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(Mock, options)
     }
   })
