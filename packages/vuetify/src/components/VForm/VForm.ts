@@ -1,4 +1,4 @@
-import {h} from 'vue'
+import { h, VNode } from 'vue'
 // Components
 import VInput from '../VInput/VInput'
 
@@ -8,7 +8,6 @@ import BindsAttrs from '../../mixins/binds-attrs'
 import { provide as RegistrableProvide } from '../../mixins/registrable'
 
 // Helpers
-import { VNode } from 'vue'
 import { getSlot } from '../../util/helpers'
 
 type ErrorBag = Record<number, boolean>
@@ -17,6 +16,17 @@ type Watchers = {
   _uid: number
   valid: () => void
   shouldValidate: () => void
+}
+
+interface VFormContext {
+  inputs: VInputInstance[]
+  watchers: Watchers[]
+  errorBag: ErrorBag
+  lazyValidation: boolean
+  $emit: (event: string, ...args: any[]) => void
+  getInputUid: (input: VInputInstance) => number
+  watchInput: (input: VInputInstance) => Watchers
+  resetErrorBag: () => void
 }
 
 /* @vue/component */
@@ -48,7 +58,7 @@ export default mixins(
 
   watch: {
     errorBag: {
-      handler (val) {
+      handler (this: VFormContext, val: ErrorBag) {
         const errors = Object.values(val).includes(true)
 
         this.$emit('input', !errors)
@@ -59,45 +69,56 @@ export default mixins(
   },
 
   methods: {
-    watchInput (input: any): Watchers {
-      const watcher = (input: any): (() => void) => {
-        return input.$watch('hasError', (val: boolean) => {
-          this.errorBag[input.$.uid] = val
-        }, { immediate: true })
+    getInputUid (input: VInputInstance): number {
+      return input.$.uid
+    },
+
+    watchInput (this: VFormContext, input: VInputInstance): Watchers {
+      const inputId = this.getInputUid(input)
+
+      const createErrorWatcher = (inputComponent: VInputInstance): (() => void) => {
+        if (typeof inputComponent.$watch === 'function') {
+          return inputComponent.$watch('hasError', (hasError: boolean) => {
+            this.errorBag[inputId] = hasError
+          }, { immediate: true })
+        } else {
+          // Fallback для Vue 3
+          return () => {}
+        }
       }
 
       const watchers: Watchers = {
-        _uid: input.$.uid,
+        _uid: inputId,
         valid: () => {},
         shouldValidate: () => {},
       }
 
       if (this.lazyValidation) {
-        // Only start watching inputs if we need to
-        watchers.shouldValidate = input.$watch('shouldValidate', (val: boolean) => {
-          if (!val) return
+        if (typeof input.$watch === 'function') {
+          watchers.shouldValidate = input.$watch('shouldValidate', (shouldValidate: boolean) => {
+            if (!shouldValidate) return
 
-          // Only watch if we're not already doing it
-          if (this.errorBag.hasOwnProperty(input.$.uid)) return
+            if (this.errorBag.hasOwnProperty(inputId)) return
 
-          watchers.valid = watcher(input)
-        })
+            watchers.valid = createErrorWatcher(input)
+          })
+        }
       } else {
-        watchers.valid = watcher(input)
+        watchers.valid = createErrorWatcher(input)
       }
 
       return watchers
     },
     /** @public */
-    validate (): boolean {
-      return this.inputs.filter(input => !input.validate(true)).length === 0
+    validate (this: VFormContext): boolean {
+      return this.inputs.filter((input: VInputInstance) => !input.validate(true)).length === 0
     },
     /** @public */
-    reset (): void {
-      this.inputs.forEach(input => input.reset())
+    reset (this: VFormContext): void {
+      this.inputs.forEach((input: VInputInstance) => input.reset())
       this.resetErrorBag()
     },
-    resetErrorBag () {
+    resetErrorBag (this: VFormContext) {
       if (this.lazyValidation) {
         // Account for timeout in validatable
         setTimeout(() => {
@@ -106,28 +127,32 @@ export default mixins(
       }
     },
     /** @public */
-    resetValidation () {
-      this.inputs.forEach(input => input.resetValidation())
+    resetValidation (this: VFormContext) {
+      this.inputs.forEach((input: VInputInstance) => input.resetValidation())
       this.resetErrorBag()
     },
-    register (input: VInputInstance) {
+
+    register (this: VFormContext, input: VInputInstance) {
       this.inputs.push(input)
       this.watchers.push(this.watchInput(input))
     },
-    unregister (input: VInputInstance) {
-      const found = this.inputs.find(i => i.$.uid === input.$.uid)
 
-      if (!found) return
+    unregister (this: VFormContext, input: VInputInstance) {
+      const inputId = this.getInputUid(input)
+      const foundInput = this.inputs.find((inputComponent: VInputInstance) => this.getInputUid(inputComponent) === inputId)
 
-      const unwatch = this.watchers.find(i => i._uid === found.$.uid)
-      if (unwatch) {
-        unwatch.valid()
-        unwatch.shouldValidate()
+      if (!foundInput) return
+
+      const inputWatchers = this.watchers.find((watcher: Watchers) => watcher._uid === inputId)
+      if (inputWatchers) {
+        inputWatchers.valid()
+        inputWatchers.shouldValidate()
       }
 
-      this.watchers = this.watchers.filter(i => i._uid !== found.$.uid)
-      this.inputs = this.inputs.filter(i => i.$.uid !== found.$.uid)
-      delete this.errorBag[found.$.uid]
+      this.watchers = this.watchers.filter((watcher: Watchers) => watcher._uid !== inputId)
+      this.inputs = this.inputs.filter((inputComponent: VInputInstance) => this.getInputUid(inputComponent) !== inputId)
+
+      delete this.errorBag[inputId]
     },
   },
 
