@@ -84,9 +84,8 @@ export default mixins(
       data.tabindex = 0
     }
 
-    return withDirectives(h(tag, this.setBackgroundColor(this.color, data), [
-      this.genProgress(),
-      getSlot(this),
-    ]), directives)
+    return withDirectives(h(tag, this.setBackgroundColor(this.color, data), {
+      default: () => [this.genProgress(), getSlot(this)]
+    }), directives)
   },
 })
