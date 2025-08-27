@@ -196,7 +196,7 @@ export default defineComponent({
         h('div', {
           class: 'v-data-footer__icons-before',
         }, before),
-        this.showCurrentPage && h('span', [this.options.page.toString()]),
+        this.showCurrentPage ? h('span', [this.options.page.toString()]) : null,
         h('div', {
           class: 'v-data-footer__icons-after',
         }, after),

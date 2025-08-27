@@ -12,7 +12,7 @@ import { deepEqual, getObjectValueByPath, getPrefixedScopedSlots, getSlot, camel
 import { breaking, removed } from '../../util/console'
 
 // Types
-import { VNode, VNodeChildren } from 'vue'
+import { VNode, VNodeChildren, h } from 'vue'
 import { PropValidator } from 'vue/types/options'
 import { DataItemProps, DataScopeProps } from 'vuetify/types'
 
@@ -319,20 +319,20 @@ export default mixins(
         toggleSelectAll: this.toggleSelectAll,
       }
 
-      return h('div', {
+      return [h('div', {
         class: 'v-data-iterator',
       }, [
         getSlot(this, 'header', outerProps, true),
         this.genItems(props),
         this.genFooter(props),
         getSlot(this, 'footer', outerProps, true),
-      ])
+      ])]
     },
   },
 
   render (): VNode {
     return h(VData, {
-      props: this.$props,
+      ...this.$props,
       on: {
         'update:options': (v: any, old: any) => !deepEqual(v, old) && this.$emit('update:options', v),
         'update:page': (v: any) => this.$emit('update:page', v),
@@ -348,9 +348,8 @@ export default mixins(
         },
         'page-count': (v: number) => this.$emit('page-count', v),
       },
-      scopedSlots: {
-        default: this.genDefaultScopedSlot,
-      },
+    }, {
+      default: (props: any) => this.genDefaultScopedSlot(props),
     })
   },
 })

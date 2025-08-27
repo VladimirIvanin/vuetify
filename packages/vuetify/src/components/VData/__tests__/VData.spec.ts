@@ -1,34 +1,32 @@
 import VData from '../VData'
+import { h } from 'vue'
 import {
   mount,
-  MountOptions,
-  Wrapper,
+  MountingOptions,
+  VueWrapper,
 } from '@vue/test-utils'
 
 describe('VData.ts', () => {
   type Instance = InstanceType<typeof VData>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: any) => VueWrapper<Instance>
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: any) => {
       return mount(VData, {
         ...options,
-        sync: false,
       })
     }
   })
 
   it('should render data through default scoped slot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: [
           { id: 1, text: 'foo' },
           { id: 2, text: 'bar' },
         ],
       },
-      scopedSlots: {
-        default (data) {
-          return h('div', data.items.map(item => h('div', [item.text])))
-        },
+      slots: {
+        default: (data: any) => h('div', data.items.map((item: any) => h('div', [item.text]))),
       },
     })
 
@@ -40,13 +38,13 @@ describe('VData.ts', () => {
   it('should ignore items length if using server-items-length', async () => {
     const render = jest.fn()
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: [
           { id: 1, text: 'foo' },
           { id: 2, text: 'bar' },
         ],
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })
@@ -58,7 +56,7 @@ describe('VData.ts', () => {
       }),
     }))
 
-    wrapper.setProps({
+    await wrapper.setProps({
       serverItemsLength: 10,
     })
 
@@ -79,11 +77,11 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items,
         groupBy: ['baz'],
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })
@@ -111,11 +109,11 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items,
         groupBy: ['baz'],
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })
@@ -143,11 +141,11 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items,
         groupBy: ['foo.bar'],
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })
@@ -175,7 +173,7 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items,
         groupBy: ['value'],
         customGroup: function evenOddGrouper (items: any[], groupBy: string[]) {
@@ -187,7 +185,7 @@ describe('VData.ts', () => {
           }, {})
         },
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })
@@ -218,11 +216,11 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: unsorted,
         sortBy: ['text'],
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })
@@ -250,18 +248,18 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: unsorted,
         sortBy: ['foo'],
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })
 
     await wrapper.vm.$nextTick()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       sortBy: ['foo', 'bar'],
     })
     await wrapper.vm.$nextTick()
@@ -288,12 +286,12 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items,
         itemsPerPage: 5,
         page: 2,
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })
@@ -315,12 +313,12 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items,
         sortBy: ['text'],
         disableSort: true,
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })
@@ -341,8 +339,8 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: { items },
-      scopedSlots: {
+      props: { items },
+      slots: {
         default: render,
       },
     })
@@ -351,14 +349,14 @@ describe('VData.ts', () => {
       items,
     }))
 
-    wrapper.setProps({ itemsPerPage: 2 })
+    await wrapper.setProps({ itemsPerPage: 2 })
     await wrapper.vm.$nextTick()
 
     expect(render).toHaveBeenCalledWith(expect.objectContaining({
       items: items.slice(0, 2),
     }))
 
-    wrapper.setProps({ disablePagination: true })
+    await wrapper.setProps({ disablePagination: true })
     await wrapper.vm.$nextTick()
 
     expect(render).toHaveBeenCalledWith(expect.objectContaining({
@@ -375,19 +373,15 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: unsorted,
       },
-      scopedSlots: {
-        default (props) {
-          const items = props.items.map(item => h('div', [item.text]))
+      slots: {
+        default: (props: any) => {
+          const items = props.items.map((item: any) => h('div', [item.text]))
           return h('div', {
-            attrs: {
-              id: 'wrapper',
-            },
-            on: {
-              click: () => props.sort('text'),
-            },
+            id: 'wrapper',
+            onClick: () => props.sort('text'),
           }, items)
         },
       },
@@ -395,13 +389,12 @@ describe('VData.ts', () => {
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    const el = wrapper.find('#wrapper').element
-    el.click()
+    await wrapper.find('#wrapper').trigger('click')
     await wrapper.vm.$nextTick()
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    el.click()
+    await wrapper.find('#wrapper').trigger('click')
     await wrapper.vm.$nextTick()
     expect(wrapper.html()).toMatchSnapshot()
   })
@@ -415,19 +408,15 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: unsorted,
       },
-      scopedSlots: {
-        default (props) {
-          const items = props.items.map(item => h('div', [`${item.group}-${item.text}`]))
+      slots: {
+        default: (props: any) => {
+          const items = props.items.map((item: any) => h('div', [`${item.group}-${item.text}`]))
           return h('div', {
-            attrs: {
-              id: 'wrapper',
-            },
-            on: {
-              click: () => props.sort(['group', 'text']),
-            },
+            id: 'wrapper',
+            onClick: () => props.sort(['group', 'text']),
           }, items)
         },
       },
@@ -435,8 +424,7 @@ describe('VData.ts', () => {
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    const el = wrapper.find('#wrapper').element
-    el.click()
+    await wrapper.find('#wrapper').trigger('click')
     await wrapper.vm.$nextTick()
 
     expect(wrapper.html()).toMatchSnapshot()
@@ -451,31 +439,26 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: unsorted,
       },
-      scopedSlots: {
-        default (props) {
+      slots: {
+        default: (props: any) => {
           const items = props.groupedItems
-            ? props.groupedItems.map(group => group.name)
-            : props.items.map(item => item.text)
+            ? props.groupedItems.map((group: any) => group.name)
+            : props.items.map((item: any) => item.text)
 
           return h('div', {
-            attrs: {
-              id: 'wrapper',
-            },
-            on: {
-              click: () => props.group('group'),
-            },
-          }, items.map(item => h('div', [item])))
+            id: 'wrapper',
+            onClick: () => props.group('group'),
+          }, items.map((item: any) => h('div', [item])))
         },
       },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    const el = wrapper.find('#wrapper').element
-    el.click()
+    await wrapper.find('#wrapper').trigger('click')
     await wrapper.vm.$nextTick()
 
     expect(wrapper.html()).toMatchSnapshot()
@@ -485,14 +468,14 @@ describe('VData.ts', () => {
   it('should handle setting itemsPerPage to zero', async () => {
     const render = jest.fn()
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: [
           { id: 1, text: 'foo' },
           { id: 2, text: 'bar' },
         ],
         itemsPerPage: 0,
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })
@@ -508,7 +491,7 @@ describe('VData.ts', () => {
       }),
     }))
 
-    wrapper.setProps({
+    await wrapper.setProps({
       itemsPerPage: 1,
     })
 
@@ -534,30 +517,26 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: unsorted,
         groupBy: ['text'],
       },
-      scopedSlots: {
-        default (props) {
+      slots: {
+        default: (props: any) => {
           return h('div', {
-            attrs: {
-              id: 'wrapper',
-            },
-            on: {
-              click: () => props.group('group'),
-            },
-          }, props.groupedItems.map(group => h('div', [group.name])))
+            id: 'wrapper',
+            onClick: () => props.group('group'),
+          }, props.groupedItems.map((group: any) => h('div', [group.name])))
         },
       },
     })
 
-    wrapper.setProps({ groupDesc: [false] })
+    await wrapper.setProps({ groupDesc: [false] })
     await wrapper.vm.$nextTick()
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({ groupDesc: [true] })
+    await wrapper.setProps({ groupDesc: [true] })
     await wrapper.vm.$nextTick()
 
     expect(wrapper.html()).toMatchSnapshot()
@@ -573,12 +552,12 @@ describe('VData.ts', () => {
     ]
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items,
         groupBy: ['baz'],
         disableSort: true,
       },
-      scopedSlots: {
+      slots: {
         default: render,
       },
     })

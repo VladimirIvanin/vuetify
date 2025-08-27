@@ -2,39 +2,35 @@ import VDataFooter from '../VDataFooter'
 import { Lang } from '../../../services/lang'
 import {
   mount,
-  MountOptions,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
-import Vue from 'vue'
 import { preset } from '../../../presets/default'
-
-Vue.prototype.$vuetify = {
-  icons: {
-    values: {
-      prev: 'mdi-chevron-left',
-      next: 'mdi-chevron-right',
-      dropdown: 'mdi-menu-down',
-      first: 'mdi-page-first',
-      last: 'mdi-page-last',
-    },
-  },
-}
 
 describe('VDataFooter.ts', () => {
   type Instance = InstanceType<typeof VDataFooter>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: any) => VueWrapper<Instance>
+
   beforeEach(() => {
     document.body.setAttribute('data-app', '')
 
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: any) => {
       return mount(VDataFooter, {
-        // https://github.com/vuejs/vue-test-utils/issues/1130
-        sync: false,
-        mocks: {
-          $vuetify: {
-            lang: new Lang(preset),
-            theme: {
-              dark: false,
+        global: {
+          mocks: {
+            $vuetify: {
+              lang: new Lang(preset),
+              theme: {
+                dark: false,
+              },
+              icons: {
+                values: {
+                  prev: 'mdi-chevron-left',
+                  next: 'mdi-chevron-right',
+                  dropdown: 'mdi-menu-down',
+                  first: 'mdi-page-first',
+                  last: 'mdi-page-last',
+                },
+              },
             },
           },
         },
@@ -45,11 +41,17 @@ describe('VDataFooter.ts', () => {
 
   it('should render with custom itemsPerPage', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         itemsPerPageOptions: [50, 100],
         options: {
           page: 4,
           itemsPerPage: 100,
+          sortBy: [],
+          sortDesc: [],
+          groupBy: [],
+          groupDesc: [],
+          multiSort: false,
+          mustSort: false,
         },
         pagination: {
           page: 4,
@@ -67,10 +69,16 @@ describe('VDataFooter.ts', () => {
 
   it('should render in RTL mode', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         options: {
           page: 4,
           itemsPerPage: 10,
+          sortBy: [],
+          sortDesc: [],
+          groupBy: [],
+          groupDesc: [],
+          multiSort: false,
+          mustSort: false,
         },
         pagination: {
           page: 4,
@@ -82,12 +90,23 @@ describe('VDataFooter.ts', () => {
         },
         showFirstLastPage: true,
       },
-      mocks: {
-        $vuetify: {
-          rtl: true,
-          lang: new Lang(preset),
-          theme: {
-            dark: false,
+      global: {
+        mocks: {
+          $vuetify: {
+            rtl: true,
+            lang: new Lang(preset),
+            theme: {
+              dark: false,
+            },
+            icons: {
+              values: {
+                prev: 'mdi-chevron-left',
+                next: 'mdi-chevron-right',
+                dropdown: 'mdi-menu-down',
+                first: 'mdi-page-first',
+                last: 'mdi-page-last',
+              },
+            },
           },
         },
       },
@@ -98,10 +117,16 @@ describe('VDataFooter.ts', () => {
 
   it('should render first & last icons with showFirstLastPage', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         options: {
           page: 4,
           itemsPerPage: 10,
+          sortBy: [],
+          sortDesc: [],
+          groupBy: [],
+          groupDesc: [],
+          multiSort: false,
+          mustSort: false,
         },
         pagination: {
           page: 4,
@@ -118,14 +143,18 @@ describe('VDataFooter.ts', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it('should switch between pages', () => {
-    const mock = jest.fn()
-
+  it('should switch between pages', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         options: {
           page: 4,
           itemsPerPage: 10,
+          sortBy: [],
+          sortDesc: [],
+          groupBy: [],
+          groupDesc: [],
+          multiSort: false,
+          mustSort: false,
         },
         pagination: {
           page: 4,
@@ -136,31 +165,94 @@ describe('VDataFooter.ts', () => {
           itemsLength: 100,
         },
       },
-      listeners: {
-        'update:options': mock,
-      },
     })
 
-    wrapper.vm.onNextPage()
-    expect(mock).toHaveBeenCalledWith({ itemsPerPage: 10, page: 5 })
-    wrapper.vm.onPreviousPage()
-    expect(mock).toHaveBeenCalledWith({ itemsPerPage: 10, page: 3 })
-    wrapper.vm.onFirstPage()
-    expect(mock).toHaveBeenCalledWith({ itemsPerPage: 10, page: 1 })
-    wrapper.vm.onLastPage()
-    expect(mock).toHaveBeenCalledWith({ itemsPerPage: 10, page: 10 })
-    wrapper.vm.onChangeItemsPerPage(5)
-    expect(mock).toHaveBeenCalledWith({ itemsPerPage: 5, page: 1 })
-    wrapper.vm.onChangeItemsPerPage(20)
-    expect(mock).toHaveBeenCalledWith({ itemsPerPage: 20, page: 1 })
+    await wrapper.vm.onNextPage()
+    expect(wrapper.emitted('update:options')).toBeTruthy()
+    expect(wrapper.emitted('update:options')![0]).toEqual([{
+      itemsPerPage: 10,
+      page: 5,
+      sortBy: [],
+      sortDesc: [],
+      groupBy: [],
+      groupDesc: [],
+      multiSort: false,
+      mustSort: false,
+    }])
+
+    await wrapper.vm.onPreviousPage()
+    expect(wrapper.emitted('update:options')![1]).toEqual([{
+      itemsPerPage: 10,
+      page: 3,
+      sortBy: [],
+      sortDesc: [],
+      groupBy: [],
+      groupDesc: [],
+      multiSort: false,
+      mustSort: false,
+    }])
+
+    await wrapper.vm.onFirstPage()
+    expect(wrapper.emitted('update:options')![2]).toEqual([{
+      itemsPerPage: 10,
+      page: 1,
+      sortBy: [],
+      sortDesc: [],
+      groupBy: [],
+      groupDesc: [],
+      multiSort: false,
+      mustSort: false,
+    }])
+
+    await wrapper.vm.onLastPage()
+    expect(wrapper.emitted('update:options')![3]).toEqual([{
+      itemsPerPage: 10,
+      page: 10,
+      sortBy: [],
+      sortDesc: [],
+      groupBy: [],
+      groupDesc: [],
+      multiSort: false,
+      mustSort: false,
+    }])
+
+    await wrapper.vm.onChangeItemsPerPage(5)
+    expect(wrapper.emitted('update:options')![4]).toEqual([{
+      itemsPerPage: 5,
+      page: 1,
+      sortBy: [],
+      sortDesc: [],
+      groupBy: [],
+      groupDesc: [],
+      multiSort: false,
+      mustSort: false,
+    }])
+
+    await wrapper.vm.onChangeItemsPerPage(20)
+    expect(wrapper.emitted('update:options')![5]).toEqual([{
+      itemsPerPage: 20,
+      page: 1,
+      sortBy: [],
+      sortDesc: [],
+      groupBy: [],
+      groupDesc: [],
+      multiSort: false,
+      mustSort: false,
+    }])
   })
 
   it('should show current page if has showCurrentPage', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         options: {
           page: 4,
           itemsPerPage: 10,
+          sortBy: [],
+          sortDesc: [],
+          groupBy: [],
+          groupDesc: [],
+          multiSort: false,
+          mustSort: false,
         },
         pagination: {
           page: 4,
@@ -179,10 +271,16 @@ describe('VDataFooter.ts', () => {
 
   it('should disable last page button if no items', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         options: {
           page: 1,
           itemsPerPage: 10,
+          sortBy: [],
+          sortDesc: [],
+          groupBy: [],
+          groupDesc: [],
+          multiSort: false,
+          mustSort: false,
         },
         pagination: {
           page: 1,

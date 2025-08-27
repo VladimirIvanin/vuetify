@@ -1,6 +1,6 @@
 // Helpers
-import { wrapInArray, sortItems, deepEqual, groupItems, searchItems, fillArray } from '../../util/helpers'
-import { defineComponent, VNode } from 'vue'
+import { wrapInArray, sortItems, deepEqual, groupItems, searchItems, fillArray, getSlot } from '../../util/helpers'
+import { defineComponent, VNode, h } from 'vue'
 
 // Types
 import {
@@ -384,9 +384,13 @@ export default defineComponent({
   },
 
   render (): VNode {
-    return this.$slots.default && this.$slots.default(this.scopedProps)[0] as any
+    const slot = getSlot(this, 'default', () => this.scopedProps)
+    if (slot) {
+      return Array.isArray(slot) ? slot[0] : slot
+    }
+    return h('div')
   },
-  mounted() {
+  mounted () {
     this.$emit('update:options', this.internalOptions)
   },
 })
