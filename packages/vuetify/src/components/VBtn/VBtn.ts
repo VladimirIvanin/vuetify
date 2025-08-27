@@ -208,8 +208,10 @@ export default baseMixins.extend({
     data = mergeData(data, { class: this.$attrs.class })
 
     return withDirectives(
-      h(tag, this.disabled ? data : setColor(this.color, data), children),
+      h(tag, this.disabled ? data : setColor(this.color, data), {
+        default: () => children
+      }),
       directives
-    )
+    );
   },
 })
