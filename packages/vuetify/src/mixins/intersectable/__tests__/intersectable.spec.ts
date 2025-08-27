@@ -1,39 +1,45 @@
-import intersectable from '../index'
+import intersectable from "../index";
+import { defineComponent, h } from "vue";
+import { mount, VueWrapper } from "@vue/test-utils";
 
-import {
-  mount,
-  Wrapper,
-} from '@vue/test-utils'
-import { ComponentOptions } from 'vue'
-
-describe('intersectable.ts', () => {
-  let mountFunction: (options?: ComponentOptions<any>) => Wrapper<any>
+describe("intersectable.ts", () => {
+  let mountFunction: (options?: any) => VueWrapper<any>;
 
   beforeEach(() => {
-    mountFunction = (options?: ComponentOptions<any>) => {
-      return mount({
-        render: h => h('div'),
-        ...options,
-      })
-    }
-  })
+    mountFunction = (options?: any) => {
+      return mount(
+        defineComponent({
+          render: () => h("div"),
+          ...options
+        })
+      );
+    };
+  });
 
-  it('should call callbacks when element is intersected', () => {
-    const callback = jest.fn()
+  it("should call callbacks when element is intersected", () => {
+    const callback = jest.fn();
 
     const wrapper = mountFunction({
-      mixins: [intersectable({ onVisible: ['callback'] })],
-      methods: { callback },
-    })
+      mixins: [intersectable({ onVisible: ["callback"] })],
+      methods: { callback }
+    });
 
-    expect(callback).not.toHaveBeenCalled()
+    expect(callback).not.toHaveBeenCalled();
 
-    wrapper.vm.onObserve([] as IntersectionObserverEntry[], null as any as IntersectionObserver, false)
+    wrapper.vm.onObserve(
+      [] as IntersectionObserverEntry[],
+      (null as any) as IntersectionObserver,
+      false
+    );
 
-    expect(callback).not.toHaveBeenCalled()
+    expect(callback).not.toHaveBeenCalled();
 
-    wrapper.vm.onObserve([] as IntersectionObserverEntry[], null as any as IntersectionObserver, true)
+    wrapper.vm.onObserve(
+      [] as IntersectionObserverEntry[],
+      (null as any) as IntersectionObserver,
+      true
+    );
 
-    expect(callback).toHaveBeenCalledTimes(1)
-  })
-})
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+});
