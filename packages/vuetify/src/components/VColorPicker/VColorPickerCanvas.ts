@@ -134,8 +134,8 @@ export default defineComponent({
       const y = convertToUnit(this.dot.y - radius)
 
       return h('div', {
-        class: 'v-color-picker__canvas-dot',
         class: {
+          'v-color-picker__canvas-dot': true,
           'v-color-picker__canvas-dot--disabled': this.disabled,
         },
         style: {

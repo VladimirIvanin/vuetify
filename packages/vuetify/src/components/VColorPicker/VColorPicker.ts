@@ -150,8 +150,8 @@ export default mixins(Elevatable, Themeable).extend({
 
   render (): VNode {
     return h(VSheet, {
-      class: 'v-color-picker',
       class: {
+        'v-color-picker': true,
         'v-color-picker--flat': this.flat,
         ...this.themeClasses,
         ...this.elevationClasses,
