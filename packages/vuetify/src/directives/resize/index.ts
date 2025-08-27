@@ -22,13 +22,18 @@ function mounted (
   binding: ResizeDirectiveBinding,
   vnode: VNode
 ) {
+  if (!vnode.ctx?.uid) {
+    return
+  }
+
   const callback = binding.value
   const options = binding.options || { passive: true }
+  const uid = vnode.ctx.uid
 
   window.addEventListener('resize', callback, options)
 
   el._onResize = Object(el._onResize)
-  el._onResize![vnode.ctx!.uid] = {
+  el._onResize![uid] = {
     callback,
     options,
   }
@@ -43,13 +48,19 @@ function unmounted (
   binding: ResizeDirectiveBinding,
   vnode: VNode
 ) {
-  if (!el._onResize?.[vnode.ctx!.uid]) return
+  if (!vnode.ctx?.uid) {
+    return
+  }
 
-  const { callback, options } = el._onResize[vnode.ctx!.uid]!
+  const uid = vnode.ctx.uid
+
+  if (!el._onResize?.[uid]) return
+
+  const { callback, options } = el._onResize[uid]!
 
   window.removeEventListener('resize', callback, options)
 
-  delete el._onResize[vnode.ctx!.uid]
+  delete el._onResize[uid]
 }
 
 export const Resize: ObjectDirective = {
