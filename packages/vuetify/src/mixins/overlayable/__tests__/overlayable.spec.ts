@@ -2,34 +2,35 @@
 import Overlayable from '../index'
 
 // Utilities
-import {
-  mount,
-  MountOptions,
-  Wrapper,
-} from '@vue/test-utils'
+import { mount, MountingOptions, VueWrapper, enableAutoUnmount } from '@vue/test-utils'
 import { waitAnimationFrame } from '../../../../test'
+import { defineComponent, h, nextTick } from 'vue'
 
 describe('Overlayable.ts', () => {
-  const Mock = Overlayable.extend({
+  enableAutoUnmount(afterEach)
+
+  const Mock = defineComponent({
+    mixins: [Overlayable],
     data: () => ({
       isActive: false,
     }),
-
-    render: h => h('div'),
+    render: () => h('div'),
   })
 
   beforeEach(() => {
     document.body.setAttribute('data-app', 'true')
   })
 
-  type Instance = InstanceType<typeof Mock>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  type Instance = InstanceType<typeof Mock>;
+  let mountFunction: (options?: MountingOptions<any>) => VueWrapper<any>
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
       return mount(Mock, {
-        mocks: {
-          $vuetify: { breakpoint: {} },
+        global: {
+          mocks: {
+            $vuetify: { breakpoint: {} },
+          },
         },
         ...options,
       })
@@ -46,7 +47,7 @@ describe('Overlayable.ts', () => {
     expect(wrapper.vm.overlay).toBeTruthy()
 
     wrapper.vm.removeOverlay()
-    // Simular overlay being rapidly opened/closed
+    // Simulate overlay being rapidly opened/closed
     wrapper.vm.overlay.value = true
 
     const event = new Event('transitionend')
@@ -78,7 +79,7 @@ describe('Overlayable.ts', () => {
   it('should get root element z-index if activeIndex is not available', async () => {
     const wrapper = mountFunction()
 
-    wrapper.vm.$el.style.zIndex = 8
+    wrapper.vm.$el.style.zIndex = '8'
 
     wrapper.vm.genOverlay()
 
@@ -88,24 +89,31 @@ describe('Overlayable.ts', () => {
   })
 
   // https://github.com/vuetifyjs/vuetify/issues/8142
-  it('should not update overlay state if not active', () => {
+  it('should not update overlay state if not active', async () => {
     const cb = jest.fn()
     const wrapper = mountFunction({
-      methods: {
-        removeOverlay: cb,
-        genOVerlay: cb,
+      global: {
+        mocks: {
+          $vuetify: { breakpoint: {} },
+        },
       },
     })
 
-    wrapper.setProps({ hideOverlay: true })
-    wrapper.setProps({ hideOverlay: false })
+    // Mock the methods
+    wrapper.vm.removeOverlay = cb
+    wrapper.vm.genOverlay = cb
+
+    await wrapper.setProps({ hideOverlay: true })
+    await wrapper.setProps({ hideOverlay: false })
 
     expect(cb).not.toHaveBeenCalled()
 
-    wrapper.setData({ isActive: true })
-    wrapper.setProps({ hideOverlay: true })
-    wrapper.setProps({ hideOverlay: false })
+    wrapper.vm.isActive = true
+    await nextTick()
 
-    expect(cb).toHaveBeenCalledTimes(1)
+    await wrapper.setProps({ hideOverlay: true })
+    await wrapper.setProps({ hideOverlay: false })
+
+    expect(cb).toHaveBeenCalledTimes(2)
   })
 })
