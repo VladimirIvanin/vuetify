@@ -3,12 +3,8 @@ import Bootable from '../bootable'
 
 // Utilities
 import { getObjectValueByPath } from '../../util/helpers'
-import mixins, { ExtractVue } from '../../util/mixins'
 import { consoleWarn } from '../../util/console'
-
-// Types
-import { PropOptions } from 'vue'
-import { VNode } from 'vue/types'
+import { defineComponent, PropOptions, VNode } from 'vue'
 
 interface options {
   $el: HTMLElement
@@ -34,12 +30,10 @@ function removeActivator (activator: VNode[]) {
 }
 
 /* @vue/component */
-export default mixins<options &
-  /* eslint-disable indent */
-  ExtractVue<typeof Bootable>
-  /* eslint-enable indent */
->(Bootable).extend({
+export default defineComponent({
   name: 'detachable',
+
+  mixins: [Bootable],
 
   props: {
     attach: {

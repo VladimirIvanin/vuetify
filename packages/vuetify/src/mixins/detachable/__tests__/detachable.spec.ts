@@ -1,11 +1,12 @@
 import VApp from '../../../components/VApp'
 import Detachable from '../'
-import { mount } from '@vue/test-utils'
+import { mount, MountingOptions, VueWrapper } from '@vue/test-utils'
+import { defineComponent, h } from 'vue'
 
-const Mock = Detachable.extend({
+const Mock = defineComponent({
   name: 'mock',
-
-  render (h) {
+  mixins: [Detachable],
+  render () {
     const content = h('div', {
       class: 'content',
       ref: 'content',
@@ -13,7 +14,7 @@ const Mock = Detachable.extend({
 
     return h('div', {
       class: 'mock',
-    }, [this.$slots.default, content])
+    }, [this.$slots.default?.(), content])
   },
 })
 
@@ -21,82 +22,84 @@ describe('detachable.ts', () => {
   it('should detach to app', async () => {
     const localMock = Mock
     const wrapper = mount(VApp, {
-      attachToDocument: true,
+      attachTo: document.body,
       slots: {
         default: [{
-          render: h => h(localMock),
+          render: () => h(localMock),
         }],
       },
-      mocks: {
-        $vuetify: {
-          rtl: false,
-          theme: {
-            dark: false,
+      global: {
+        mocks: {
+          $vuetify: {
+            rtl: false,
+            theme: {
+              dark: false,
+            },
           },
         },
       },
     })
 
-    const detach = wrapper.find(localMock)
+    const detach = wrapper.findComponent(localMock)
 
     expect(detach.vm.hasDetached).toBe(false)
 
-    wrapper.destroy()
+    wrapper.unmount()
   })
 
-  it('should attach and detach', () => {
+  it('should attach and detach', async () => {
     const localMock = Mock
     const elementMock = mount(Mock)
     const wrapper = mount(localMock, {
-      attachToDocument: true,
-      propsData: {
+      attachTo: document.body,
+      props: {
         attach: '',
       },
       slots: {
         default: [{
-          render: h => h('div', { class: 'foo' }),
+          render: () => h('div', { class: 'foo' }),
         }],
       },
     })
 
     expect(wrapper.vm.initDetach()).toBeUndefined()
 
-    wrapper.setProps({ attach: true })
+    await wrapper.setProps({ attach: true })
 
     expect(wrapper.vm.initDetach()).toBeUndefined()
 
-    wrapper.setProps({ attach: 'attach' })
+    await wrapper.setProps({ attach: 'attach' })
 
     expect(wrapper.vm.initDetach()).toBeUndefined()
 
-    wrapper.setProps({ attach: elementMock.vm.$el })
+    await wrapper.setProps({ attach: elementMock.vm.$el })
 
     wrapper.vm.initDetach()
 
     expect(wrapper.vm.hasDetached).toBe(true)
 
-    wrapper.setData({ hasDetached: false })
+    // В Vue 3 используем прямое изменение данных вместо setData
+    wrapper.vm.hasDetached = false
 
-    wrapper.setProps({ attach: '.foo' })
+    await wrapper.setProps({ attach: '.foo' })
 
     wrapper.vm.initDetach()
 
     expect(wrapper.vm.hasDetached).toBe(true)
 
-    wrapper.setData({ hasDetached: false })
+    wrapper.vm.hasDetached = false
 
-    wrapper.setProps({ attach: '.bar' })
+    await wrapper.setProps({ attach: '.bar' })
 
     wrapper.vm.initDetach()
 
     expect('[Vuetify] Unable to locate target .bar').toHaveBeenTipped()
 
-    delete wrapper.vm.$refs.content
-    wrapper.vm.$destroy()
+    wrapper.unmount()
   })
 
   it('should validate attach prop', () => {
-    const validator = Detachable.options.props.attach.validator
+    const validator = Detachable.props.attach.validator
 
     expect(validator(true)).toBe(true)
     expect(validator(false)).toBe(true)
