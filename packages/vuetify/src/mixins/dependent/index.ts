@@ -1,9 +1,7 @@
-import {defineComponent} from 'vue'
-
-import mixins from '../../util/mixins'
+import { defineComponent, nextTick } from 'vue'
 import { VOverlay } from '../../components/VOverlay'
 
-interface options {
+interface DependentOptions {
   $el: HTMLElement
   $refs: {
     content?: HTMLElement
@@ -11,22 +9,26 @@ interface options {
   overlay?: InstanceType<typeof VOverlay>
 }
 
-interface DependentInstance extends Vue {
+interface DependentInstance {
   isActive?: boolean
   isDependent?: boolean
+  getClickableDependentElements?: () => HTMLElement[]
 }
 
-function searchChildren (children: Vue[]): DependentInstance[] {
+function searchChildren (children: any[]): DependentInstance[] {
+  const results: DependentInstance[] = []
 
-
-  const results = []
   for (let index = 0; index < children.length; index++) {
     const child = children[index] as DependentInstance
 
     if (child.isActive && child.isDependent) {
       results.push(child)
-    } else {
-      results.push(...searchChildren(child.children?.default?.() || []))
+    } else if (
+      child.component &&
+      child.component.isActive &&
+      child.component.isDependent
+    ) {
+      results.push(child.component)
     }
   }
 
@@ -34,7 +36,7 @@ function searchChildren (children: Vue[]): DependentInstance[] {
 }
 
 /* @vue/component */
-export default mixins<Vue & options>().extend({
+export default defineComponent({
   name: 'dependent',
 
   data () {
@@ -46,41 +48,72 @@ export default mixins<Vue & options>().extend({
   },
 
   watch: {
-    isActive (val) {
+    async isActive (val: boolean) {
       if (val) return
 
+      await nextTick()
       const openDependents = this.getOpenDependents()
       for (let index = 0; index < openDependents.length; index++) {
-        openDependents[index].isActive = false
+        if (
+          openDependents[index] &&
+          typeof openDependents[index].isActive !== 'undefined'
+        ) {
+          openDependents[index].isActive = false
+        }
       }
     },
   },
 
   methods: {
-    getOpenDependents (): any[] {
-      const node = this.$slots.default?.()
+    getOpenDependents (): DependentInstance[] {
+      if (!this.closeDependents) return []
 
-      if(!node) return []
+      // Get all child components from slots
+      const children: any[] = []
 
-      if (this.closeDependents) return searchChildren(node)
+      if (this.$slots.default) {
+        const slotContent = this.$slots.default()
+        if (Array.isArray(slotContent)) {
+          slotContent.forEach(item => {
+            if (item.component) {
+              children.push(item.component)
+            }
+          })
+        }
+      }
 
-
-      return []
+      return searchChildren(children)
     },
+
     getOpenDependentElements (): HTMLElement[] {
-      const result = []
+      const result: HTMLElement[] = []
       const openDependents = this.getOpenDependents()
 
       for (let index = 0; index < openDependents.length; index++) {
-        result.push(...openDependents[index].getClickableDependentElements())
+        const dependent = openDependents[index]
+        if (dependent.getClickableDependentElements) {
+          result.push(...dependent.getClickableDependentElements())
+        }
       }
 
       return result
     },
+
     getClickableDependentElements (): HTMLElement[] {
-      const result = [this.$el]
-      if (this.$refs.content) result.push(this.$refs.content)
-      if (this.overlay) result.push(this.overlay.$el as HTMLElement)
+      const result: HTMLElement[] = []
+
+      if (this.$el) {
+        result.push(this.$el as HTMLElement)
+      }
+
+      if (this.$refs?.content) {
+        result.push(this.$refs.content as HTMLElement)
+      }
+
+      if ((this as any).overlay?.$el) {
+        result.push((this as any).overlay.$el as HTMLElement)
+      }
+
       result.push(...this.getOpenDependentElements())
 
       return result
