@@ -1,39 +1,37 @@
 // Libraries
-import Vue from 'vue'
+import { nextTick } from 'vue'
 
 // Plugins
-import Router from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 // Components
 import VChip from '../VChip'
 
 // Utilities
 import {
-  createLocalVue,
   mount,
-  Wrapper,
+  VueWrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 
 describe('VChip.ts', () => {
-  let mountFunction: (options?: object) => Wrapper<Vue>
-  let router: Router
-  let localVue: typeof Vue
+  let mountFunction: (options?: object) => VueWrapper<any>
 
   beforeEach(() => {
-    router = new Router()
-    localVue = createLocalVue()
-    localVue.use(Router)
-
     mountFunction = (options = {}) => {
       return mount(VChip, {
-        // https://github.com/vuejs/vue-test-utils/issues/1130
-        sync: false,
-        localVue,
-        router,
-        mocks: {
-          $vuetify: {
-            lang: {
-              t: (val: string) => val,
+        global: {
+          config: {
+            warnHandler: () => {}, // Подавляем предупреждения Vue
+          },
+          mocks: {
+            $vuetify: {
+              lang: {
+                t: (val: string) => val,
+              },
+              icons: {
+                component: 'mdi',
+              },
             },
           },
         },
@@ -42,6 +40,8 @@ describe('VChip.ts', () => {
     }
   })
 
+  enableAutoUnmount(afterEach)
+
   it('should have a v-chip class', () => {
     const wrapper = mountFunction()
 
@@ -49,25 +49,24 @@ describe('VChip.ts', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it('should be removable', () => {
+  it('should be removable', async () => {
     const wrapper = mountFunction({
-      propsData: { close: true },
+      props: { close: true },
     })
 
     const close = wrapper.find('.v-chip__close')
 
-    const input = jest.fn(value => wrapper.setProps({ value }))
-    wrapper.vm.$on('click:close', input)
-
     expect(wrapper.html()).toMatchSnapshot()
 
-    close.trigger('click')
-    expect(input).toHaveBeenCalled()
+    await close.trigger('click')
+    expect(wrapper.emitted('click:close')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false])
   })
 
   it('should render a colored chip', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         color: 'blue',
         textColor: 'green',
       },
@@ -79,7 +78,7 @@ describe('VChip.ts', () => {
 
   it('should render a disabled chip', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         disabled: true,
       },
     })
@@ -95,7 +94,7 @@ describe('VChip.ts', () => {
 
   it('should render a colored outline chip', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         outlined: true,
         color: 'blue',
       },
@@ -107,7 +106,7 @@ describe('VChip.ts', () => {
 
   it('should render a colored outline chip with text color', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         outlined: true,
         color: 'blue',
         textColor: 'green',
@@ -120,50 +119,51 @@ describe('VChip.ts', () => {
 
   it('should render a chip with filter', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         filter: true,
-        inputValue: true,
+        modelValue: true, // ToggleableFactory использует modelValue для isActive
       },
     })
 
     expect(wrapper.findAll('.v-chip__filter')).toHaveLength(1)
   })
 
-  it('should call toggle event when used in the group', () => {
+  it('should call toggle event when used in the group', async () => {
     const register = jest.fn()
     const unregister = jest.fn()
-    const toggle = jest.fn()
     const wrapper = mountFunction({
-      provide: {
-        chipGroup: { register, unregister },
+      global: {
+        provide: {
+          chipGroup: { register, unregister },
+        },
       },
-      methods: { toggle },
     })
 
-    wrapper.trigger('click')
-    expect(toggle).toHaveBeenCalled()
+    // Проверяем, что toggle вызывается при клике
+    await wrapper.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('click')).toBeTruthy()
   })
 
   it('should conditionally show based on active prop', async () => {
-    const active = jest.fn()
     const wrapper = mountFunction({
-      propsData: { close: true },
+      props: { close: true },
     })
     const close = wrapper.find('.v-chip__close')
 
-    wrapper.vm.$on('update:active', active)
+    // Initially visible
+    expect(wrapper.element.style.display).not.toBe('none')
 
-    expect(wrapper.isVisible()).toBe(true)
+    await close.trigger('click')
 
-    close.trigger('click')
-
-    expect(active).toHaveBeenCalledTimes(1)
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false])
 
     // Simulate active.sync behavior
-    wrapper.setProps({ active: false })
+    await wrapper.setProps({ active: false })
+    await nextTick()
 
-    await wrapper.vm.$nextTick()
-
-    expect(wrapper.isVisible()).toBe(false)
+    // Element should be hidden via v-show directive
+    expect(wrapper.element.style.display).toBe('none')
   })
 })

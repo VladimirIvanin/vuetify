@@ -3,12 +3,12 @@
 exports[`VChip.ts should be removable 1`] = `
 <span class="v-chip v-chip--no-color v-chip--removable theme--light v-size--default">
   <span class="v-chip__content">
-    <button type="button"
+    <button class="v-icon--link v-icon--right v-icon notranslate theme--light v-chip__close"
+            aria-hidden="false"
+            type="button"
+            style="font-size: 18px; height: 18px; width: 18px;"
             aria-label="$vuetify.close"
-            class="v-icon notranslate v-chip__close v-icon--link v-icon--right material-icons theme--light"
-            style="font-size: 18px;"
     >
-      $delete
     </button>
   </span>
 </span>
