@@ -492,8 +492,21 @@ export default baseMixins.extend({
       return input
     },
     genHiddenInput (): VNode {
+      let value = this.lazyValue
+
+      if (this.multiple && Array.isArray(value)) {
+        value = value.map(item => {
+          if (typeof item === 'object' && item !== null) {
+            return this.getValue(item)
+          }
+          return item
+        }).join(',')
+      } else if (typeof value === 'object' && value !== null) {
+        value = this.getValue(value)
+      }
+
       return h('input', {
-        value: this.lazyValue,
+        value: value,
         type: 'hidden',
         name: this.$attrs.name
       })
