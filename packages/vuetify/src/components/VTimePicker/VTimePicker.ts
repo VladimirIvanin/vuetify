@@ -205,7 +205,10 @@ export default mixins(
   watch: {
     activePicker: 'setPicker',
     selecting: 'emitPicker',
-    modelValue: 'setInputData',
+    modelValue: {
+      handler: 'setInputData',
+      immediate: false
+    },
   },
 
   mounted () {
@@ -318,6 +321,9 @@ export default mixins(
       this.emitValue()
     },
     onChange (value: number) {
+      // Сначала обновляем значение через onInput - это ключевой момент!
+      this.onInput(value)
+
       this.$emit(`click:${selectingNames[this.selecting]}`, value)
 
       const emitChange =
@@ -334,7 +340,9 @@ export default mixins(
         this.inputHour === this.lazyInputHour &&
         this.inputMinute === this.lazyInputMinute &&
         (!this.useSeconds || this.inputSecond === this.lazyInputSecond)
-      ) { return }
+      ) {
+        return
+      }
 
       const time = this.genValue()
       if (time === null) return
