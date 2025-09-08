@@ -215,44 +215,45 @@ exports[`VSelect.ts should only show items if they are in items 4`] = `
 `;
 
 exports[`VSelect.ts should render v-select correctly when not using scope slot 1`] = `
-<div class="v-input theme--light v-text-field v-select">
+<div class="v-input v-input--is-label-active v-input--is-dirty theme--light v-text-field v-select">
   <div class="v-input__control">
     <div role="button"
          aria-haspopup="listbox"
          aria-expanded="false"
-         aria-owns="list-32"
+         aria-owns="list-2"
          class="v-input__slot"
     >
       <div class="v-select__slot">
         <div class="v-select__selections">
-          <input id="input-32"
-                 readonly="readonly"
-                 type="text"
-                 aria-readonly="false"
+          <div class="v-select__selection v-select__selection--comma">
+            Text 0
+          </div>
+          <input aria-readonly="false"
                  autocomplete="off"
+                 id="input-2"
+                 readonly
+                 type="text"
           >
         </div>
         <div class="v-input__append-inner">
           <div class="v-input__icon v-input__icon--append">
-            <i aria-hidden="true"
-               class="v-icon notranslate material-icons theme--light"
+            <span class="v-icon notranslate theme--light"
+                  aria-hidden="true"
             >
-              $dropdown
-            </i>
+            </span>
           </div>
         </div>
-        <input type="hidden">
+        <input type="hidden"
+               value="0"
+        >
       </div>
       <div class="v-menu">
       </div>
     </div>
     <div class="v-text-field__details">
       <div class="v-messages theme--light">
-        <span name="message-transition"
-              tag="div"
-              class="v-messages__wrapper"
-        >
-        </span>
+        <div class="v-messages__wrapper">
+        </div>
       </div>
     </div>
   </div>
@@ -260,44 +261,45 @@ exports[`VSelect.ts should render v-select correctly when not using scope slot 1
 `;
 
 exports[`VSelect.ts should render v-select correctly when not using v-list-item in item scope slot 1`] = `
-<div class="v-input theme--light v-text-field v-select">
+<div class="v-input v-input--is-label-active v-input--is-dirty theme--light v-text-field v-select">
   <div class="v-input__control">
     <div role="button"
          aria-haspopup="listbox"
          aria-expanded="false"
-         aria-owns="list-26"
+         aria-owns="list-2"
          class="v-input__slot"
     >
       <div class="v-select__slot">
         <div class="v-select__selections">
-          <input id="input-26"
-                 readonly="readonly"
-                 type="text"
-                 aria-readonly="false"
+          <div class="v-select__selection v-select__selection--comma">
+            Text 0
+          </div>
+          <input aria-readonly="false"
                  autocomplete="off"
+                 id="input-2"
+                 readonly
+                 type="text"
           >
         </div>
         <div class="v-input__append-inner">
           <div class="v-input__icon v-input__icon--append">
-            <i aria-hidden="true"
-               class="v-icon notranslate material-icons theme--light"
+            <span class="v-icon notranslate theme--light"
+                  aria-hidden="true"
             >
-              $dropdown
-            </i>
+            </span>
           </div>
         </div>
-        <input type="hidden">
+        <input type="hidden"
+               value="0"
+        >
       </div>
       <div class="v-menu">
       </div>
     </div>
     <div class="v-text-field__details">
       <div class="v-messages theme--light">
-        <span name="message-transition"
-              tag="div"
-              class="v-messages__wrapper"
-        >
-        </span>
+        <div class="v-messages__wrapper">
+        </div>
       </div>
     </div>
   </div>
@@ -305,44 +307,47 @@ exports[`VSelect.ts should render v-select correctly when not using v-list-item 
 `;
 
 exports[`VSelect.ts should render v-select correctly when using v-list-item in item scope slot 1`] = `
-<div class="v-input theme--light v-text-field v-select">
+<div class="v-input v-input--is-label-active v-input--is-dirty theme--light v-text-field v-select">
   <div class="v-input__control">
     <div role="button"
          aria-haspopup="listbox"
          aria-expanded="false"
-         aria-owns="list-19"
+         aria-owns="list-2"
          class="v-input__slot"
     >
       <div class="v-select__slot">
         <div class="v-select__selections">
-          <input id="input-19"
-                 readonly="readonly"
-                 type="text"
-                 aria-readonly="false"
+          <div tabindex="-1"
+               class="v-list-item theme--light"
+          >
+            0
+          </div>
+          <input aria-readonly="false"
                  autocomplete="off"
+                 id="input-2"
+                 readonly
+                 type="text"
           >
         </div>
         <div class="v-input__append-inner">
           <div class="v-input__icon v-input__icon--append">
-            <i aria-hidden="true"
-               class="v-icon notranslate material-icons theme--light"
+            <span class="v-icon notranslate theme--light"
+                  aria-hidden="true"
             >
-              $dropdown
-            </i>
+            </span>
           </div>
         </div>
-        <input type="hidden">
+        <input type="hidden"
+               value="0"
+        >
       </div>
       <div class="v-menu">
       </div>
     </div>
     <div class="v-text-field__details">
       <div class="v-messages theme--light">
-        <span name="message-transition"
-              tag="div"
-              class="v-messages__wrapper"
-        >
-        </span>
+        <div class="v-messages__wrapper">
+        </div>
       </div>
     </div>
   </div>
@@ -350,22 +355,13 @@ exports[`VSelect.ts should render v-select correctly when using v-list-item in i
 `;
 
 exports[`VSelect.ts should use slotted no-data 1`] = `
-<div role="listbox"
+<div class="v-sheet theme--light v-list v-select-list theme--light"
+     role="listbox"
+     id="list-184"
      tabindex="-1"
-     class="v-list v-select-list v-sheet theme--light theme--light"
-     id="list-134"
 >
-  <div tabindex="0"
-       aria-selected="false"
-       id="list-item-139-0"
-       role="option"
-       class="v-list-item v-list-item--link theme--light"
-  >
-    <div class="v-list-item__content">
-      <div class="v-list-item__title">
-        foo
-      </div>
-    </div>
+  <div>
+    foo
   </div>
 </div>
 `;

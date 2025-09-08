@@ -97,14 +97,11 @@ describe('VSelect.ts', () => {
     const wrapper = mountFunction({
       render () {
         return h(VSelect, {
-          props: {
-            items: ['foo', 'bar'],
-            modelValue: 'foo',
-          },
-          slots: {
-            selection: ({ item }) => {
-              return h('div', item + ' - from slot')
-            },
+          items: ['foo', 'bar'],
+          modelValue: 'foo',
+        }, {
+          selection: ({ item }) => {
+            return h('div', item + ' - from slot')
           },
         })
       },
