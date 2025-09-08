@@ -60,9 +60,7 @@ describe('VSelect.ts', () => {
         items: ['foo', 'bar'],
       },
       slots: {
-        'no-data': {
-          render: h => h('div', 'No Data'),
-        },
+        'no-data': () => h('div', 'No Data'),
       },
     })
 
