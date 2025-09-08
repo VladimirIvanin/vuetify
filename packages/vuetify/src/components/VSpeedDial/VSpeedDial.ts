@@ -1,4 +1,4 @@
-import {TransitionGroup, h} from 'vue'
+import { TransitionGroup, h, VNode, VNodeData } from 'vue'
 // Styles
 import './VSpeedDial.sass'
 
@@ -12,7 +12,7 @@ import ClickOutside from '../../directives/click-outside'
 
 // Types
 import mixins from '../../util/mixins'
-import { VNode, VNodeData } from 'vue'
+
 import { Prop } from 'vue/types/options'
 import { getSlot } from '../../util/helpers'
 
@@ -21,6 +21,8 @@ export default mixins(Positionable, Toggleable, Transitionable).extend({
   name: 'v-speed-dial',
 
   directives: { ClickOutside },
+
+  emits: ['update:modelValue'],
 
   props: {
     direction: {

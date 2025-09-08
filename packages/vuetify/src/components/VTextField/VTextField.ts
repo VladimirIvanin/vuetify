@@ -90,6 +90,8 @@ export default baseMixins.extend({
     },
   },
 
+  emits: ['update:modelValue', 'blur', 'focus', 'keydown'],
+
   data: () => ({
     badInput: false,
     labelWidth: 0,

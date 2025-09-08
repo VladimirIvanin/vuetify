@@ -54,7 +54,7 @@ export default mixins(
     },
     vertical: Boolean,
   },
-
+  emits: ['update:modelValue'],
   data: () => ({
     activeTimeout: -1,
   }),

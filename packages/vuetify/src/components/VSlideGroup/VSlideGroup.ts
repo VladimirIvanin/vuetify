@@ -139,6 +139,8 @@ export const BaseSlideGroup = mixins<options &
     },
   },
 
+  emits: ['click:prev', 'click:next'],
+
   data: () => ({
     isOverflowing: false,
     resizeTimeout: 0,
