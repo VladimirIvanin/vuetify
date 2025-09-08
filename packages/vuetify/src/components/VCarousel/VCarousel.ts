@@ -1,4 +1,3 @@
-import {h} from 'vue'
 // Styles
 import './VCarousel.sass'
 
@@ -19,11 +18,18 @@ import { convertToUnit } from '../../util/helpers'
 import { breaking } from '../../util/console'
 
 // Types
-import { VNode, PropType, defineComponent } from 'vue'
+import { h, VNode, PropType, defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'v-carousel',
   extends: VWindow,
+
+  // pass down the parent's theme
+  provide (): object {
+    return {
+      parentTheme: this.theme,
+    }
+  },
 
   props: {
     continuous: {
@@ -62,12 +68,10 @@ export default defineComponent({
     },
   },
 
-  // pass down the parent's theme
-  provide (): object {
-    return {
-      parentTheme: this.theme,
-    }
-  },
+  emits: [
+    'update:modelValue',
+    'change',
+  ],
 
   data () {
     return {
@@ -158,7 +162,7 @@ export default defineComponent({
       }
 
       return h(ButtonGroup, {
-        value: this.internalValue,
+        modelValue: this.internalValue,
         mandatory: this.mandatory,
         onChange: (val: unknown) => {
           this.internalValue = val
