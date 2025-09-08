@@ -5,6 +5,7 @@ import VSelect from '../VSelect'
 import {
   mount,
   Wrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 
 // eslint-disable-next-line max-statements
@@ -19,15 +20,15 @@ describe('VSelect.ts', () => {
     document.body.appendChild(el)
     mountFunction = (options = {}) => {
       return mount(VSelect, {
-        // https://github.com/vuejs/vue-test-utils/issues/1130
-        sync: false,
-        mocks: {
-          $vuetify: {
-            lang: {
-              t: (val: string) => val,
-            },
-            theme: {
-              dark: false,
+        global: {
+          mocks: {
+            $vuetify: {
+              lang: {
+                t: (val: string) => val,
+              },
+              theme: {
+                dark: false,
+              },
             },
           },
         },
@@ -40,38 +41,35 @@ describe('VSelect.ts', () => {
     document.body.removeChild(el)
   })
 
+  enableAutoUnmount(afterEach)
+
   it('should select an item !multiple', async () => {
     const wrapper = mountFunction()
-
-    const input = jest.fn()
-    const change = jest.fn()
-    wrapper.vm.$on('input', input)
-    wrapper.vm.$on('change', change)
 
     wrapper.vm.selectItem('foo')
 
     expect(wrapper.vm.internalValue).toBe('foo')
-    expect(input).toHaveBeenCalledWith('foo')
-    expect(input).toHaveBeenCalledTimes(1)
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1)
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['foo'])
 
     await wrapper.vm.$nextTick()
 
-    expect(change).toHaveBeenCalledWith('foo')
-    expect(change).toHaveBeenCalledTimes(1)
+    expect(wrapper.emitted('change')).toHaveLength(1)
+    expect(wrapper.emitted('change')?.[0]).toEqual(['foo'])
 
-    wrapper.setProps({ returnObject: true })
+    await wrapper.setProps({ returnObject: true })
 
     const item = { foo: 'bar' }
     wrapper.vm.selectItem(item)
 
     expect(wrapper.vm.internalValue).toBe(item)
-    expect(input).toHaveBeenCalledWith(item)
-    expect(input).toHaveBeenCalledTimes(2)
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(2)
+    expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([item])
 
     await wrapper.vm.$nextTick()
 
-    expect(change).toHaveBeenCalledWith(item)
-    expect(change).toHaveBeenCalledTimes(2)
+    expect(wrapper.emitted('change')).toHaveLength(2)
+    expect(wrapper.emitted('change')?.[1]).toEqual([item])
   })
 
   // TODO: this fails without sync, nextTick doesn't help
@@ -79,7 +77,7 @@ describe('VSelect.ts', () => {
   it.skip('should disable v-list-item', async () => {
     const selectItem = jest.fn()
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         eager: true,
         items: [{ text: 'foo', disabled: true, id: 0 }],
       },
@@ -107,10 +105,8 @@ describe('VSelect.ts', () => {
     const wrapper = mountFunction()
     const menu = wrapper.vm.$refs.menu
 
-    wrapper.setData({
-      isMenuActive: true,
-      isFocused: true,
-    })
+    wrapper.vm.isMenuActive = true
+    wrapper.vm.isFocused = true
 
     expect(wrapper.vm.isMenuActive).toBe(true)
     expect(wrapper.vm.isFocused).toBe(true)
@@ -132,31 +128,25 @@ describe('VSelect.ts', () => {
   it.skip('should update model when chips are removed', async () => {
     const selectItem = jest.fn()
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         chips: true,
         deletableChips: true,
         items: ['foo'],
-        value: 'foo',
+        modelValue: 'foo',
       },
       methods: { selectItem },
     })
 
-    const input = jest.fn()
-    const change = jest.fn()
-
-    wrapper.vm.$on('input', input)
-
     expect(wrapper.vm.internalValue).toEqual('foo')
     wrapper.find('.v-chip__close').trigger('click')
 
-    expect(input).toHaveBeenCalledTimes(1)
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1)
 
-    wrapper.setProps({
+    await wrapper.setProps({
       items: ['foo', 'bar'],
       multiple: true,
-      value: ['foo', 'bar'],
+      modelValue: ['foo', 'bar'],
     })
-    wrapper.vm.$on('change', change)
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.internalValue).toEqual(['foo', 'bar'])
@@ -171,12 +161,12 @@ describe('VSelect.ts', () => {
   // https://github.com/vuejs/vue-test-utils/issues/1130
   it.skip('should set selected index', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         chips: true,
         deletableChips: true,
         multiple: true,
         items: ['foo', 'bar', 'fizz', 'buzz'],
-        value: ['foo', 'bar', 'fizz', 'buzz'],
+        modelValue: ['foo', 'bar', 'fizz', 'buzz'],
       },
     })
 
@@ -187,7 +177,7 @@ describe('VSelect.ts', () => {
 
     expect(wrapper.vm.selectedIndex).toBe(0)
 
-    wrapper.findAll('.v-chip').at(1).trigger('click')
+    wrapper.findAll('.v-chip')[1].trigger('click')
 
     expect(wrapper.vm.selectedIndex).toBe(1)
 
@@ -200,7 +190,7 @@ describe('VSelect.ts', () => {
 
   it('should not duplicate items after items update when caching is turned on', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         cacheItems: true,
         returnObject: true,
         itemText: 'text',
@@ -209,9 +199,9 @@ describe('VSelect.ts', () => {
       },
     })
 
-    wrapper.setProps({ items: [{ id: 1, text: 'A' }] })
+    await wrapper.setProps({ items: [{ id: 1, text: 'A' }] })
     expect(wrapper.vm.computedItems).toHaveLength(1)
-    wrapper.setProps({ items: [{ id: 1, text: 'A' }] })
+    await wrapper.setProps({ items: [{ id: 1, text: 'A' }] })
     expect(wrapper.vm.computedItems).toHaveLength(1)
   })
 
@@ -219,28 +209,28 @@ describe('VSelect.ts', () => {
   // https://github.com/vuejs/vue-test-utils/issues/1130
   it.skip('should cache items', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         cacheItems: true,
         items: [],
       },
     })
 
-    wrapper.setProps({ items: ['bar', 'baz'] })
+    await wrapper.setProps({ items: ['bar', 'baz'] })
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.computedItems).toHaveLength(2)
 
-    wrapper.setProps({ items: ['foo'] })
+    await wrapper.setProps({ items: ['foo'] })
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.computedItems).toHaveLength(3)
 
-    wrapper.setProps({ items: ['bar'] })
+    await wrapper.setProps({ items: ['bar'] })
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.computedItems).toHaveLength(3)
   })
 
   it('should cache items passed via prop', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         cacheItems: true,
         items: [1, 2, 3, 4],
       },
@@ -254,7 +244,7 @@ describe('VSelect.ts', () => {
 
   it('should have an affix', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         prefix: '$',
         suffix: 'lbs',
       },
@@ -274,10 +264,10 @@ describe('VSelect.ts', () => {
   it('should use custom clear icon cb', async () => {
     const clearIconCb = jest.fn()
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         clearable: true,
         items: ['foo'],
-        value: 'foo',
+        modelValue: 'foo',
       },
     })
 
@@ -289,14 +279,14 @@ describe('VSelect.ts', () => {
 
   it('should populate select[multiple=false] when using value as an object', async () => {
     const wrapper = mountFunction({
-      attachToDocument: true,
-      propsData: {
+      attachTo: document.body,
+      props: {
         items: [
           { text: 'foo', value: { id: { subid: 1 } } },
           { text: 'foo', value: { id: { subid: 2 } } },
         ],
         multiple: false,
-        value: { id: { subid: 2 } },
+        modelValue: { id: { subid: 2 } },
       },
     })
 
@@ -307,10 +297,10 @@ describe('VSelect.ts', () => {
 
   it('should add color to selected index', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         multiple: true,
         items: ['foo', 'bar'],
-        value: ['foo'],
+        modelValue: ['foo'],
       },
     })
 
@@ -323,7 +313,7 @@ describe('VSelect.ts', () => {
 
   it('should not react to click when disabled', async () => {
     const wrapper = mountFunction({
-      propsData: { items: ['foo', 'bar'] },
+      props: { items: ['foo', 'bar'] },
     })
 
     const slot = wrapper.find('.v-input__slot')
@@ -356,7 +346,7 @@ describe('VSelect.ts', () => {
   // Inspired by https://github.com/vuetifyjs/vuetify/pull/1425 - Thanks @kevmo314
   it('should open the select when enter is pressed', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: ['foo', 'bar'],
       },
     })
@@ -369,7 +359,7 @@ describe('VSelect.ts', () => {
 
   it('should open the select when space is pressed', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: ['foo', 'bar'],
       },
     })
@@ -382,7 +372,7 @@ describe('VSelect.ts', () => {
 
   it('should open the select is multiple and key up is pressed', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         multiple: true,
         items: ['foo', 'bar'],
       },
@@ -396,7 +386,7 @@ describe('VSelect.ts', () => {
 
   it('should open the select is multiple and key down is pressed', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         multiple: true,
         items: ['foo', 'bar'],
       },
@@ -410,7 +400,7 @@ describe('VSelect.ts', () => {
 
   it('should return full items if using auto prop', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: [...Array(100).keys()],
       },
     })
@@ -424,7 +414,7 @@ describe('VSelect.ts', () => {
 
   it('should fallback to using text as value if none present', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: [{
           text: 'foo',
         }],
@@ -436,7 +426,7 @@ describe('VSelect.ts', () => {
 
   it('should accept arrays as values', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: [
           { text: 'Foo', value: ['bar'] },
         ],
@@ -458,14 +448,14 @@ describe('VSelect.ts', () => {
 
   it('should update inner input element', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: ['foo', 'bar', 'fizz', 'buzz'],
-        value: ['fizz'],
+        modelValue: ['fizz'],
       },
     })
 
     const inputs = wrapper.findAll('input')
-    const element = inputs.at(1).element
+    const element = inputs[1].element
 
     expect(element.value).toEqual('fizz')
 
@@ -478,14 +468,14 @@ describe('VSelect.ts', () => {
 
   it('should pass the name attribute to the inner input element', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: ['foo'],
         name: ['bar'],
       },
     })
 
     const inputs = wrapper.findAll('input')
-    const element = inputs.at(1).element
+    const element = inputs[1].element
 
     expect(element.name).toEqual('bar')
   })

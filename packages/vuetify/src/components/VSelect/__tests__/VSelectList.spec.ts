@@ -1,6 +1,3 @@
-// Libraries
-import Vue from 'vue'
-
 // Components
 import VSelectList from '../VSelectList'
 
@@ -8,17 +5,19 @@ import VSelectList from '../VSelectList'
 import {
   mount,
   Wrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
+import { h } from 'vue'
 
 describe('VSelectList.ts', () => {
   type Instance = InstanceType<typeof VSelectList>
   let mountFunction: (options?: object) => Wrapper<Instance>
 
+  enableAutoUnmount(afterEach)
+
   beforeEach(() => {
     mountFunction = (options = {}) => {
       return mount(VSelectList, {
-        // https://github.com/vuejs/vue-test-utils/issues/1130
-        sync: false,
         ...options,
       })
     }
@@ -31,40 +30,35 @@ describe('VSelectList.ts', () => {
       inset: true,
     })
 
-    expect(divider.data.props.inset).toBe(true)
+    expect(divider.props.inset).toBe(true)
   })
 
   // TODO: wat
   it.skip('should generate a header', () => {
-    const wrapper = mount(VSelectList)
+    const wrapper = mountFunction()
 
-    const divider = wrapper.vm.genHeader({
+    const header = wrapper.vm.genHeader({
       light: true,
       header: 'foobar',
     })
 
-    expect(divider.data.props.light).toBe(true)
+    expect(header.props.light).toBe(true)
 
     // Check that header exists
-    expect(divider.children).toHaveLength(1)
-    expect(divider.children[0].text).toBe('foobar')
+    expect(header.children).toHaveLength(1)
+    expect(header.children[0].children).toBe('foobar')
   })
 
   it('should use no-data slot', () => {
     const wrapper = mountFunction({
       slots: {
-        'no-data': [{
-          render: h => h('div', 'foo'),
-        }],
+        'no-data': () => h('div', 'foo'),
       },
     })
-    expect(wrapper.vm.$slots['no-data']).toHaveLength(1)
+    expect(wrapper.vm.$slots['no-data']).toBeDefined()
   })
 
   it('should display no-data-text when item slot is provided', async () => {
-    const vm = new Vue()
-    const itemSlot = () => vm.$createElement('div', ['this is not ok'])
-
     const wrapper = mountFunction()
     await wrapper.vm.$nextTick()
     expect(wrapper.html()).toMatchSnapshot()
@@ -72,7 +66,7 @@ describe('VSelectList.ts', () => {
 
   it('should generate children', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: [
           { header: true },
           { divider: true },
@@ -86,7 +80,7 @@ describe('VSelectList.ts', () => {
 
   it('should return defined item value', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         itemValue: 'foo',
       },
     })
@@ -96,14 +90,14 @@ describe('VSelectList.ts', () => {
 
     expect(getValue({ fizz: 'buzz' })).toEqual(getText({ fizz: 'buzz' }))
 
-    wrapper.setProps({ itemValue: 'fizz' })
+    await wrapper.setProps({ itemValue: 'fizz' })
 
     expect(getValue({ fizz: 'buzz' })).toEqual('buzz')
   })
 
   it('should hide selected items', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         selectedItems: ['foo'],
         hideSelected: true,
         items: ['foo', 'bar', 'fizz'],
@@ -112,7 +106,7 @@ describe('VSelectList.ts', () => {
 
     expect(wrapper.findAll('.v-list-item')).toHaveLength(2)
 
-    wrapper.setProps({ selectedItems: ['foo', 'bar'] })
+    await wrapper.setProps({ selectedItems: ['foo', 'bar'] })
 
     await wrapper.vm.$nextTick()
 
@@ -122,7 +116,7 @@ describe('VSelectList.ts', () => {
   // https://github.com/vuetifyjs/vuetify/issues/4431
   it('should display falsy items', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         items: [0, null, false, undefined, ''],
       },
     })
@@ -131,9 +125,9 @@ describe('VSelectList.ts', () => {
   })
 
   // https://github.com/vuetifyjs/vuetify/issues/7692
-  it('should select an item when checkbox is clicked', () => {
+  it('should select an item when checkbox is clicked', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         action: true,
         items: ['Foo', 'Bar', 'Fizz', 'Buzz'],
         multiple: true,
@@ -141,12 +135,10 @@ describe('VSelectList.ts', () => {
     })
 
     const checkbox = wrapper.find('.v-simple-checkbox')
-    const select = jest.fn()
 
-    wrapper.vm.$on('select', select)
+    await checkbox.trigger('click')
 
-    checkbox.trigger('click')
-
-    expect(select).toHaveBeenCalledWith('Foo')
+    expect(wrapper.emitted('select')).toBeTruthy()
+    expect(wrapper.emitted('select')?.[0]).toEqual(['Foo'])
   })
 })

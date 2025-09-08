@@ -4,7 +4,8 @@ import VListItemAvatar from '../VListItemAvatar'
 // Utilities
 import {
   mount,
-  Wrapper,
+  VueWrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 
 // Types
@@ -12,7 +13,9 @@ import { ExtractVue } from '../../../util/mixins'
 
 describe('VListItemAvatar.ts', () => {
   type Instance = ExtractVue<typeof VListItemAvatar>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  let mountFunction: (options?: object) => VueWrapper<Instance>
+
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
