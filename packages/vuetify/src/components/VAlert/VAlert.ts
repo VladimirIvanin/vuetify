@@ -31,6 +31,8 @@ export default mixins(
 ).extend({
   name: 'v-alert',
 
+  emits: ['update:modelValue'],
+
   props: {
     border: {
       type: String,
