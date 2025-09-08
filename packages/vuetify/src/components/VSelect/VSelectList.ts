@@ -93,7 +93,7 @@ export default mixins(Colorable, Themeable).extend({
       ])
     },
     genDivider (props: { [key: string]: any }) {
-      return h(VDivider, { props })
+      return h(VDivider, props)
     },
     genFilteredText (text: string) {
       text = text || ''
@@ -105,7 +105,7 @@ export default mixins(Colorable, Themeable).extend({
       return [start, this.genHighlight(middle), end]
     },
     genHeader (props: { [key: string]: any }): VNode {
-      return h(VSubheader, { props }, props.header)
+      return h(VSubheader, props, props.header)
     },
     genHighlight (text: string) {
       return h('span', { class: 'v-list-item__mask' }, text)
