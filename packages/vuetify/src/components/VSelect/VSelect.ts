@@ -63,7 +63,6 @@ interface options extends InstanceType<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-select',
 
-
   props: {
     appendIcon: {
       type: String,
@@ -110,8 +109,11 @@ export default baseMixins.extend({
     smallChips: Boolean,
   },
 
+  emits: ['update:modelValue', 'change', 'focus', 'blur', 'keydown', 'click', 'update:list-index'],
+
   data () {
     return {
+      $_emitChangeEvent: true,
       cachedItems: this.cacheItems ? this.items : [],
       menuIsBooted: false,
       isMenuActive: false,
@@ -150,7 +152,7 @@ export default baseMixins.extend({
       return this.allItems
     },
     computedOwns (): string {
-      return `list-${this.$.uid}`
+      return `list-${this.$?.uid}`
     },
     computedCounterValue (): number {
       const value = this.multiple
@@ -458,9 +460,10 @@ export default baseMixins.extend({
 
       if (type === 'append') {
         // Don't allow the dropdown icon to be focused
-        const hasListeners = Object.keys(icon.children![0].props).some(key => key.startsWith('on'))
-        icon.children![0].data = mergeData(icon.children![0].props!, {
-          tabindex: hasListeners && '-1',
+        const iconChild = icon.children![0]
+        const hasListeners = Object.keys(iconChild.props || {}).some(key => key.startsWith('on'))
+        iconChild.props = mergeData(iconChild.props || {}, {
+          tabindex: hasListeners ? '-1' : undefined,
           'aria-hidden': 'true',
           'aria-label': undefined
         })
@@ -492,7 +495,7 @@ export default baseMixins.extend({
       return h('input', {
         value: this.lazyValue,
         type: 'hidden',
-        name: this.attrs$.name
+        name: this.$attrs.name
       })
     },
     genInputSlot (): VNode {
@@ -901,6 +904,10 @@ export default baseMixins.extend({
       if (!this.valueComparator(value, this.internalValue)) {
         this.internalValue = value
         this.$emit('update:modelValue', value)
+        // Emit change event if flag is set
+        if('$_emitChangeEvent' in this) {
+          this.$emit('change', value)
+        }
       }
     },
     isAppendInner (target: any) {
