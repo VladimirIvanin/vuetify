@@ -1,4 +1,4 @@
-import {h} from 'vue'
+import { h, VNode, PropType, VNodeData } from 'vue'
 import './VTimePickerClock.sass'
 
 // Mixins
@@ -7,15 +7,13 @@ import Themeable from '../../mixins/themeable'
 
 // Types
 import mixins, { ExtractVue } from '../../util/mixins'
-import Vue, { VNode, PropType, VNodeData } from 'vue'
-import { PropValidator } from 'vue/types/options'
 
 interface Point {
   x: number
   y: number
 }
 
-interface options extends Vue {
+interface options {
   $refs: {
     clock: HTMLElement
     innerClock: HTMLElement
@@ -42,9 +40,9 @@ export default mixins<options &
     disabled: Boolean,
     double: Boolean,
     format: {
-      type: Function,
+      type: Function as PropType<(val: string | number) => string | number>,
       default: (val: string | number) => val,
-    } as PropValidator<(val: string | number) => string | number>,
+    },
     max: {
       type: Number,
       required: true,
@@ -63,12 +61,11 @@ export default mixins<options &
       type: Number,
       default: 1,
     },
-    value: Number,
+    modelValue: Number,
   },
 
   data () {
     return {
-      inputValue: this.value,
       isDragging: false,
       valueOnMouseDown: null as number | null,
       valueOnMouseUp: null as number | null,
@@ -86,7 +83,7 @@ export default mixins<options &
       return this.degreesPerUnit * Math.PI / 180
     },
     displayedValue (): number {
-      return this.value == null ? this.min : this.value
+      return this.modelValue == null ? this.min : this.modelValue
     },
     innerRadiusScale (): number {
       return 0.62
@@ -96,11 +93,6 @@ export default mixins<options &
     },
   },
 
-  watch: {
-    value (value) {
-      this.inputValue = value
-    },
-  },
 
   methods: {
     wheel (e: WheelEvent) {
@@ -130,15 +122,17 @@ export default mixins<options &
       const children: VNode[] = []
 
       for (let value = this.min; value <= this.max; value = value + this.step) {
-        const color = value === this.value && (this.color || 'accent')
+        const color = value === this.modelValue && (this.color || 'accent')
         children.push(h('span', this.setBackgroundColor(color, {
-          class: 'v-time-picker-clock__item',
-          class: {
-            'v-time-picker-clock__item--active': value === this.displayedValue,
-            'v-time-picker-clock__item--disabled': this.disabled || !this.isAllowed(value),
-          },
+          class: [
+            'v-time-picker-clock__item',
+            {
+              'v-time-picker-clock__item--active': value === this.displayedValue,
+              'v-time-picker-clock__item--disabled': this.disabled || !this.isAllowed(value),
+            },
+          ],
           style: this.getTransform(value),
-          domProps: { innerHTML: `<span>${this.format(value)}</span>` },
+          innerHTML: `<span>${this.format(value)}</span>`,
         })))
       }
 
@@ -147,12 +141,14 @@ export default mixins<options &
     genHand () {
       const scale = `scaleY(${this.handScale(this.displayedValue)})`
       const angle = this.rotate + this.degreesPerUnit * (this.displayedValue - this.min)
-      const color = (this.value != null) && (this.color || 'accent')
+      const color = (this.modelValue != null) && (this.color || 'accent')
       return h('div', this.setBackgroundColor(color, {
-        class: 'v-time-picker-clock__hand',
-        class: {
-          'v-time-picker-clock__hand--inner': this.isInner(this.value),
-        },
+        class: [
+          'v-time-picker-clock__hand',
+          {
+            'v-time-picker-clock__hand--inner': this.isInner(this.modelValue),
+          },
+        ],
         style: {
           transform: `rotate(${angle}deg) ${scale}`,
         },
@@ -230,9 +226,8 @@ export default mixins<options &
       this.update(value)
     },
     update (value: number) {
-      if (this.inputValue !== value) {
-        this.inputValue = value
-        this.$emit('input', value)
+      if (this.modelValue !== value) {
+        this.$emit('update:modelValue', value)
       }
     },
     euclidean (p0: Point, p1: Point) {
@@ -249,25 +244,25 @@ export default mixins<options &
 
   render (): VNode {
     const data: VNodeData = {
-      class: 'v-time-picker-clock',
-      class: {
-        'v-time-picker-clock--indeterminate': this.value == null,
-        ...this.themeClasses,
-      },
-      on: (this.readonly || this.disabled) ? undefined : {
-        mousedown: this.onMouseDown,
-        mouseup: this.onMouseUp,
-        mouseleave: (e: MouseEvent) => (this.isDragging && this.onMouseUp(e)),
-        touchstart: this.onMouseDown,
-        touchend: this.onMouseUp,
-        mousemove: this.onDragMove,
-        touchmove: this.onDragMove,
-      },
+      class: [
+        'v-time-picker-clock',
+        {
+          'v-time-picker-clock--indeterminate': this.modelValue == null,
+          ...this.themeClasses,
+        },
+      ],
+      onMousedown: (this.readonly || this.disabled) ? undefined : this.onMouseDown,
+      onMouseup: (this.readonly || this.disabled) ? undefined : this.onMouseUp,
+      onMouseleave: (this.readonly || this.disabled) ? undefined : (e: MouseEvent) => (this.isDragging && this.onMouseUp(e)),
+      onTouchstart: (this.readonly || this.disabled) ? undefined : this.onMouseDown,
+      onTouchend: (this.readonly || this.disabled) ? undefined : this.onMouseUp,
+      onMousemove: (this.readonly || this.disabled) ? undefined : this.onDragMove,
+      onTouchmove: (this.readonly || this.disabled) ? undefined : this.onDragMove,
       ref: 'clock',
     }
 
-    if (this.scrollable && data.on) {
-      data.on.wheel = this.wheel
+    if (this.scrollable && !this.readonly && !this.disabled) {
+      data.onWheel = this.wheel
     }
 
     return h('div', data, [

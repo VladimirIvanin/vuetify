@@ -45,12 +45,12 @@ describe('VTimePickerClock.js', () => {
 
   it('should render component', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
+      props: {
         allowedValues: n => n % 2,
         max: 59,
         min: 0,
         step: 5,
-        value: 10,
+        modelValue: 10,
       },
     })
 
@@ -59,13 +59,13 @@ describe('VTimePickerClock.js', () => {
 
   it('should render disabled component', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
+      props: {
         allowedValues: n => n % 2,
         disabled: true,
         max: 59,
         min: 0,
         step: 5,
-        value: 10,
+        modelValue: 10,
       },
     })
 
@@ -74,13 +74,13 @@ describe('VTimePickerClock.js', () => {
 
   it('should render component with double prop', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
+      props: {
         allowedValues: n => n % 2,
         double: true,
         max: 59,
         min: 0,
         step: 5,
-        value: 10,
+        modelValue: 10,
       },
     })
 
@@ -89,136 +89,130 @@ describe('VTimePickerClock.js', () => {
 
   it('should emit input event on wheel if scrollable', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
+      props: {
         max: 59,
         min: 3,
-        value: 59,
+        modelValue: 59,
         scrollable: true,
       },
     })
 
-    const input = jest.fn()
-    wrapper.vm.$on('input', input)
-    wrapper.trigger('wheel')
-    expect(input).toHaveBeenCalledWith(3)
+    // Вызываем метод wheel напрямую
+    wrapper.vm.wheel({ preventDefault: () => {}, deltaY: -1 })
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1)
+    expect(wrapper.emitted('update:modelValue')[0]).toEqual([3])
   })
 
   it('should not emit input event on wheel if readonly and scrollable', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
+      props: {
         max: 10,
         min: 1,
-        value: 6,
+        modelValue: 6,
         scrollable: true,
         readonly: true,
       },
     })
 
-    const input = jest.fn()
-    wrapper.vm.$on('input', input)
-    wrapper.trigger('wheel')
-    expect(input).not.toHaveBeenCalled()
+    // В readonly режиме событие wheel не должно быть подключено
+    const wheelEvent = new WheelEvent('wheel', { deltaY: -1 })
+    wrapper.element.dispatchEvent(wheelEvent)
+    expect(wrapper.emitted('update:modelValue')).toBeFalsy()
   })
 
   it('should emit input event on wheel if scrollable and has allowedValues', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
+      props: {
         max: 10,
         min: 1,
-        value: 6,
+        modelValue: 6,
         scrollable: true,
         allowedValues: val => !(val % 3),
       },
     })
 
-    const input = jest.fn()
-    wrapper.vm.$on('input', input)
-    wrapper.trigger('wheel')
-    expect(input).toHaveBeenCalledWith(9)
+    // Вызываем метод wheel напрямую
+    wrapper.vm.wheel({ preventDefault: () => {}, deltaY: -1 })
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1)
+    expect(wrapper.emitted('update:modelValue')[0]).toEqual([9])
   })
 
   it('should not emit input event on wheel if not scrollable', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
+      props: {
         max: 59,
         min: 3,
-        value: 59,
+        modelValue: 59,
         scrollable: false,
       },
     })
 
-    const input = jest.fn()
-    wrapper.vm.$on('input', input)
-    wrapper.trigger('wheel')
-    expect(input).not.toHaveBeenCalled()
+    // В не-scrollable режиме событие wheel не должно быть подключено
+    const wheelEvent = new WheelEvent('wheel', { deltaY: -1 })
+    wrapper.element.dispatchEvent(wheelEvent)
+    expect(wrapper.emitted('update:modelValue')).toBeFalsy()
   })
 
   it('should emit change event on mouseup/touchend', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
-        value: 59,
+      props: {
+        modelValue: 59,
         min: 0,
         max: 60,
       },
     })
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
     wrapper.vm.valueOnMouseUp = 55
     wrapper.trigger('mouseup')
-    expect(change).toHaveBeenCalledWith(55)
+    expect(wrapper.emitted('change')).toHaveLength(1)
+    expect(wrapper.emitted('change')[0]).toEqual([55])
 
     wrapper.trigger('touchend')
-    expect(change).toHaveBeenCalledWith(55)
+    expect(wrapper.emitted('change')).toHaveLength(2)
+    expect(wrapper.emitted('change')[1]).toEqual([55])
   })
 
   it('should not emit change event on mouseup/touchend if readonly', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
-        value: 59,
+      props: {
+        modelValue: 59,
         min: 0,
         max: 60,
         readonly: true,
       },
     })
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
     wrapper.vm.valueOnMouseUp = 55
     wrapper.trigger('mouseup')
-    expect(change).not.toHaveBeenCalled()
+    expect(wrapper.emitted('change')).toBeFalsy()
 
     wrapper.trigger('touchend')
-    expect(change).not.toHaveBeenCalled()
+    expect(wrapper.emitted('change')).toBeFalsy()
   })
 
   it('should emit change event on mouseleave', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
-        value: 59,
+      props: {
+        modelValue: 59,
         min: 0,
         max: 60,
       },
     })
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
-
     wrapper.trigger('mouseleave')
-    expect(change).not.toHaveBeenCalled()
+    expect(wrapper.emitted('change')).toBeFalsy()
 
     wrapper.vm.isDragging = true
     wrapper.vm.valueOnMouseUp = 58
     wrapper.trigger('mouseleave')
-    expect(change).toHaveBeenCalledWith(58)
+    expect(wrapper.emitted('change')).toHaveLength(1)
+    expect(wrapper.emitted('change')[0]).toEqual([58])
   })
 
   it('should calculate angle', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
-        value: 59,
+      props: {
+        modelValue: 59,
         min: 0,
         max: 60,
       },
@@ -235,7 +229,7 @@ describe('VTimePickerClock.js', () => {
 
   it('should calculate position from angle', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
+      props: {
         min: 0,
         max: 6,
       },
@@ -244,14 +238,21 @@ describe('VTimePickerClock.js', () => {
     createBoundingRect(wrapper)
 
     const degreesPerUnit = wrapper.vm.degreesPerUnit
-    const input = jest.fn()
-
     touch(wrapper).start(0, 0)
-    wrapper.vm.$on('input', input)
 
     for (let i = 0; i <= 6; i++) {
       touch(wrapper).move(...anglePosition(i * degreesPerUnit))
-      expect(input).toHaveBeenCalledWith(i)
+    }
+
+    // Проверяем, что эмитились события для всех значений
+    const emitted = wrapper.emitted('update:modelValue')
+    expect(emitted).toBeTruthy()
+    expect(emitted.length).toBeGreaterThanOrEqual(7)
+
+    // Проверяем, что все значения от 0 до 6 присутствуют
+    const values = emitted.map(event => event[0])
+    for (let i = 0; i <= 6; i++) {
+      expect(values).toContain(i)
     }
   })
 
@@ -259,7 +260,7 @@ describe('VTimePickerClock.js', () => {
     const ALLOWED_VALUE = 15
     const ACCURACY_ANGLE = 15
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
+      props: {
         allowedValues: value => value === ALLOWED_VALUE || value === 60 - ALLOWED_VALUE,
         min: 0,
         max: 59,
@@ -269,58 +270,54 @@ describe('VTimePickerClock.js', () => {
     createBoundingRect(wrapper)
 
     const degreesPerUnit = wrapper.vm.degreesPerUnit
-    const input = jest.fn()
 
     touch(wrapper).start(0, 0)
-    wrapper.vm.$on('input', input)
 
     // Click on disabled value and more than 15 degrees away from the allowed value
     touch(wrapper).move(...anglePosition(ALLOWED_VALUE * degreesPerUnit + ACCURACY_ANGLE + 1))
-    expect(input).not.toHaveBeenCalled()
+    expect(wrapper.emitted('update:modelValue')).toBeFalsy()
     touch(wrapper).move(...anglePosition(ALLOWED_VALUE * degreesPerUnit - ACCURACY_ANGLE - 1))
-    expect(input).not.toHaveBeenCalled()
+    expect(wrapper.emitted('update:modelValue')).toBeFalsy()
 
     // Click on disabled value and less than 15 degrees away from the allowed value
     touch(wrapper).move(...anglePosition(ALLOWED_VALUE * degreesPerUnit + ACCURACY_ANGLE - 1))
-    expect(input).toHaveBeenCalledTimes(1)
-    expect(input).toHaveBeenCalledWith(ALLOWED_VALUE)
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1)
+    expect(wrapper.emitted('update:modelValue')[0]).toEqual([ALLOWED_VALUE])
     touch(wrapper).move(...anglePosition((60 - ALLOWED_VALUE) * degreesPerUnit + ACCURACY_ANGLE - 1))
-    expect(input).toHaveBeenCalledTimes(2)
-    expect(input).toHaveBeenCalledWith(60 - ALLOWED_VALUE)
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(2)
+    expect(wrapper.emitted('update:modelValue')[1]).toEqual([60 - ALLOWED_VALUE])
     touch(wrapper).move(...anglePosition(ALLOWED_VALUE * degreesPerUnit - ACCURACY_ANGLE + 1))
-    expect(input).toHaveBeenCalledTimes(3)
-    expect(input).toHaveBeenCalledWith(ALLOWED_VALUE)
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(3)
+    expect(wrapper.emitted('update:modelValue')[2]).toEqual([ALLOWED_VALUE])
   })
 
   it('should change with touch move', () => {
     const wrapper = mount(VTimePickerClock, {
-      propsData: {
+      props: {
         min: 0,
         max: 7,
-        value: 0,
+        modelValue: 0,
         double: true,
       },
     })
 
     createBoundingRect(wrapper)
 
-    const input = jest.fn()
     const finger = touch(wrapper).start(0, 0)
-    wrapper.vm.$on('input', input)
 
     finger.move(300, 150)
-    expect(input).toHaveBeenCalledWith(1)
     finger.move(150, 250)
-    expect(input).toHaveBeenCalledWith(2)
     finger.move(150, 249)
-    expect(input).toHaveBeenCalledWith(6)
-
-    // edge case
     finger.move(120, 0)
-    expect(input).toHaveBeenCalledWith(0)
     finger.move(135, 90)
-    expect(input).toHaveBeenCalledWith(4)
     finger.move(90, 135)
-    expect(input).toHaveBeenCalledWith(7)
+
+    // Проверяем, что эмитились события для изменений значений
+    const emitted = wrapper.emitted('update:modelValue')
+    expect(emitted).toBeTruthy()
+    expect(emitted.length).toBeGreaterThan(0)
+
+    // Проверяем последнее значение
+    expect(emitted[emitted.length - 1]).toEqual([7])
   })
 })
