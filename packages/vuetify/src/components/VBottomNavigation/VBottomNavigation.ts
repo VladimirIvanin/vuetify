@@ -23,11 +23,11 @@ import { VNode } from 'vue'
 export default mixins(
   Applicationable('bottom', [
     'height',
-    'inputValue',
+    'modelValue',
   ]),
   Colorable,
   Measurable,
-  ToggleableFactory('inputValue'),
+  ToggleableFactory(),
   Proxyable,
   Scrollable,
   Themeable
@@ -48,7 +48,7 @@ export default mixins(
     },
     hideOnScroll: Boolean,
     horizontal: Boolean,
-    inputValue: {
+    modelValue: {
       type: Boolean,
       default: true,
     },
@@ -60,9 +60,11 @@ export default mixins(
     },
   },
 
+  emits: ['update:modelValue', 'change'],
+
   data () {
     return {
-      isActive: this.inputValue,
+      isActive: this.modelValue,
     }
   },
 
@@ -72,7 +74,7 @@ export default mixins(
         Scrollable.computed.canScroll.call(this) &&
         (
           this.hideOnScroll ||
-          !this.inputValue
+          !this.modelValue
         )
       )
     },
@@ -110,7 +112,7 @@ export default mixins(
         this.isActive = !this.isScrollingUp ||
           this.currentScroll > this.computedScrollThreshold
 
-        this.$emit('update:input-value', this.isActive)
+        this.$emit('update:modelValue', this.isActive)
       }
 
       if (this.currentThreshold < this.computedScrollThreshold) return
@@ -134,10 +136,10 @@ export default mixins(
       activeClass: this.activeClass,
       mandatory: Boolean(
         this.mandatory ||
-        this.value !== undefined
+        this.modelValue !== undefined
       ),
       tag: this.tag,
-      value: this.internalValue,
+      modelValue: this.internalValue,
       onChange: this.updateValue
     })
 
