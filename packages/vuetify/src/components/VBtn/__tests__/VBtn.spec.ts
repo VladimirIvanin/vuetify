@@ -99,7 +99,7 @@ describe('VBtn.ts', () => {
   it('should use custom active-class', () => {
     const wrapper = mountFunction({
       props: {
-        inputValue: true,
+        modelValue: true,
         activeClass: 'foo',
       },
     })
