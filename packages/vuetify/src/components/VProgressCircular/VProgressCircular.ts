@@ -20,7 +20,6 @@ export default defineComponent({
 
   extends: Colorable,
 
-  directives: { intersect },
 
   props: {
     button: Boolean,

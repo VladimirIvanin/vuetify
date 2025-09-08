@@ -11,4 +11,6 @@ export default mixins(
   /* @vue/component */
 ).extend({
   name: 'v-slide-item',
+
+  emits: ['change'],
 })

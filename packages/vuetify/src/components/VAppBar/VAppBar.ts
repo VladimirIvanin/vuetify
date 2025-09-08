@@ -63,6 +63,8 @@ export default baseMixins.extend({
     },
   },
 
+  emits: ['update:modelValue'],
+
   data () {
     return {
       isActive: this.value,

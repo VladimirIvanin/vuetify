@@ -1,4 +1,4 @@
-import {h, Transition} from 'vue'
+import { h, Transition } from 'vue'
 import './VDatePickerTitle.sass'
 
 // Components
@@ -39,6 +39,8 @@ export default mixins(
     },
   },
 
+  emits: ['update:selecting-year'],
+
   data: () => ({
     isReversing: false,
   }),
@@ -73,7 +75,7 @@ export default mixins(
       }, () => [
         h('div', {
           innerHTML: this.date || '&nbsp;',
-          key: this.value
+          key: this.value,
         }),
       ])
     },
@@ -86,7 +88,7 @@ export default mixins(
     return h('div', {
       class: ['v-date-picker-title', {
         'v-date-picker-title--disabled': this.disabled,
-      }]
+      }],
     }, [
       this.getYearBtn(),
       this.genTitleDate(),

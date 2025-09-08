@@ -1,20 +1,22 @@
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
 } from '@vue/test-utils'
 import CalendarWithEvents from '../calendar-with-events'
 import { parseTimestamp } from '../../util/timestamp'
+import { defineComponent, h } from 'vue'
 
-const Mock = CalendarWithEvents.extend({
-  render: h => h('div'),
+const Mock = defineComponent({
+  ...CalendarWithEvents,
+  render: () => h('div'),
 })
 
 describe('calendar-with-events.ts', () => {
   type Instance = InstanceType<typeof Mock>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(Mock, options)
     }
   })
@@ -24,7 +26,7 @@ describe('calendar-with-events.ts', () => {
 
     expect(wrapper.vm.noEvents).toBeTruthy()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       events: [
         {
           start: '2019-02-12',
@@ -37,7 +39,7 @@ describe('calendar-with-events.ts', () => {
 
   it('should parse events', async () => {
     const wrapper = mount(Mock, {
-      propsData: {
+      props: {
         events: [
           {
             start: '2019-02-12',
@@ -53,7 +55,7 @@ describe('calendar-with-events.ts', () => {
 
   it('should work with event colors', async () => {
     const wrapper = mount(Mock, {
-      propsData: {
+      props: {
         eventColor: () => 'green',
       },
     })
@@ -62,7 +64,7 @@ describe('calendar-with-events.ts', () => {
     expect(typeof wrapper.vm.eventColorFunction).toBe('function')
     expect(wrapper.vm.eventColorFunction({})).toBe('green')
 
-    wrapper.setProps({
+    await wrapper.setProps({
       eventColor: 'red',
     })
 
@@ -73,7 +75,7 @@ describe('calendar-with-events.ts', () => {
 
   it('should work with event text colors', async () => {
     const wrapper = mount(Mock, {
-      propsData: {
+      props: {
         eventTextColor: () => 'green',
       },
     })
@@ -82,7 +84,7 @@ describe('calendar-with-events.ts', () => {
     expect(typeof wrapper.vm.eventTextColorFunction).toBe('function')
     expect(wrapper.vm.eventTextColorFunction({})).toBe('green')
 
-    wrapper.setProps({
+    await wrapper.setProps({
       eventTextColor: 'red',
     })
 
@@ -93,7 +95,7 @@ describe('calendar-with-events.ts', () => {
 
   it('should work with event names', async () => {
     const wrapper = mount(Mock, {
-      propsData: {
+      props: {
         eventName: () => 'Meetup',
       },
     })
@@ -103,7 +105,7 @@ describe('calendar-with-events.ts', () => {
     expect(wrapper.vm.eventNameFunction({ start: { date: '2019-02-12' }, input: { Meetup: 'Meetup' } })).toBe('Meetup')
     expect(wrapper.vm.eventNameFunction({ start: { date: '2019-02-12', hour: 8, minute: 30, hasTime: true }, input: { Meetup: 'Meetup' } })).toBe('Meetup')
 
-    wrapper.setProps({
+    await wrapper.setProps({
       eventName: 'x',
     })
 
@@ -132,31 +134,22 @@ describe('calendar-with-events.ts', () => {
 
   it('should get events map', async () => {
     const wrapper = mountFunction({
-      render: h => h('div', [
+      render: () => h('div', [
         h('div', {
           ref: 'events',
-          refInFor: true,
-          attrs: {
-            'data-event': 'test',
-            'data-date': '2019-02-12',
-          },
+          'data-event': 'test',
+          'data-date': '2019-02-12',
         }),
         h('div', {
           ref: 'events',
-          refInFor: true,
-          attrs: {
-            'data-event': 'test1',
-            'data-date': '2019-02-13',
-          },
+          'data-event': 'test1',
+          'data-date': '2019-02-13',
         }),
         h('div', {
           ref: 'events',
-          refInFor: true,
-          attrs: {
-            'data-event': 'test2',
-            'data-date': '2019-02-13',
-            'data-more': '123',
-          },
+          'data-event': 'test2',
+          'data-date': '2019-02-13',
+          'data-more': '123',
         }),
       ]),
     })
@@ -166,7 +159,7 @@ describe('calendar-with-events.ts', () => {
 
   it('should get events for day', async () => {
     const wrapper = mount(Mock, {
-      propsData: {
+      props: {
         events: [
           {
             start: '2019-02-12 8:30',
@@ -189,7 +182,7 @@ describe('calendar-with-events.ts', () => {
 
   it('should get events for all day', async () => {
     const wrapper = mount(Mock, {
-      propsData: {
+      props: {
         events: [
           {
             start: '2019-02-12 8:30',
@@ -212,7 +205,7 @@ describe('calendar-with-events.ts', () => {
 
   it('should get timed events for day', async () => {
     const wrapper = mount(Mock, {
-      propsData: {
+      props: {
         events: [
           {
             start: '2019-02-12 8:30',

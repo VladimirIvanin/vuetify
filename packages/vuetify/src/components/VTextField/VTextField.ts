@@ -53,10 +53,6 @@ const dirtyTypes = ['color', 'file', 'time', 'date', 'datetime-local', 'week', '
 export default baseMixins.extend({
   name: 'v-text-field',
 
-  directives: {
-    resize,
-    ripple,
-  },
 
   props: {
     appendOuterIcon: String,
@@ -89,6 +85,8 @@ export default baseMixins.extend({
       default: 'text',
     },
   },
+
+  emits: ['update:modelValue', 'blur', 'focus', 'keydown'],
 
   data: () => ({
     badInput: false,

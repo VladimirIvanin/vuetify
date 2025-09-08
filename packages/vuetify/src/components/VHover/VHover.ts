@@ -27,6 +27,8 @@ export default mixins(
     },
   },
 
+  emits: ['update:modelValue'],
+
   methods: {
     onMouseEnter () {
       this.runDelay('open')

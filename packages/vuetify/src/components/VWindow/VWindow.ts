@@ -21,7 +21,6 @@ export default defineComponent({
   name: 'v-window',
   extends: BaseItemGroup,
 
-  directives: { Touch },
 
   provide (): object {
     return {

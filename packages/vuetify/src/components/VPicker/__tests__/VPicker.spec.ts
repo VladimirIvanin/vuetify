@@ -4,13 +4,12 @@ import VPicker from '../VPicker'
 // Utilities
 import {
   mount,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
-import { compileToFunctions } from 'vue-template-compiler'
 
 describe('VPicker.ts', () => {
   type Instance = InstanceType<typeof VPicker>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  let mountFunction: (options?: object) => VueWrapper<Instance>
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
@@ -23,7 +22,7 @@ describe('VPicker.ts', () => {
   it('should render component without title and match snapshot', () => {
     const wrapper = mountFunction({
       slots: {
-        default: [compileToFunctions('<span>default</span>')],
+        default: '<span>default</span>',
       },
     })
 
@@ -33,8 +32,8 @@ describe('VPicker.ts', () => {
   it('should render component with title and match snapshot', () => {
     const wrapper = mountFunction({
       slots: {
-        default: [compileToFunctions('<span>default</span>')],
-        title: [compileToFunctions('<span>title</span>')],
+        default: '<span>default</span>',
+        title: '<span>title</span>',
       },
     })
 
@@ -44,8 +43,8 @@ describe('VPicker.ts', () => {
   it('should render flat component and match snapshot', () => {
     const wrapper = mountFunction({
       slots: {
-        default: [compileToFunctions('<span>default</span>')],
-        title: [compileToFunctions('<span>title</span>')],
+        default: '<span>default</span>',
+        title: '<span>title</span>',
       },
       props: {
         flat: true,
@@ -58,8 +57,8 @@ describe('VPicker.ts', () => {
   it('should render component with elevation and match snapshot', () => {
     const wrapper = mountFunction({
       slots: {
-        default: [compileToFunctions('<span>default</span>')],
-        title: [compileToFunctions('<span>title</span>')],
+        default: '<span>default</span>',
+        title: '<span>title</span>',
       },
       props: {
         elevation: 15,
@@ -71,12 +70,12 @@ describe('VPicker.ts', () => {
 
   it('should render dark component and match snapshot', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         dark: true,
       },
       slots: {
-        default: [compileToFunctions('<span>default</span>')],
-        title: [compileToFunctions('<span>title</span>')],
+        default: '<span>default</span>',
+        title: '<span>title</span>',
       },
     })
 
@@ -85,11 +84,11 @@ describe('VPicker.ts', () => {
 
   it('should render colored component', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         color: 'orange lighten-1',
       },
       slots: {
-        title: [compileToFunctions('<span>title</span>')],
+        title: '<span>title</span>',
       },
     })
 

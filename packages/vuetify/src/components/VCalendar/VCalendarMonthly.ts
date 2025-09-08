@@ -1,3 +1,5 @@
+import { defineComponent } from 'vue'
+
 // Styles
 import './VCalendarWeekly.sass'
 
@@ -7,7 +9,6 @@ import VCalendarWeekly from './VCalendarWeekly'
 // Util
 import { parseTimestamp, getStartOfMonth, getEndOfMonth } from './util/timestamp'
 import { CalendarTimestamp } from 'vuetify/types'
-import { defineComponent } from 'vue'
 
 /* @vue/component */
 export default defineComponent({

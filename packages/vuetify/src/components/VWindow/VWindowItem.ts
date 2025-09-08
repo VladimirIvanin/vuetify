@@ -29,9 +29,8 @@ interface options extends ExtractVue<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-window-item',
 
-  directives: {
-    Touch,
-  },
+  emits: ['change'],
+
 
   props: {
     disabled: Boolean,

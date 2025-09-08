@@ -2,26 +2,29 @@ import CalendarBase from '../calendar-base'
 import { parseTimestamp } from '../../util/timestamp'
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
 } from '@vue/test-utils'
-import { ExtractVue } from '../../../../util/mixins'
+import { defineComponent, h } from 'vue'
 
-const Mock = CalendarBase.extend({
-  render: h => h('div'),
+const Mock = defineComponent({
+  ...CalendarBase,
+  render: () => h('div'),
 })
 
 describe('calendar-base.ts', () => {
-  type Instance = ExtractVue<typeof Mock>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  type Instance = InstanceType<typeof Mock>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(Mock, {
         ...options,
-        mocks: {
-          $vuetify: {
-            lang: {
-              current: 'en-US',
+        global: {
+          mocks: {
+            $vuetify: {
+              lang: {
+                current: 'en-US',
+              },
             },
           },
         },
@@ -31,7 +34,7 @@ describe('calendar-base.ts', () => {
 
   it('should parse start & end', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-08',
       },
@@ -45,7 +48,7 @@ describe('calendar-base.ts', () => {
 
   it('should create a day list', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-08',
       },
@@ -61,7 +64,7 @@ describe('calendar-base.ts', () => {
 
   it('should calculate weekday skips', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-08',
       },
@@ -73,7 +76,7 @@ describe('calendar-base.ts', () => {
 
   it('should generate classes', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-08',
       },
@@ -85,7 +88,7 @@ describe('calendar-base.ts', () => {
 
   it('should generate classes with outside', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-08',
       },
@@ -98,7 +101,7 @@ describe('calendar-base.ts', () => {
   it('should return weekdayFormatter equal to weekdayFormat prop', async () => {
     const weekdayFormat = x => x
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         weekdayFormat,
       },
     })
@@ -108,7 +111,7 @@ describe('calendar-base.ts', () => {
 
   it('should long-format weekday', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-08',
       },
@@ -150,7 +153,7 @@ describe('calendar-base.ts', () => {
   it('should return dayFormatter equal to dayFormat prop', async () => {
     const dayFormat = x => x
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         dayFormat,
       },
     })
@@ -160,7 +163,7 @@ describe('calendar-base.ts', () => {
 
   it('should format day', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-08',
       },

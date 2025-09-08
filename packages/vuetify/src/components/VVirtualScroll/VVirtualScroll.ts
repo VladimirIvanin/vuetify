@@ -20,7 +20,6 @@ import { VNode, defineComponent } from 'vue'
 export default defineComponent({
   name: 'v-virtual-scroll',
 
-  directives: { Scroll },
 
   extends: Measurable,
 

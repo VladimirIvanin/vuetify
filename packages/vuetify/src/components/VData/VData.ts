@@ -78,6 +78,8 @@ export default defineComponent({
     },
   },
 
+  emits: ['update:options', 'update:page', 'update:items-per-page', 'update:sort-by', 'update:sort-desc', 'update:group-by', 'update:group-desc', 'update:multi-sort', 'update:must-sort', 'page-count', 'current-items', 'pagination'],
+
   data () {
     let internalOptions: DataOptions = {
       page: this.page,

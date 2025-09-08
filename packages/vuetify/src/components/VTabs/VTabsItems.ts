@@ -17,6 +17,8 @@ export default defineComponent({
     },
   },
 
+  emits: ['change'],
+
   computed: {
     classes (): object {
       return {

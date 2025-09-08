@@ -1,4 +1,4 @@
-import {h, Transition, vShow, withDirectives} from 'vue'
+import { h, Transition, vShow, withDirectives } from 'vue'
 // Styles
 import './VMenu.sass'
 
@@ -84,6 +84,8 @@ export default baseMixins.extend({
     },
   },
 
+  emits: ['keydown'],
+
   data () {
     return {
       calculatedTopAuto: 0,
@@ -101,16 +103,19 @@ export default baseMixins.extend({
       return this.tiles[this.listIndex]
     },
     calculatedLeft (): string {
-      const menuWidth = Math.max(this.dimensions.content.width, parseFloat(this.calculatedMinWidth))
+      const menuWidth = Math.max(
+        this.dimensions.content.width,
+        parseFloat(this.calculatedMinWidth)
+      )
 
       if (!this.auto) return this.calcLeft(menuWidth) || '0'
 
-      return convertToUnit(this.calcXOverflow(this.calcLeftAuto(), menuWidth)) || '0'
+      return (
+        convertToUnit(this.calcXOverflow(this.calcLeftAuto(), menuWidth)) || '0'
+      )
     },
     calculatedMaxHeight (): string {
-      const height = this.auto
-        ? '200px'
-        : convertToUnit(this.maxHeight)
+      const height = this.auto ? '200px' : convertToUnit(this.maxHeight)
 
       return height || '0'
     },
@@ -124,8 +129,8 @@ export default baseMixins.extend({
 
       const minWidth = Math.min(
         this.dimensions.activator.width +
-        Number(this.nudgeWidth) +
-        (this.auto ? 16 : 0),
+          Number(this.nudgeWidth) +
+          (this.auto ? 16 : 0),
         Math.max(this.pageWidth - 24, 0)
       )
 
@@ -133,10 +138,7 @@ export default baseMixins.extend({
         ? minWidth
         : parseInt(this.calculatedMaxWidth)
 
-      return convertToUnit(Math.min(
-        calculatedMaxWidth,
-        minWidth
-      )) || '0'
+      return convertToUnit(Math.min(calculatedMaxWidth, minWidth)) || '0'
     },
     calculatedTop (): string {
       const top = !this.auto
@@ -181,7 +183,10 @@ export default baseMixins.extend({
             duration: 300,
             container: this.$refs.content,
           })
-        } else if (scrollTop + contentHeight < tile.offsetTop + tile.clientHeight + 8) {
+        } else if (
+          scrollTop + contentHeight <
+          tile.offsetTop + tile.clientHeight + 8
+        ) {
           goTo(tile.offsetTop - contentHeight + tile.clientHeight * 2, {
             appOffset: false,
             duration: 300,
@@ -217,18 +222,29 @@ export default baseMixins.extend({
         this.startTransition().then(() => {
           if (this.$refs.content) {
             this.calculatedTopAuto = this.calcTopAuto()
-            this.auto && (this.$refs.content.scrollTop = this.calcScrollPosition())
+            this.auto &&
+              (this.$refs.content.scrollTop = this.calcScrollPosition())
           }
         })
       })
     },
     calcScrollPosition () {
       const $el = this.$refs.content
-      const activeTile = $el.querySelector('.v-list-item--active') as HTMLElement
+      const activeTile = $el.querySelector(
+        '.v-list-item--active'
+      ) as HTMLElement
       const maxScrollTop = $el.scrollHeight - $el.offsetHeight
 
       return activeTile
-        ? Math.min(maxScrollTop, Math.max(0, activeTile.offsetTop - $el.offsetHeight / 2 + activeTile.offsetHeight / 2))
+        ? Math.min(
+          maxScrollTop,
+          Math.max(
+            0,
+            activeTile.offsetTop -
+                $el.offsetHeight / 2 +
+                activeTile.offsetHeight / 2
+          )
+        )
         : $el.scrollTop
     },
     calcLeftAuto () {
@@ -236,7 +252,9 @@ export default baseMixins.extend({
     },
     calcTopAuto () {
       const $el = this.$refs.content
-      const activeTile = $el.querySelector('.v-list-item--active') as HTMLElement | null
+      const activeTile = $el.querySelector(
+        '.v-list-item--active'
+      ) as HTMLElement | null
 
       if (!activeTile) {
         this.selectedIndex = null
@@ -248,10 +266,15 @@ export default baseMixins.extend({
 
       this.selectedIndex = Array.from(this.tiles).indexOf(activeTile)
 
-      const tileDistanceFromMenuTop = activeTile.offsetTop - this.calcScrollPosition()
-      const firstTileOffsetTop = ($el.querySelector('.v-list-item') as HTMLElement).offsetTop
+      const tileDistanceFromMenuTop =
+        activeTile.offsetTop - this.calcScrollPosition()
+      const firstTileOffsetTop = ($el.querySelector(
+        '.v-list-item'
+      ) as HTMLElement).offsetTop
 
-      return this.computedTop - tileDistanceFromMenuTop - firstTileOffsetTop - 1
+      return (
+        this.computedTop - tileDistanceFromMenuTop - firstTileOffsetTop - 1
+      )
     },
     changeListIndex (e: KeyboardEvent) {
       // For infinite scroll and autocomplete, re-evaluate children
@@ -272,18 +295,22 @@ export default baseMixins.extend({
         this.firstTile()
       } else if (e.keyCode === keyCodes.enter && this.listIndex !== -1) {
         this.tiles[this.listIndex].click()
-      } else { return }
+      } else {
+        return
+      }
       // One of the conditions was met, prevent default action (#2988)
       e.preventDefault()
     },
     closeConditional (e: Event) {
       const target = e.target as HTMLElement
 
-      return this.isActive &&
+      return (
+        this.isActive &&
         !this._isDestroyed &&
         this.closeOnClick &&
         this.$refs.content &&
         !this.$refs.content.contains(target)
+      )
     },
     genActivatorAttributes () {
       const attributes = Activatable.methods.genActivatorAttributes.call(this)
@@ -311,22 +338,25 @@ export default baseMixins.extend({
 
       if (!this.transition) return content
 
-      return h(Transition, {
-        name: this.transition
-      }, [content])
+      return h(
+        Transition,
+        {
+          name: this.transition,
+        },
+        [content]
+      )
     },
     genDirectives (): VNodeDirective[] {
-      const directives = [[
-        vShow,
-        this.isContentActive
-      ]]
+      const directives = [[vShow, this.isContentActive]]
 
       // Do not add click outside for hover menu
       if (!this.openOnHover && this.closeOnClick) {
         directives.push([
           ClickOutside,
           {
-            handler: () => { this.isActive = false },
+            handler: () => {
+              this.isActive = false
+            },
             closeConditional: this.closeConditional,
             include: () => [this.$el, ...this.getOpenDependentElements()],
           },
@@ -340,14 +370,17 @@ export default baseMixins.extend({
         ...this.getScopeIdAttrs(),
         ...this.contentProps,
         role: 'role' in this.$attrs ? this.$attrs.role : 'menu',
-        class: ['v-menu__content', {
-          ...this.rootThemeClasses,
-          ...this.roundedClasses,
-          'v-menu__content--auto': this.auto,
-          'v-menu__content--fixed': this.activatorFixed,
-          menuable__content__active: this.isActive,
-          [this.contentClass.trim()]: true,
-        }],
+        class: [
+          'v-menu__content',
+          {
+            ...this.rootThemeClasses,
+            ...this.roundedClasses,
+            'v-menu__content--auto': this.auto,
+            'v-menu__content--fixed': this.activatorFixed,
+            menuable__content__active: this.isActive,
+            [this.contentClass.trim()]: true,
+          },
+        ],
         style: this.styles,
         ref: 'content',
         onClick: (e: Event) => {
@@ -373,12 +406,19 @@ export default baseMixins.extend({
 
       const directives = this.genDirectives()
 
-      return withDirectives(h('div', options, this.getContentSlot()), directives)
+      return withDirectives(
+        h('div', options, this.getContentSlot()),
+        directives
+      )
     },
     getTiles () {
       if (!this.$refs.content) return
 
-      this.tiles = Array.from(this.$refs.content.querySelectorAll('.v-list-item, .v-divider, .v-subheader'))
+      this.tiles = Array.from(
+        this.$refs.content.querySelectorAll(
+          '.v-list-item, .v-divider, .v-subheader'
+        )
+      )
     },
     mouseEnterHandler () {
       this.runDelay('open', () => {
@@ -390,7 +430,7 @@ export default baseMixins.extend({
     mouseLeaveHandler (e: MouseEvent) {
       // Prevent accidental re-activation
       this.runDelay('close', () => {
-        if (this.$refs.content?.contains(e.relatedTarget as HTMLElement)) return
+        if (this.$refs.content?.contains(e.relatedTarget as HTMLElement)) { return }
 
         requestAnimationFrame(() => {
           this.isActive = false
@@ -451,7 +491,9 @@ export default baseMixins.extend({
 
       if (e.keyCode === keyCodes.esc) {
         // Wait for dependent elements to close first
-        setTimeout(() => { this.isActive = false })
+        setTimeout(() => {
+          this.isActive = false
+        })
         const activator = this.getActivator()
         this.$nextTick(() => activator && activator.focus())
       } else if (
@@ -485,31 +527,37 @@ export default baseMixins.extend({
 
   render (): VNode {
     const data = {
-      class: ['v-menu', {
-        'v-menu--attached':
-          this.attach === '' ||
-          this.attach === true ||
-          this.attach === 'attach',
-      }]
+      class: [
+        'v-menu',
+        {
+          'v-menu--attached':
+            this.attach === '' ||
+            this.attach === true ||
+            this.attach === 'attach',
+        },
+      ],
     }
 
-    const directives = [[
-      Resize,
-      this.onResize,
-      '500'
-    ]]
+    const directives = [[Resize, this.onResize, '500']]
 
     // console.log('vmenurender', this, this.activator, this.getActivator())
 
-    return withDirectives(h('div', data, [
-      !this.activator && this.genActivator(),
-      this.showLazyContent(() => [
-        h(VThemeProvider, {
-          root: true,
-          light: this.light,
-          dark: this.dark,
-        }, [this.genTransition()]),
+    return withDirectives(
+      h('div', data, [
+        !this.activator && this.genActivator(),
+        this.showLazyContent(() => [
+          h(
+            VThemeProvider,
+            {
+              root: true,
+              light: this.light,
+              dark: this.dark,
+            },
+            [this.genTransition()]
+          ),
+        ]),
       ]),
-    ]), directives)
+      directives
+    )
   },
 })

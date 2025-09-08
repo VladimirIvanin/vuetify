@@ -1,4 +1,4 @@
-import {h, withDirectives} from 'vue'
+import { h, withDirectives } from 'vue'
 import './VProgressLinear.sass'
 
 // Components
@@ -34,7 +34,6 @@ const baseMixins = mixins(
 export default baseMixins.extend({
   name: 'v-progress-linear',
 
-  directives: { intersect },
 
   props: {
     active: {
@@ -78,6 +77,8 @@ export default baseMixins.extend({
     },
   },
 
+  emits: ['update:modelValue', 'click'],
+
   data () {
     return {
       internalLazyValue: this.modelValue || this.value || 0,
@@ -94,7 +95,7 @@ export default baseMixins.extend({
     },
     __cachedBar (): VNode {
       return h(this.computedTransition, {}, {
-        default: () => [this.__cachedBarType]
+        default: () => [this.__cachedBarType],
       })
     },
     __cachedBarType (): VNode {
@@ -119,8 +120,8 @@ export default baseMixins.extend({
         class: ['v-progress-linear__indeterminate',
           {
             'v-progress-linear__indeterminate--active': this.active,
-          }
-        ]
+          },
+        ],
       }, [
         this.genProgressBar('long'),
         this.genProgressBar('short'),
@@ -206,14 +207,14 @@ export default baseMixins.extend({
       if (!slot) return null
 
       return h(
-        "div",
+        'div',
         {
-          class: "v-progress-linear__content"
+          class: 'v-progress-linear__content',
         },
         {
-          default: () => slot
+          default: () => slot,
         }
-      );
+      )
     },
     genListeners (): any {
       const listeners = this.$listeners
@@ -229,8 +230,8 @@ export default baseMixins.extend({
         class: ['v-progress-linear__indeterminate',
           {
             [name]: true,
-          }
-        ]
+          },
+        ],
       }))
     },
     onClick (e: MouseEvent) {
@@ -275,8 +276,8 @@ export default baseMixins.extend({
     ]), [
       [
         Intersect,
-        this.onObserve
-      ]
+        this.onObserve,
+      ],
     ])
   },
 })

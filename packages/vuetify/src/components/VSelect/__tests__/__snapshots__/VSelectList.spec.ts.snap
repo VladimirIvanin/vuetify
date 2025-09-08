@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`VSelectList.ts should display falsy items 1`] = `
-<div role="listbox"
+<div class="v-sheet theme--light v-list v-select-list theme--light"
+     role="listbox"
      tabindex="-1"
-     class="v-list v-select-list v-sheet theme--light theme--light"
 >
-  <div tabindex="0"
+  <div tabindex="-1"
        aria-selected="false"
-       id="list-item-29-0"
+       id="list-item-39-0"
        role="option"
-       class="v-list-item v-list-item--link theme--light"
+       class="v-list-item theme--light"
   >
     <div class="v-list-item__content">
       <div class="v-list-item__title">
@@ -17,11 +17,11 @@ exports[`VSelectList.ts should display falsy items 1`] = `
       </div>
     </div>
   </div>
-  <div tabindex="0"
+  <div tabindex="-1"
        aria-selected="false"
-       id="list-item-29-1"
+       id="list-item-39-1"
        role="option"
-       class="v-list-item v-list-item--link theme--light"
+       class="v-list-item theme--light"
   >
     <div class="v-list-item__content">
       <div class="v-list-item__title">
@@ -29,11 +29,11 @@ exports[`VSelectList.ts should display falsy items 1`] = `
       </div>
     </div>
   </div>
-  <div tabindex="0"
+  <div tabindex="-1"
        aria-selected="false"
-       id="list-item-29-2"
+       id="list-item-39-2"
        role="option"
-       class="v-list-item v-list-item--link theme--light"
+       class="v-list-item theme--light"
   >
     <div class="v-list-item__content">
       <div class="v-list-item__title">
@@ -41,11 +41,11 @@ exports[`VSelectList.ts should display falsy items 1`] = `
       </div>
     </div>
   </div>
-  <div tabindex="0"
+  <div tabindex="-1"
        aria-selected="false"
-       id="list-item-29-3"
+       id="list-item-39-3"
        role="option"
-       class="v-list-item v-list-item--link theme--light"
+       class="v-list-item theme--light"
   >
     <div class="v-list-item__content">
       <div class="v-list-item__title">
@@ -53,11 +53,11 @@ exports[`VSelectList.ts should display falsy items 1`] = `
       </div>
     </div>
   </div>
-  <div tabindex="0"
+  <div tabindex="-1"
        aria-selected="false"
-       id="list-item-29-4"
+       id="list-item-39-4"
        role="option"
-       class="v-list-item v-list-item--link theme--light"
+       class="v-list-item theme--light"
   >
     <div class="v-list-item__content">
       <div class="v-list-item__title">
@@ -68,9 +68,9 @@ exports[`VSelectList.ts should display falsy items 1`] = `
 `;
 
 exports[`VSelectList.ts should display no-data-text when item slot is provided 1`] = `
-<div role="listbox"
+<div class="v-sheet theme--light v-list v-select-list theme--light"
+     role="listbox"
      tabindex="-1"
-     class="v-list v-select-list v-sheet theme--light theme--light"
 >
   <div tabindex="-1"
        class="v-list-item theme--light"
@@ -85,22 +85,25 @@ exports[`VSelectList.ts should display no-data-text when item slot is provided 1
 `;
 
 exports[`VSelectList.ts should generate children 1`] = `
-<div role="listbox"
+<div class="v-sheet theme--light v-list v-select-list theme--light"
+     role="listbox"
      tabindex="-1"
-     class="v-list v-select-list v-sheet theme--light theme--light"
 >
-  <div class="v-subheader theme--light">
+  <div header="true"
+       class="v-subheader theme--light"
+  >
     true
   </div>
-  <hr role="separator"
-      aria-orientation="horizontal"
+  <hr divider="true"
       class="v-divider theme--light"
+      role="separator"
+      aria-orientation="horizontal"
   >
-  <div tabindex="0"
+  <div tabindex="-1"
        aria-selected="false"
-       id="list-item-14-2"
+       id="list-item-16-2"
        role="option"
-       class="v-list-item v-list-item--link theme--light"
+       class="v-list-item theme--light"
   >
     <div class="v-list-item__content">
       <div class="v-list-item__title">

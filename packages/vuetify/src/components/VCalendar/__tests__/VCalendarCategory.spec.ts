@@ -1,32 +1,34 @@
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
 } from '@vue/test-utils'
 import { ExtractVue } from '../../../util/mixins'
 import VCalendar from '../VCalendar'
 
 describe('VCalendarCategory', () => {
   type Instance = ExtractVue<typeof VCalendar>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(VCalendar, {
-        ...options,
-        mocks: {
-          $vuetify: {
-            lang: {
-              current: 'en-US',
+        global: {
+          mocks: {
+            $vuetify: {
+              lang: {
+                current: 'en-US',
+              },
             },
           },
         },
+        ...options,
       })
     }
   })
 
   it('should test categoryText prop as a string', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         type: 'category',
         events: [{ start: new Date(), category: 'Nate' }],
         categories: [{ name: 'Nate' }],
@@ -39,7 +41,7 @@ describe('VCalendarCategory', () => {
 
   it('should test categoryText prop as a function', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         type: 'category',
         events: [{ start: new Date(), category: '20' }],
         categories: [{ name: 'Nate', age: '20' }],
@@ -60,7 +62,7 @@ describe('VCalendarCategory', () => {
     }
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         type: 'category',
         events: [{ start: new Date(), category: 'Nate' }],
         categories: [{ name: 'Nate', age: 20 }, { name: 'Bob', age: 30 }],
@@ -79,7 +81,7 @@ describe('VCalendarCategory', () => {
     }
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         type: 'category',
         categoryShowAll: true,
         events: [{ start: new Date(), category: 'Nate' }],
@@ -99,7 +101,7 @@ describe('VCalendarCategory', () => {
     }
 
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         type: 'category',
         events: [{ start: new Date(), category: 'Nate' }, { start: new Date(), category: 'Bob' }],
         categories: ['Nate', 'Bob'],

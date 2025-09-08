@@ -31,7 +31,7 @@ const baseMixins = mixins(
   Positionable,
   Sizeable,
   GroupableFactory('btnToggle'),
-  ToggleableFactory('inputValue')
+  ToggleableFactory()
   /* @vue/component */
 )
 interface options extends ExtractVue<typeof baseMixins> {
@@ -66,7 +66,7 @@ export default baseMixins.extend({
     value: null as any as PropType<any>,
   },
 
-  emits: ['click'],
+  emits: ['click', 'change', 'update:modelValue'],
 
   data: () => ({
     proxyClass: 'v-btn--active',

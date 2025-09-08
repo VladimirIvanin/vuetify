@@ -63,10 +63,6 @@ interface options extends InstanceType<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-select',
 
-  directives: {
-    ClickOutside,
-  },
-
   props: {
     appendIcon: {
       type: String,
@@ -113,8 +109,11 @@ export default baseMixins.extend({
     smallChips: Boolean,
   },
 
+  emits: ['update:modelValue', 'change', 'focus', 'blur', 'keydown', 'click', 'update:list-index'],
+
   data () {
     return {
+      $_emitChangeEvent: true,
       cachedItems: this.cacheItems ? this.items : [],
       menuIsBooted: false,
       isMenuActive: false,
@@ -129,6 +128,7 @@ export default baseMixins.extend({
       selectedItems: [] as any[],
       keyboardLookupPrefix: '',
       keyboardLookupLastTime: 0,
+      detectedScopeId: null as string | null,
     }
   },
 
@@ -152,7 +152,7 @@ export default baseMixins.extend({
       return this.allItems
     },
     computedOwns (): string {
-      return `list-${this.$.uid}`
+      return `list-${this.$?.uid}`
     },
     computedCounterValue (): number {
       const value = this.multiple
@@ -190,13 +190,7 @@ export default baseMixins.extend({
       return this.selectedItems.length > 0
     },
     listData (): object {
-      const scopeId = this.$vnode && (this.$vnode.context!.$options as { [key: string]: any })._scopeId
-      const attrs = scopeId ? {
-        [scopeId]: true,
-      } : {}
-
       return {
-        ...attrs,
         id: this.computedOwns,
         action: this.multiple,
         color: this.itemColor,
@@ -211,12 +205,27 @@ export default baseMixins.extend({
         onSelect: this.selectItem,
       }
     },
+    listAttrs (): object {
+      const scopeIdAttrs: Record<string, any> = {}
+
+      // Используем detectedScopeId из mounted hook
+      if (this.detectedScopeId) {
+        scopeIdAttrs[this.detectedScopeId] = ''
+      }
+
+      // scopeId успешно передается в VSelectList
+
+      return scopeIdAttrs
+    },
     staticList (): VNode {
       if (this.$slots['no-data'] || this.$slots['prepend-item'] || this.$slots['append-item']) {
         consoleError('assert: staticList should not be called if slots are used')
       }
 
-      return h(VSelectList, this.listData,  {
+      return h(VSelectList, {
+        ...this.listData,
+        ...this.listAttrs,
+      }, {
         item: this.$slots.item,
       })
     },
@@ -246,6 +255,22 @@ export default baseMixins.extend({
         ...normalisedProps,
       }
     },
+  },
+
+  mounted () {
+    this.$nextTick(() => {
+      if (this.$el && this.$el.attributes) {
+        const attrs = this.$el.attributes
+        for (let i = 0; i < attrs.length; i++) {
+          const attr = attrs[i]
+          if (attr.name.startsWith('data-v-')) {
+            this.detectedScopeId = attr.name
+            // scopeId найден и сохранен для использования в dropdown
+            break
+          }
+        }
+      }
+    })
   },
 
   watch: {
@@ -368,7 +393,7 @@ export default baseMixins.extend({
         tabindex: -1,
         close: this.deletableChips && isInteractive,
         disabled: isDisabled,
-        inputValue: index === this.selectedIndex,
+        modelValue: index === this.selectedIndex,
         small: this.smallChips,
         onClick: (e: MouseEvent) => {
           if (!isInteractive) return
@@ -435,9 +460,10 @@ export default baseMixins.extend({
 
       if (type === 'append') {
         // Don't allow the dropdown icon to be focused
-        const hasListeners = Object.keys(icon.children![0].props).some(key => key.startsWith('on'))
-        icon.children![0].data = mergeData(icon.children![0].props!, {
-          tabindex: hasListeners && '-1',
+        const iconChild = icon.children![0]
+        const hasListeners = Object.keys(iconChild.props || {}).some(key => key.startsWith('on'))
+        iconChild.props = mergeData(iconChild.props || {}, {
+          tabindex: hasListeners ? '-1' : undefined,
           'aria-hidden': 'true',
           'aria-label': undefined
         })
@@ -466,10 +492,23 @@ export default baseMixins.extend({
       return input
     },
     genHiddenInput (): VNode {
+      let value = this.lazyValue
+
+      if (this.multiple && Array.isArray(value)) {
+        value = value.map(item => {
+          if (typeof item === 'object' && item !== null) {
+            return this.getValue(item)
+          }
+          return item
+        }).join(',')
+      } else if (typeof value === 'object' && value !== null) {
+        value = this.getValue(value)
+      }
+
       return h('input', {
-        value: this.lazyValue,
+        value: value,
         type: 'hidden',
-        name: this.attrs$.name
+        name: this.$attrs.name
       })
     },
     genInputSlot (): VNode {
@@ -506,7 +545,8 @@ export default baseMixins.extend({
       // as a referenced object
       return h(VSelectList, {
         ...this.listData,
-      }, {...slots,item: this.$slots.item})
+        ...this.listAttrs,
+      }, {...slots, item: this.$slots.item})
     },
     genMenu (): VNode {
       const props = this.$_menuProps as any
@@ -877,6 +917,10 @@ export default baseMixins.extend({
       if (!this.valueComparator(value, this.internalValue)) {
         this.internalValue = value
         this.$emit('update:modelValue', value)
+        // Emit change event if flag is set
+        if('$_emitChangeEvent' in this) {
+          this.$emit('change', value)
+        }
       }
     },
     isAppendInner (target: any) {

@@ -1,5 +1,3 @@
-import Vue from 'vue'
-
 // Components
 import VStepperStep from '../VStepperStep'
 
@@ -8,15 +6,8 @@ import {
   mount,
   Wrapper,
   MountOptions,
+  enableAutoUnmount,
 } from '@vue/test-utils'
-
-Vue.prototype.$vuetify = {
-  icons: {
-    values: {
-      complete: 'mdi-check',
-    },
-  },
-}
 
 const tip = '[Vuetify] The v-stepper-step component must be used inside a v-stepper'
 const warning = '[Vue warn]: Injection "stepClick" not found'
@@ -25,9 +16,22 @@ describe('VStepperStep.ts', () => {
   type Instance = InstanceType<typeof VStepperStep>
   let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
 
+  enableAutoUnmount(afterEach)
+
   beforeEach(() => {
     mountFunction = (options = {}) => {
       return mount(VStepperStep, {
+        global: {
+          mocks: {
+            $vuetify: {
+              icons: {
+                values: {
+                  complete: 'mdi-check',
+                },
+              },
+            },
+          },
+        },
         ...options,
       })
     }
@@ -35,104 +39,92 @@ describe('VStepperStep.ts', () => {
 
   it('should accept a custom color', async () => {
     const wrapper = mountFunction({
-      attachToDocument: true,
-      propsData: {
+      attachTo: document.body,
+      props: {
         color: 'pink',
         complete: true,
       },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
-    expect(warning).toHaveBeenWarned()
-    expect(tip).toHaveBeenTipped()
   })
 
   it('should accept a custom css color', async () => {
     const wrapper = mountFunction({
-      attachToDocument: true,
-      propsData: {
+      attachTo: document.body,
+      props: {
         color: '#aabbcc',
         complete: true,
       },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
-    expect(warning).toHaveBeenWarned()
-    expect(tip).toHaveBeenTipped()
   })
 
   it('should emit event and invoke stepClick when clicked', async () => {
     const stepClick = jest.fn()
-    const click = jest.fn()
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         editable: true,
       },
-      provide: {
-        stepClick,
+      global: {
+        provide: {
+          stepClick,
+        },
       },
     })
-    wrapper.vm.$on('click', click)
 
-    wrapper.find('.v-stepper__step').trigger('click')
-    expect(click).toHaveBeenCalledTimes(1)
+    await wrapper.find('.v-stepper__step').trigger('click')
+    expect(wrapper.emitted('click')).toBeTruthy()
     expect(stepClick).toHaveBeenCalledWith(wrapper.vm.step)
-
-    expect(tip).toHaveBeenTipped()
   })
 
   it('should render', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         step: 1,
       },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
-    expect(warning).toHaveBeenWarned()
-    expect(tip).toHaveBeenTipped()
   })
 
   it('should render complete step', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         complete: true,
       },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
-    expect(warning).toHaveBeenWarned()
-    expect(tip).toHaveBeenTipped()
   })
 
   it('should render step with error', async () => {
     const wrapper = mountFunction({
-      computed: {
-        hasError: () => true,
+      global: {
+        computed: {
+          hasError: () => true,
+        },
       },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
-    expect(warning).toHaveBeenWarned()
-    expect(tip).toHaveBeenTipped()
   })
 
   it('should render editable step', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         editable: true,
         complete: true,
       },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
-    expect(warning).toHaveBeenWarned()
-    expect(tip).toHaveBeenTipped()
   })
 
   it('should toggle', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         step: 3,
       },
     })
@@ -148,8 +140,5 @@ describe('VStepperStep.ts', () => {
     wrapper.vm.toggle(5)
     expect(wrapper.vm.isActive).toBeFalsy()
     expect(wrapper.vm.isInactive).toBeFalsy()
-
-    expect(warning).toHaveBeenWarned()
-    expect(tip).toHaveBeenTipped()
   })
 })

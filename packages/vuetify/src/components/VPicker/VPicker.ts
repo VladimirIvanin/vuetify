@@ -1,4 +1,5 @@
-import {h, Transition} from 'vue'
+import { h, Transition, defineComponent } from 'vue'
+import type { VNode } from 'vue'
 import './VPicker.sass'
 import '../VCard/VCard.sass'
 
@@ -10,17 +11,14 @@ import Themeable from '../../mixins/themeable'
 // Helpers
 import { convertToUnit, getSlot } from '../../util/helpers'
 
-// Types
-import { VNode } from 'vue/types'
-import mixins from '../../util/mixins'
-
 /* @vue/component */
-export default mixins(
-  Colorable,
-  Elevatable,
-  Themeable
-).extend({
+export default defineComponent({
   name: 'v-picker',
+  mixins: [
+    Colorable,
+    Elevatable,
+    Themeable,
+  ],
 
   props: {
     flat: Boolean,

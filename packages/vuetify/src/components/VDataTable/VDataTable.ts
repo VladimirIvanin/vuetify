@@ -99,10 +99,8 @@ export default mixins(
 ).extend({
   name: 'v-data-table',
 
-  // https://github.com/vuejs/vue/issues/6872
-  directives: {
-    ripple,
-  },
+  emits: ['click:row', 'update:options', 'update:page', 'update:items-per-page', 'update:sort-by', 'update:sort-desc', 'update:group-by', 'update:group-desc', 'pagination', 'current-items', 'page-count', 'click', 'mousedown', 'mouseup', 'touchstart', 'touchend'],
+
 
   props: {
     headers: {

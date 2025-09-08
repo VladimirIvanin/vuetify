@@ -1,9 +1,6 @@
-import {h, vShow, withDirectives} from 'vue'
+import { h, vShow, withDirectives, VNode } from 'vue'
 // Styles
 import './VChip.sass'
-
-// Types
-import { VNode } from 'vue'
 import mixins from '../../util/mixins'
 
 // Components
@@ -32,9 +29,11 @@ export default mixins(
   Routable,
   Themeable,
   GroupableFactory('chipGroup'),
-  ToggleableFactory('inputValue')
+  ToggleableFactory()
 ).extend({
   name: 'v-chip',
+
+  emits: ['update:modelValue', 'click:close', 'click', 'change'],
 
   props: {
     active: {
@@ -69,7 +68,7 @@ export default mixins(
       default: 'span',
     },
     textColor: String,
-    value: null as any as PropType<any>,
+    modelValue: null as any as PropType<any>,
   },
 
   data: () => ({
@@ -77,9 +76,10 @@ export default mixins(
   }),
 
   computed: {
-    $activeClass() {
-      if(this.activeClass)
+    $activeClass () {
+      if (this.activeClass) {
         return this.activeClass
+      }
       if (!this.chipGroup) return ''
 
       return this.chipGroup.activeClass
@@ -117,8 +117,8 @@ export default mixins(
     const breakingProps = [
       ['outline', 'outlined'],
       ['selected', 'input-value'],
-      ['value', 'active'],
-      ['@input', '@active.sync'],
+      ['value', 'modelValue'],
+      ['@input', '@update:modelValue'],
     ]
 
     /* istanbul ignore next */
@@ -131,7 +131,10 @@ export default mixins(
     click (e: MouseEvent): void {
       this.$emit('click', e)
 
-      this.chipGroup && this.toggle()
+      if (this.chipGroup) {
+        this.toggle()
+        this.$emit('update:modelValue', this.isActive)
+      }
     },
     genFilter (): VNode {
       const children = []
@@ -158,7 +161,7 @@ export default mixins(
           e.preventDefault()
 
           this.$emit('click:close')
-          this.$emit('update:active', false)
+          this.$emit('update:modelValue', false)
         }
       }, this.closeIcon)
     },

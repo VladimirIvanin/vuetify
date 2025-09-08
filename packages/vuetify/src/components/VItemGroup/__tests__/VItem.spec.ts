@@ -1,29 +1,23 @@
-// Libraries
-import Vue from 'vue'
-
 // Components
 import VItem from '../VItem'
 
 // Utilities
 import {
-  createLocalVue,
   mount,
-  Wrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
+import { h, nextTick } from 'vue'
 
 const itemWarning = '[Vuetify] The v-item component must be used inside a v-item-group'
 
 describe('VItem', () => {
-  type Instance = ExtractVue<typeof VItem>
-  let mountFunction: (options?: object) => Wrapper<Instance>
-  let localVue: typeof Vue
+  let mountFunction: (options?: object) => any
+
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
-    localVue = createLocalVue()
-
     mountFunction = (options = {}) => {
       return mount(VItem, {
-        localVue,
         ...options,
       })
     }
@@ -37,41 +31,32 @@ describe('VItem', () => {
   })
 
   it('should warn if multiple elements', () => {
-    const Mock = {
-      name: 'test',
+    const wrapper = mount(VItem, {
+      slots: {
+        default: '<div>foo</div><div>bar</div>',
+      },
+    })
 
-      render: h => h(VItem, {
-        scopedSlots: {
-          default: () => '<div>foo</div>',
-        },
-      }),
-    }
-
-    mount(Mock)
-
-    expect('v-item should only contain a single element').toHaveBeenTipped()
+    expect('v-item should only contain valid VNode elements').toHaveBeenTipped()
     expect(itemWarning).toHaveBeenTipped()
   })
 
   it('should match snapshot activeClass', async () => {
-    const Mock = {
-      name: 'test',
-
-      render: h => h(VItem, {
-        props: { activeClass: 'foo' },
-        scopedSlots: {
-          default: () => h('div'),
-        },
-      }),
-    }
-
-    const wrapper = mount(Mock)
+    const wrapper = mount(VItem, {
+      props: {
+        activeClass: 'foo',
+      },
+      slots: {
+        default: '<div>test content</div>',
+      },
+    })
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.vm.$children[0].isActive = true
+    // Изменяем isActive напрямую в компоненте
+    wrapper.vm.isActive = true
 
-    await wrapper.vm.$nextTick()
+    await nextTick()
 
     expect(wrapper.html()).toMatchSnapshot()
     expect(itemWarning).toHaveBeenTipped()

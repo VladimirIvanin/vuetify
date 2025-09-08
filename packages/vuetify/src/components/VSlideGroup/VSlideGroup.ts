@@ -107,10 +107,6 @@ export const BaseSlideGroup = mixins<options &
 ).extend({
   name: 'base-slide-group',
 
-  directives: {
-    Resize,
-    Touch,
-  },
 
   props: {
     activeClass: {
@@ -138,6 +134,8 @@ export const BaseSlideGroup = mixins<options &
       ),
     },
   },
+
+  emits: ['click:prev', 'click:next'],
 
   data: () => ({
     isOverflowing: false,

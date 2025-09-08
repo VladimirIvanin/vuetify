@@ -50,6 +50,8 @@ export default mixins(
     value: Boolean,
   },
 
+  emits: ['input', 'update:modelValue', 'submit'],
+
   data: () => ({
     inputs: [] as VInputInstance[],
     watchers: [] as Watchers[],

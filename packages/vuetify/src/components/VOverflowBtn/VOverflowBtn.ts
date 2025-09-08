@@ -24,6 +24,8 @@ export default defineComponent({
     segmented: Boolean,
   },
 
+  emits: ['change'],
+
   computed: {
     classes (): object {
       return {

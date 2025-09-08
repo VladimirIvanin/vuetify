@@ -25,7 +25,6 @@ export default mixins(
 ).extend({
   name: 'v-pagination',
 
-  directives: { Resize },
 
   props: {
     circle: Boolean,
@@ -71,6 +70,8 @@ export default mixins(
       default: '$vuetify.pagination.ariaLabel.wrapper',
     },
   },
+
+  emits: ['update:modelValue', 'next', 'previous'],
 
   data () {
     return {

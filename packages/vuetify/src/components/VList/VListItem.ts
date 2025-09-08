@@ -1,4 +1,4 @@
-import {h, withDirectives} from 'vue'
+import { h, withDirectives, VNode, PropType, PropValidator } from 'vue'
 // Styles
 import './VListItem.sass'
 
@@ -20,15 +20,13 @@ import { removed } from '../../util/console'
 
 // Types
 import mixins from '../../util/mixins'
-import { VNode } from 'vue'
-import { PropType, PropValidator } from 'vue/types/options'
 
 const baseMixins = mixins(
   Colorable,
   Routable,
   Themeable,
   GroupableFactory('listItemGroup'),
-  ToggleableFactory('inputValue')
+  ToggleableFactory('modelValue')
 )
 
 interface options extends ExtractVue<typeof baseMixins> {
@@ -43,9 +41,6 @@ interface options extends ExtractVue<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-list-item',
 
-  directives: {
-    Ripple,
-  },
 
   inject: {
     isInGroup: {
@@ -66,7 +61,7 @@ export default baseMixins.extend({
 
   props: {
     activeClass: {
-      type: String
+      type: String,
     } as any as PropValidator<string>,
     dense: Boolean,
     inactive: Boolean,
@@ -80,16 +75,23 @@ export default baseMixins.extend({
     },
     threeLine: Boolean,
     twoLine: Boolean,
-    value: null as any as PropType<any>,
+    modelValue: null as any as PropType<any>,
   },
+
+  emits: [
+    'click',
+    'keydown',
+    'change',
+    'update:modelValue',
+  ],
 
   data: () => ({
     proxyClass: 'v-list-item--active',
   }),
 
   computed: {
-    $activeClass() {
-      if(this.activeClass) return this.activeClass
+    $activeClass () {
+      if (this.activeClass) return this.activeClass
       if (!this.listItemGroup) return ''
 
       return this.listItemGroup.activeClass
@@ -154,7 +156,7 @@ export default baseMixins.extend({
       return attrs
     },
     toggle () {
-      if (this.to && this.inputValue === undefined) {
+      if (this.to && this.modelValue === undefined) {
         this.isActive = !this.isActive
       }
       this.$emit('change')
@@ -163,10 +165,11 @@ export default baseMixins.extend({
 
   render (): VNode {
     let { tag, data, directives } = this.generateRouteLink()
+    const attrs = this.genAttrs()
 
     data = mergeData(
       data,
-      this.genAttrs()
+      attrs
     )
 
     data = {
@@ -179,6 +182,8 @@ export default baseMixins.extend({
           this.$emit('keydown', e)
         }
       },
+      // Ensure our attrs take precedence over routable
+      ...attrs,
     }
 
     if (this.inactive) tag = 'div'

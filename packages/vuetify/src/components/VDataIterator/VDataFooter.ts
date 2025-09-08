@@ -61,6 +61,8 @@ export default defineComponent({
     },
   },
 
+  emits: ['update:options'],
+
   computed: {
     disableNextPageIcon (): boolean {
       return this.options.itemsPerPage <= 0 ||

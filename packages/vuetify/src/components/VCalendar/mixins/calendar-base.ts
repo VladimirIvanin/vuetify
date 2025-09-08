@@ -1,6 +1,6 @@
+import { defineComponent } from 'vue'
 
 // Mixins
-import mixins from '../../../util/mixins'
 import Colorable from '../../../mixins/colorable'
 import Localable from '../../../mixins/localable'
 import Mouse from '../../../mixins/mouse'
@@ -23,21 +23,17 @@ import {
 } from '../util/timestamp'
 import { CalendarTimestamp, CalendarFormatter } from 'vuetify/types'
 
-export default mixins(
-  Colorable,
-  Localable,
-  Mouse,
-  Themeable,
-  Times
-/* @vue/component */
-).extend({
+export default defineComponent({
   name: 'calendar-base',
 
-  directives: {
-    Resize,
-  },
+
+  extends: Times,
+
+  mixins: [Colorable, Localable, Mouse, Themeable],
 
   props: props.base,
+
+  emits: ['click', 'mousedown', 'mouseup', 'touchstart', 'touchend'],
 
   computed: {
     parsedWeekdays (): number[] {

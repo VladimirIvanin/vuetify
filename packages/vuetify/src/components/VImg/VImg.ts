@@ -39,7 +39,6 @@ export default mixins(
 ).extend({
   name: 'v-img',
 
-  directives: { intersect },
 
   props: {
     alt: String,
@@ -72,6 +71,8 @@ export default mixins(
       default: 'fade-transition',
     },
   },
+
+  emits: ['load', 'error', 'loadstart'],
 
   data () {
     return {

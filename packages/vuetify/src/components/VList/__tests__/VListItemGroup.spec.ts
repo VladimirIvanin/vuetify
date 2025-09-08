@@ -4,12 +4,15 @@ import VListItemGroup from '../VListItemGroup'
 // Utilities
 import {
   mount,
-  Wrapper,
+  VueWrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 
 describe('VListItemGroup.ts', () => {
   type Instance = InstanceType<typeof VListItemGroup>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  let mountFunction: (options?: object) => VueWrapper<Instance>
+
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
     mountFunction = (options = {}) => {

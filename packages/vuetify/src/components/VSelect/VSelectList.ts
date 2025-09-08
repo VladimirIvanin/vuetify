@@ -32,10 +32,6 @@ type ListTile = { item: any, disabled?: null | boolean, value?: boolean, index: 
 export default mixins(Colorable, Themeable).extend({
   name: 'v-select-list',
 
-  // https://github.com/vuejs/vue/issues/6872
-  directives: {
-    ripple,
-  },
 
   props: {
     action: Boolean,
@@ -92,12 +88,12 @@ export default mixins(Colorable, Themeable).extend({
           color: this.color,
           modelValue: inputValue,
           ripple: false,
-          onInput: () => this.$emit('select', item)
+          onInput: () => this.$emit('select', item),
         }),
       ])
     },
     genDivider (props: { [key: string]: any }) {
-      return h(VDivider, { props })
+      return h(VDivider, props)
     },
     genFilteredText (text: string) {
       text = text || ''
@@ -109,7 +105,7 @@ export default mixins(Colorable, Themeable).extend({
       return [start, this.genHighlight(middle), end]
     },
     genHeader (props: { [key: string]: any }): VNode {
-      return h(VSubheader, { props }, props.header)
+      return h(VSubheader, props, props.header)
     },
     genHighlight (text: string) {
       return h('span', { class: 'v-list-item__mask' }, text)
@@ -157,7 +153,14 @@ export default mixins(Colorable, Themeable).extend({
         activeClass: this.tileActiveClass,
         disabled,
         ripple: true,
-        inputValue: value,
+        modelValue: value,
+        // Передаем scopeId атрибуты от родительского компонента
+        ...Object.keys(this.$attrs).reduce((acc, key) => {
+          if (key.startsWith('data-v-')) {
+            acc[key] = this.$attrs[key]
+          }
+          return acc
+        }, {} as Record<string, any>)
       }
 
       if (!this.$slots.item) {
@@ -176,7 +179,7 @@ export default mixins(Colorable, Themeable).extend({
         attrs: {
           ...tile.attrs,
           ...tile.props,
-          ...tile.on
+          ...tile.on,
         },
         on: tile.on,
       })
@@ -234,6 +237,7 @@ export default mixins(Colorable, Themeable).extend({
     this.$slots['append-item'] && children.push(this.$slots['append-item']())
 
     return h(VList, {
+      ...this.$attrs,
       class: ['v-select-list', this.themeClasses],
       role: 'listbox',
       tabindex: -1,

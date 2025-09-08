@@ -1,15 +1,14 @@
-import {h} from 'vue'
+import { h, VNode, PropType, defineComponent } from 'vue'
 import './VTimePickerTitle.sass'
 
 // Mixins
 import PickerButton from '../../mixins/picker-button'
 
 // Utils
-import { pad } from '../VDatePicker/util'
+import pad from '../VDatePicker/util/pad'
 import mixins from '../../util/mixins'
 
 import { SelectingTimes } from './SelectingTimes'
-import { VNode, PropType } from 'vue'
 
 export default mixins(
   PickerButton
@@ -32,6 +31,8 @@ export default mixins(
     useSeconds: Boolean,
     selecting: Number,
   },
+
+  emits: ['update:selecting', 'update:period'],
 
   methods: {
     genTime () {
@@ -59,8 +60,8 @@ export default mixins(
     },
     genAmPm () {
       return h('div', {
-        class: 'v-time-picker-title__ampm',
         class: {
+          'v-time-picker-title__ampm': true,
           'v-time-picker-title__ampm--readonly': this.ampmReadonly,
         },
       }, [

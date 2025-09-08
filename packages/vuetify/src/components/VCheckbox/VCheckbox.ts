@@ -31,6 +31,8 @@ export default defineComponent({
     },
   },
 
+  emits: ['click', 'focus', 'blur', 'update:indeterminate'],
+
   data () {
     return {
       inputIndeterminate: this.indeterminate,

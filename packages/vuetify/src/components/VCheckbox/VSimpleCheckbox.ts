@@ -17,9 +17,6 @@ import { wrapInArray } from '../../util/helpers'
 export default defineComponent({
   name: 'v-simple-checkbox',
 
-  directives: {
-    Ripple,
-  },
 
   props: {
     ...Colorable.props,

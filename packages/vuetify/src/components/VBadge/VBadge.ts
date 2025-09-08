@@ -56,7 +56,7 @@ export default defineComponent({
     },
     modelValue: { default: true },
   },
-
+  emits: ['update:modelValue'],
   computed: {
     classes (): object {
       return {

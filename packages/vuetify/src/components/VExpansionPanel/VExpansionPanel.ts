@@ -25,6 +25,11 @@ export default mixins(
 ).extend({
   name: 'v-expansion-panel',
 
+  emits: [
+    'click',
+    'change',
+  ],
+
   props: {
     disabled: Boolean,
     readonly: Boolean,

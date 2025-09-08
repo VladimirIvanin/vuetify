@@ -22,6 +22,8 @@ export default mixins(
 ).extend({
   name: 'v-overlay',
 
+  emits: ['update:modelValue'],
+
   props: {
     absolute: Boolean,
     color: {

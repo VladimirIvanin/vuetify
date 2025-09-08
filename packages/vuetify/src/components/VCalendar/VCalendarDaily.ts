@@ -1,9 +1,6 @@
-import {h} from 'vue'
+import { h, defineComponent, withDirectives, VNode } from 'vue'
 // Styles
 import './VCalendarDaily.sass'
-
-// Types
-import { VNode, defineComponent } from 'vue'
 
 // Directives
 import Resize from '../../directives/resize'
@@ -21,9 +18,9 @@ import { CalendarTimestamp } from 'vuetify/types'
 /* @vue/component */
 export default defineComponent({
   name: 'v-calendar-daily',
-  extends: CalendarWithIntervals,
 
-  directives: { Resize },
+
+  extends: CalendarWithIntervals,
 
   data: () => ({
     scrollPush: 0,
@@ -82,9 +79,8 @@ export default defineComponent({
     genHeadDay (day: CalendarTimestamp, index: number): VNode {
       return h('div', {
         key: day.date,
-        class: 'v-calendar-daily_head-day',
-        class: this.getRelativeClasses(day),
-        on: this.getDefaultMouseEventHandlers(':day', nativeEvent => {
+        class: ['v-calendar-daily_head-day', this.getRelativeClasses(day)],
+        ...this.getDefaultMouseEventHandlers(':day', nativeEvent => {
           return { nativeEvent, ...this.getSlotScope(day) }
         }),
       }, [
@@ -94,9 +90,9 @@ export default defineComponent({
       ])
     },
     genDayHeader (day: CalendarTimestamp, index: number): VNode[] {
-      return getSlot(this, 'day-header', () => ({
+      return getSlot(this, 'day-header', {
         week: this.days, ...day, index,
-      })) || []
+      }) || []
     },
     genHeadWeekday (day: CalendarTimestamp): VNode {
       const color = day.present ? this.color : undefined
@@ -123,7 +119,7 @@ export default defineComponent({
         }, nativeEvent => {
           return { nativeEvent, ...day }
         }),
-      }, this.dayFormatter(day, false))
+      }, { default: () => this.dayFormatter(day, false) })
     },
     genBody (): VNode {
       return h('div', {
@@ -165,9 +161,8 @@ export default defineComponent({
     genDay (day: CalendarTimestamp, index: number): VNode {
       return h('div', {
         key: day.date,
-        class: 'v-calendar-daily__day',
-        class: this.getRelativeClasses(day),
-        on: this.getDefaultMouseEventHandlers(':time', nativeEvent => {
+        class: ['v-calendar-daily__day', this.getRelativeClasses(day)],
+        ...this.getDefaultMouseEventHandlers(':time', nativeEvent => {
           return { nativeEvent, ...this.getSlotScope(this.getTimestampAtEvent(nativeEvent, day)) }
         }),
       }, [
@@ -176,7 +171,7 @@ export default defineComponent({
       ])
     },
     genDayBody (day: CalendarTimestamp): VNode[] {
-      return getSlot(this, 'day-body', () => this.getSlotScope(day)) || []
+      return getSlot(this, 'day-body', this.getSlotScope(day)) || []
     },
     genDayIntervals (index: number): VNode[] {
       return this.intervals[index].map(this.genDayInterval)
@@ -195,7 +190,7 @@ export default defineComponent({
 
       }
 
-      const children = getSlot(this, 'interval', () => this.getSlotScope(interval))
+      const children = getSlot(this, 'interval', this.getSlotScope(interval))
 
       return h('div', data, children)
     },
@@ -206,7 +201,7 @@ export default defineComponent({
         style: {
           width,
         },
-        on: this.getDefaultMouseEventHandlers(':interval', nativeEvent => {
+        ...this.getDefaultMouseEventHandlers(':interval', nativeEvent => {
           return { nativeEvent, ...this.getTimestampAtEvent(nativeEvent, this.parsedStart) }
         }),
       }
@@ -240,21 +235,16 @@ export default defineComponent({
   },
 
   render (): VNode {
-    return h('div', {
+    return withDirectives(h('div', {
       class: this.classes,
-      on: {
-        dragstart: (e: MouseEvent) => {
-          e.preventDefault()
-        },
+      onDragstart: (e: MouseEvent) => {
+        e.preventDefault()
       },
-      directives: [{
-        modifiers: { quiet: true },
-        name: 'resize',
-        value: this.onResize,
-      }],
     }, [
       !this.hideHeader ? this.genHead() : '',
       this.genBody(),
+    ]), [
+      [Resize, this.onResize, '', { quiet: true }],
     ])
   },
 })

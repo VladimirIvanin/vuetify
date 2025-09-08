@@ -31,9 +31,6 @@ interface options extends InstanceType<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-otp-input',
 
-  directives: {
-    ripple,
-  },
 
   inheritAttrs: false,
 
@@ -48,6 +45,8 @@ export default baseMixins.extend({
     },
     plain: Boolean,
   },
+
+  emits: ['blur', 'focus', 'change', 'keydown', 'finish'],
 
   data: () => ({
     initialValue: null,

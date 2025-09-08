@@ -1,4 +1,4 @@
-import {h} from 'vue'
+import { h } from 'vue'
 // Styles
 import './VStepper.sass'
 
@@ -47,6 +47,8 @@ export default baseMixins.extend({
     flat: Boolean,
     vertical: Boolean,
   },
+
+  emits: ['change'],
 
   data () {
     const data: Dictionary<any> = {

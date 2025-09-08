@@ -38,9 +38,6 @@ interface options extends ExtractVue<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-tabs',
 
-  directives: {
-    Resize,
-  },
 
   props: {
     activeClass: {

@@ -8,6 +8,11 @@ import { DataTableHeader } from 'vuetify/types'
 export default mixins(header).extend({
   name: 'v-data-table-header-desktop',
 
+  emits: [
+    'group',
+    'sort',
+  ],
+
   methods: {
     genGroupByToggle (header: DataTableHeader) {
       return h('span', {

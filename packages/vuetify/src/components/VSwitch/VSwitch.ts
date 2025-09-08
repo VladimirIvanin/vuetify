@@ -24,7 +24,6 @@ import mergeData from '../../util/mergeData'
 export default defineComponent({
   name: 'v-switch',
 
-  directives: { Touch },
 
   extends: Selectable,
 
@@ -39,6 +38,8 @@ export default defineComponent({
       default: false,
     },
   },
+
+  emits: ['click', 'focus', 'blur'],
 
   computed: {
     classes (): object {
@@ -99,12 +100,10 @@ export default defineComponent({
           ]],
         })),
 
-        h('div', mergeData({
-          class: 'v-input--switch__track' },
+        h('div', mergeData({ class: 'v-input--switch__track' },
           this.switchData,
         )),
-        h('div', mergeData({
-          class: 'v-input--switch__thumb'},
+        h('div', mergeData({ class: 'v-input--switch__thumb' },
           this.switchData,
         ), [this.genProgress()]),
       ])

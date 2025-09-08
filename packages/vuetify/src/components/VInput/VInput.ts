@@ -59,6 +59,8 @@ export default baseMixins.extend({
     modelValue: null as any as PropType<any>,
   },
 
+  emits: ['click', 'mousedown', 'mouseup', 'touchstart', 'touchend'],
+
   data () {
     return {
       lazyValue: this.modelValue,

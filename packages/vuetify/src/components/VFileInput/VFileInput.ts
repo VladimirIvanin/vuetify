@@ -77,6 +77,8 @@ export default defineComponent({
     } as PropValidator<File | File[]>,
   },
 
+  emits: ['change', 'keydown'],
+
   computed: {
     classes (): object {
       return {
