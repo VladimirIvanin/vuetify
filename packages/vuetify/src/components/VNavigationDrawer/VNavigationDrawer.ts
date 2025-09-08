@@ -96,6 +96,8 @@ export default baseMixins.extend({
     modelValue: null as unknown as PropType<any>,
   },
 
+  emits: ['update:modelValue', 'transitionend', 'update:mini-variant'],
+
   data: () => ({
     isMouseover: false,
     touchArea: {

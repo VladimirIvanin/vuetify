@@ -64,6 +64,8 @@ export default mixins(
     },
   },
 
+  emits: ['update:modelValue', 'update:expanded', 'toggle-select-all', 'item-selected', 'item-expanded', 'update:options', 'update:page', 'update:items-per-page', 'update:sort-by', 'update:sort-desc', 'update:group-by', 'update:group-desc', 'pagination', 'current-items', 'page-count'],
+
   data: () => ({
     selection: {} as Record<string, any>,
     expansion: {} as Record<string, boolean>,

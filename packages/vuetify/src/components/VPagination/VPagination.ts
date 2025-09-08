@@ -72,6 +72,8 @@ export default mixins(
     },
   },
 
+  emits: ['update:modelValue', 'next', 'previous'],
+
   data () {
     return {
       maxButtons: 0,

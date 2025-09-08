@@ -20,6 +20,8 @@ export default mixins(
 ).extend({
   name: 'VLazy',
 
+  emits: ['update:modelValue'],
+
   directives: { intersect },
 
   props: {

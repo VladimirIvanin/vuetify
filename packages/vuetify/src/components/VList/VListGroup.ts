@@ -1,4 +1,4 @@
-import {h, withDirectives, vShow} from 'vue'
+import { h, withDirectives, vShow, VNode } from 'vue'
 // Styles
 import './VListGroup.sass'
 
@@ -26,7 +26,6 @@ import mixins, { ExtractVue } from '../../util/mixins'
 import { getSlot } from '../../util/helpers'
 
 // Types
-import { VNode } from 'vue'
 import { Route } from 'vue-router'
 
 const baseMixins = mixins(
@@ -144,7 +143,7 @@ export default baseMixins.extend({
           'v-list-group__header': true,
           [this.activeClass]: this.isActive,
         },
-        inputValue: this.isActive,
+        modelValue: this.isActive,
         ...this.listeners$,
         onClick: this.click
       }, () => [
@@ -153,19 +152,19 @@ export default baseMixins.extend({
         this.genAppendIcon(),
       ]),
       [
-        [Ripple, this.ripple]
+        [Ripple, this.ripple],
       ])
     },
     genItems (): VNode[] {
       const directives = [[
         vShow,
-        this.isActive
+        this.isActive,
       ]]
 
       return this.showLazyContent(() => [
         withDirectives(h('div', {
           class: 'v-list-group__items',
-        }, getSlot(this)), directives)
+        }, getSlot(this)), directives),
       ])
     },
     genPrependIcon (): VNode | null {
@@ -208,7 +207,7 @@ export default baseMixins.extend({
 
   render (): VNode {
     return h('div', this.setTextColor(this.isActive && this.color, {
-      class: ['v-list-group', this.classes]
+      class: ['v-list-group', this.classes],
     }), [
       this.genHeader(),
       h(VExpandTransition, {}, () => this.genItems()),

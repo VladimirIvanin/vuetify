@@ -73,6 +73,8 @@ export default mixins(
     },
   },
 
+  emits: ['load', 'error', 'loadstart'],
+
   data () {
     return {
       currentSrc: '', // Set from srcset

@@ -49,6 +49,8 @@ export default baseMixins.extend({
     plain: Boolean,
   },
 
+  emits: ['blur', 'focus', 'change', 'keydown', 'finish'],
+
   data: () => ({
     initialValue: null,
     isBooted: false,

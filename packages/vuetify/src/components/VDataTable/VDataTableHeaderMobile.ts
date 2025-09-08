@@ -16,6 +16,8 @@ export default mixins(header).extend({
     },
   },
 
+  emits: ['sort'],
+
   methods: {
     genSortChip (props: any) {
       const children: VNodeChildrenArrayContents = [props.item.text]

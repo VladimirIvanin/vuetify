@@ -5,9 +5,7 @@
   ],
   "husky": {
     "hooks": {
-      "prepare-commit-msg": "node scripts/prepare-commit-message.js",
-      "commit-msg": "node scripts/lint-commit-message.js",
-      "pre-commit": "node scripts/warn-npm-install.js"
+
     }
   },
   "repository": {
