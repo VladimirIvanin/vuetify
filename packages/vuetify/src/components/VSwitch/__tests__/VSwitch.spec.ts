@@ -6,6 +6,7 @@ import {
   mount,
   MountOptions,
   Wrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 import { touch } from '../../../../test'
 
@@ -16,6 +17,8 @@ describe('VSwitch.ts', () => {
   type Instance = ExtractVue<typeof VSwitch>
   let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
 
+  enableAutoUnmount(afterEach)
+
   beforeEach(() => {
     mountFunction = (options = {}) => {
       return mount(VSwitch, options)
@@ -24,17 +27,15 @@ describe('VSwitch.ts', () => {
 
   it('should set ripple data attribute based on ripple prop state', async () => {
     const wrapper = mountFunction({
-      propsData: {
-        inputValue: false,
+      props: {
+        modelValue: false,
         ripple: false,
       },
     })
 
-    expect(wrapper.findAll('.v-input--selection-controls__ripple').wrappers).toHaveLength(0)
+    expect(wrapper.findAll('.v-input--selection-controls__ripple')).toHaveLength(0)
 
-    wrapper.setProps({ ripple: true })
-
-    await wrapper.vm.$nextTick()
+    await wrapper.setProps({ ripple: true })
 
     const ripple = wrapper.find('.v-input--selection-controls__ripple')
 
@@ -44,69 +45,61 @@ describe('VSwitch.ts', () => {
 
   it('should emit change event on swipe', async () => {
     const wrapper = mountFunction({
-      propsData: {
-        inputValue: false,
+      props: {
+        modelValue: false,
       },
     })
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
     touch(wrapper.find('.v-input--selection-controls__ripple')).start(0, 0).end(20, 0)
-    expect(change).toHaveBeenCalledWith(true)
-    expect(change).toHaveBeenCalledTimes(1)
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([true])
 
-    wrapper.setProps({ inputValue: true })
+    await wrapper.setProps({ modelValue: true })
     touch(wrapper.find('.v-input--selection-controls__ripple')).start(0, 0).end(-20, 0)
-    expect(change).toHaveBeenCalledWith(false)
-    expect(change).toHaveBeenCalledTimes(2)
+    expect(wrapper.emitted('update:modelValue')![1]).toEqual([false])
   })
 
   it('should emit change event on key events', async () => {
     const wrapper = mountFunction({
-      propsData: {
-        inputValue: false,
+      props: {
+        modelValue: false,
       },
     })
 
-    const change = jest.fn()
     const input = wrapper.find('input')
-    wrapper.vm.$on('change', change)
 
-    input.trigger('keydown.left')
-    expect(change).not.toHaveBeenCalled()
+    await input.trigger('keydown.left')
+    expect(wrapper.emitted('update:modelValue')).toBeFalsy()
 
-    input.trigger('keydown.right')
-    expect(change).toHaveBeenCalledWith(true)
-    expect(change).toHaveBeenCalledTimes(1)
+    await input.trigger('keydown.right')
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([true])
 
-    input.trigger('keydown.right')
-    expect(change).toHaveBeenCalledTimes(1)
+    await input.trigger('keydown.right')
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1)
 
-    input.trigger('keydown.left')
-    expect(change).toHaveBeenCalledWith(false)
-    expect(change).toHaveBeenCalledTimes(2)
+    await input.trigger('keydown.left')
+    expect(wrapper.emitted('update:modelValue')![1]).toEqual([false])
   })
 
   it('should not emit change event on swipe when not active', async () => {
     const wrapper = mountFunction({
-      propsData: {
-        inputValue: false,
+      props: {
+        modelValue: false,
       },
     })
 
-    const change = jest.fn()
-    wrapper.vm.$on('change', change)
     touch(wrapper.find('.v-input--selection-controls__ripple')).start(0, 0).end(-20, 0)
-    expect(change).not.toHaveBeenCalled()
+    expect(wrapper.emitted('update:modelValue')).toBeFalsy()
 
-    wrapper.setProps({ inputValue: true })
+    await wrapper.setProps({ modelValue: true })
     touch(wrapper.find('.v-input--selection-controls__ripple')).start(0, 0).end(20, 0)
-    expect(change).not.toHaveBeenCalled()
+    expect(wrapper.emitted('update:modelValue')).toBeFalsy()
   })
 
   it('should render element with loader and match the snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         loading: true,
       },
     })

@@ -1,4 +1,4 @@
-import {h} from 'vue'
+import { h, withDirectives, vShow } from 'vue'
 // Styles
 import './VBanner.sass'
 
@@ -18,7 +18,7 @@ import Toggleable from '../../mixins/toggleable'
 import mixins from '../../util/mixins'
 import { convertToUnit, getSlot } from '../../util/helpers'
 
-// Typeslint
+// Types
 import { VNode } from 'vue'
 
 /* @vue/component */
@@ -39,7 +39,7 @@ export default mixins(
     iconColor: String,
     singleLine: Boolean,
     sticky: Boolean,
-    value: {
+    modelValue: {
       type: Boolean,
       default: true,
     },
@@ -143,21 +143,19 @@ export default mixins(
 
   render (): VNode {
     const data = {
-      class: 'v-banner',
+      class: ['v-banner', this.classes],
       attrs: this.attrs$,
-      class: this.classes,
       style: this.styles,
-      directives: [{
-        name: 'show',
-        value: this.isActive,
-      }],
     }
 
     return h(VExpandTransition, {}, () => [
-      h(
-        'div',
-        this.outlined ? data : this.setBackgroundColor(this.color, data),
-        [this.genWrapper()],
+      withDirectives(
+        h(
+          'div',
+          this.outlined ? data : this.setBackgroundColor(this.color, data),
+          [this.genWrapper()],
+        ),
+        [[vShow, this.isActive]],
       ),
     ])
   },

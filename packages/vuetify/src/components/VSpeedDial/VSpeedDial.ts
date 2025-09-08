@@ -1,4 +1,4 @@
-import { TransitionGroup, h, VNode, VNodeData } from 'vue'
+import { TransitionGroup, h, VNode, VNodeData, withDirectives } from 'vue'
 // Styles
 import './VSpeedDial.sass'
 
@@ -19,8 +19,6 @@ import { getSlot } from '../../util/helpers'
 /* @vue/component */
 export default mixins(Positionable, Toggleable, Transitionable).extend({
   name: 'v-speed-dial',
-
-  directives: { ClickOutside },
 
   emits: ['update:modelValue'],
 
@@ -59,10 +57,6 @@ export default mixins(Positionable, Toggleable, Transitionable).extend({
     let children: VNode[] = []
     const data: VNodeData = {
       class: this.classes,
-      directives: [{
-        name: 'click-outside',
-        value: () => (this.isActive = false),
-      }],
       on: {
         click: () => (this.isActive = !this.isActive),
       },
@@ -99,6 +93,8 @@ export default mixins(Positionable, Toggleable, Transitionable).extend({
       tag: 'div',
     }, children)
 
-    return h('div', data, [getSlot(this, 'activator'), list])
+    return withDirectives(h('div', data, [getSlot(this, 'activator'), list]), [
+      [ClickOutside, () => (this.isActive = false)],
+    ])
   },
 })

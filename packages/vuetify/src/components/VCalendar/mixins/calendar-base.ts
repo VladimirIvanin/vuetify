@@ -26,9 +26,6 @@ import { CalendarTimestamp, CalendarFormatter } from 'vuetify/types'
 export default defineComponent({
   name: 'calendar-base',
 
-  directives: {
-    Resize,
-  },
 
   extends: Times,
 

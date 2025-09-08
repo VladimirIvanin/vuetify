@@ -39,7 +39,6 @@ export default mixins(
 ).extend({
   name: 'v-img',
 
-  directives: { intersect },
 
   props: {
     alt: String,

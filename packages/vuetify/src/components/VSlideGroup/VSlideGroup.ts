@@ -107,10 +107,6 @@ export const BaseSlideGroup = mixins<options &
 ).extend({
   name: 'base-slide-group',
 
-  directives: {
-    Resize,
-    Touch,
-  },
 
   props: {
     activeClass: {

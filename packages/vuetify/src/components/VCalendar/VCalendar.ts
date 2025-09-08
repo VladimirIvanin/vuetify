@@ -52,9 +52,6 @@ interface VCalendarRenderProps {
 export default defineComponent({
   name: 'v-calendar',
 
-  directives: {
-    Resize,
-  },
 
   extends: CalendarWithEvents,
 

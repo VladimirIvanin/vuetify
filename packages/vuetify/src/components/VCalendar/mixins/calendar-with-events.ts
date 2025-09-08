@@ -75,9 +75,6 @@ const MINUTES_IN_DAY = 1440
 export default defineComponent({
   name: 'calendar-with-events',
 
-  directives: {
-    ripple,
-  },
 
   extends: CalendarBase,
 

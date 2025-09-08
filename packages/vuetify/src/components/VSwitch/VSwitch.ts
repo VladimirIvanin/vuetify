@@ -24,7 +24,6 @@ import mergeData from '../../util/mergeData'
 export default defineComponent({
   name: 'v-switch',
 
-  directives: { Touch },
 
   extends: Selectable,
 

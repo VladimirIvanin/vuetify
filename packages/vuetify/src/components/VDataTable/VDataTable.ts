@@ -101,10 +101,6 @@ export default mixins(
 
   emits: ['click:row', 'update:options', 'update:page', 'update:items-per-page', 'update:sort-by', 'update:sort-desc', 'update:group-by', 'update:group-desc', 'pagination', 'current-items', 'page-count', 'click', 'mousedown', 'mouseup', 'touchstart', 'touchend'],
 
-  // https://github.com/vuejs/vue/issues/6872
-  directives: {
-    ripple,
-  },
 
   props: {
     headers: {

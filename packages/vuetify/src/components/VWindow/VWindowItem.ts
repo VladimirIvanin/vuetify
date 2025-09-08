@@ -31,9 +31,6 @@ export default baseMixins.extend({
 
   emits: ['change'],
 
-  directives: {
-    Touch,
-  },
 
   props: {
     disabled: Boolean,

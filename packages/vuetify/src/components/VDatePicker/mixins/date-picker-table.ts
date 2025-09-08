@@ -41,7 +41,6 @@ export default mixins(
   Themeable
 /* @vue/component */
 ).extend({
-  directives: { Touch },
 
   props: {
     allowedDates: Function as PropType<DatePickerAllowedDatesFunction | undefined>,

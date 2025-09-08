@@ -50,11 +50,6 @@ const baseMixins = mixins(
 export default baseMixins.extend({
   name: 'v-navigation-drawer',
 
-  directives: {
-    ClickOutside,
-    Resize,
-    Touch,
-  },
 
   provide (): object {
     return {

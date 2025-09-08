@@ -25,7 +25,6 @@ export default mixins(
 ).extend({
   name: 'v-pagination',
 
-  directives: { Resize },
 
   props: {
     circle: Boolean,

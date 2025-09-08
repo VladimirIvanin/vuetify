@@ -1,4 +1,4 @@
-import {h} from 'vue'
+import {h, withDirectives} from 'vue'
 // Components
 import VIcon from '../VIcon'
 
@@ -31,7 +31,6 @@ interface options extends InstanceType<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-stepper-step',
 
-  directives: { ripple },
 
   inject: ['stepClick'],
 
@@ -145,16 +144,11 @@ export default baseMixins.extend({
   },
 
   render (): VNode {
-    return h('div', {
+    return withDirectives(h('div', {
       attrs: {
         tabindex: this.editable ? 0 : -1,
       },
-      class: 'v-stepper__step',
       class: this.classes,
-      directives: [{
-        name: 'ripple',
-        value: this.editable,
-      }],
       on: {
         click: this.click,
         keydown: this.keyboardClick,
@@ -162,6 +156,8 @@ export default baseMixins.extend({
     }, [
       this.genStep(),
       this.genLabel(),
+    ]), [
+      [ripple, this.editable]
     ])
   },
 })

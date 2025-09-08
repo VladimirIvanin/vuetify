@@ -15,10 +15,6 @@ interface HeaderOptions {
 }
 
 export default mixins<HeaderOptions>().extend({
-  // https://github.com/vuejs/vue/issues/6872
-  directives: {
-    ripple,
-  },
 
   props: {
     headers: {

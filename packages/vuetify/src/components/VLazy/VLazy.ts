@@ -1,4 +1,4 @@
-import {Transition, h} from 'vue'
+import {Transition, h, withDirectives} from 'vue'
 // Mixins
 import Measurable from '../../mixins/measurable'
 import Toggleable from '../../mixins/toggleable'
@@ -22,7 +22,6 @@ export default mixins(
 
   emits: ['update:modelValue'],
 
-  directives: { intersect },
 
   props: {
     options: {
@@ -75,18 +74,16 @@ export default mixins(
   },
 
   render (): VNode {
-    return h(this.tag, {
+    return withDirectives(h(this.tag, {
       class: 'v-lazy',
       attrs: this.$attrs,
-      directives: [{
-        name: 'intersect',
-        value: {
-          handler: this.onObserve,
-          options: this.options,
-        },
-      }],
       on: this.$listeners,
       style: this.styles,
-    }, [this.genContent()])
+    }, [this.genContent()]), [
+      [intersect, {
+        handler: this.onObserve,
+        options: this.options,
+      }]
+    ])
   },
 })

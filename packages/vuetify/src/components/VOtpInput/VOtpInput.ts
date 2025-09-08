@@ -31,9 +31,6 @@ interface options extends InstanceType<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-otp-input',
 
-  directives: {
-    ripple,
-  },
 
   inheritAttrs: false,
 

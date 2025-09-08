@@ -39,9 +39,6 @@ export default mixins<options &
 ).extend({
   name: 'v-slider',
 
-  directives: {
-    ClickOutside,
-  },
 
   props: {
     disabled: Boolean,

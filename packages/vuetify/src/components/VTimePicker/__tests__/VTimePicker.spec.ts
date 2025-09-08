@@ -758,7 +758,7 @@ describe('VTimePicker.ts', () => {
           useSeconds: useSecondsValue,
         },
       })
-      
+
       // Тестируем, что computed свойства работают правильно
       wrapper.vm.selecting = SelectingTimes.Minute
       expect(wrapper.vm.selecting).toBe(SelectingTimes.Minute)

@@ -36,13 +36,6 @@ describe('VTabs.ts', () => {
           config: {
             warnHandler: () => {}, // Подавляем предупреждения Vue
           },
-          directives: {
-            Resize: {
-              mounted: () => {},
-              updated: () => {},
-              unmounted: () => {},
-            },
-          },
           mocks: {
             $vuetify: {
               application: { left: 0, right: 0 },

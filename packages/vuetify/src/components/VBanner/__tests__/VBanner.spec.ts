@@ -10,6 +10,7 @@ import {
   mount,
   Wrapper,
 } from '@vue/test-utils'
+import { h } from 'vue'
 
 // Types
 import { ExtractVue } from '../../../util/mixins'
@@ -22,16 +23,21 @@ describe('VBanner.ts', () => {
     mountFunction = (options = {}) => {
       return mount(VBanner, {
         ...options,
-        mocks: {
-          $vuetify: {
-            application: {
-              top: 0,
-              bar: 0,
-            },
-            breakpoint: {
-              mobile: true,
-              mobileBreakpoint: 1264,
-              width: 1000,
+        global: {
+          mocks: {
+            $vuetify: {
+              application: {
+                top: 0,
+                bar: 0,
+              },
+              breakpoint: {
+                mobile: true,
+                mobileBreakpoint: 1264,
+                width: 1000,
+              },
+              icons: {
+                component: null,
+              },
             },
           },
         },
@@ -67,7 +73,7 @@ describe('VBanner.ts', () => {
       slots: {
         default: 'Hello, World!',
       },
-      propsData: {
+      props: {
         icon: 'mdi-plus',
       },
     })
@@ -79,7 +85,7 @@ describe('VBanner.ts', () => {
     const wrapper = mountFunction({
       slots: {
         default: 'Hello, World!',
-        icon: { render: h => h('span', ['icon']) },
+        icon: () => h('span', ['icon']),
       },
     })
 
@@ -90,7 +96,7 @@ describe('VBanner.ts', () => {
     const wrapper = mountFunction({
       slots: {
         default: 'Hello, World!',
-        actions: { render: h => h('div', [h('button', ['OK']), h('button', ['Cancel'])]) },
+        actions: () => h('div', [h('button', ['OK']), h('button', ['Cancel'])]),
       },
     })
 
@@ -102,19 +108,16 @@ describe('VBanner.ts', () => {
       slots: {
         default: 'Hello, World!',
       },
-      propsData: {
+      props: {
         icon: 'mdi-plus',
       },
     })
 
-    const fn = jest.fn()
-    wrapper.vm.$on('click:icon', fn)
-
     const icon = wrapper.find('.v-banner__icon')
 
-    expect(fn).not.toHaveBeenCalled()
+    expect(wrapper.emitted('click:icon')).toBeFalsy()
     icon.trigger('click')
-    expect(fn).toHaveBeenCalled()
+    expect(wrapper.emitted('click:icon')).toBeTruthy()
   })
 
   it(`should not render icon container if icon property and slot aren't passed`, () => {
@@ -167,16 +170,10 @@ describe('VBanner.ts', () => {
     const wrapper = mountFunction({
       slots: {
         default: 'Hello, World!',
-      },
-      scopedSlots: {
-        actions (props) {
-          return h('div', {
-            on: {
-              click: props.dismiss,
-            },
-            class: 'test',
-          })
-        },
+        actions: ({ dismiss }) => h('div', {
+          onClick: dismiss,
+          class: 'test',
+        }),
       },
     })
 
@@ -191,9 +188,11 @@ describe('VBanner.ts', () => {
       slots: {
         default: 'Hello, World!',
       },
-      mocks: {
-        $vuetify: {
-          breakpoint: new Breakpoint(preset),
+      global: {
+        mocks: {
+          $vuetify: {
+            breakpoint: new Breakpoint(preset),
+          },
         },
       },
     })
@@ -203,7 +202,7 @@ describe('VBanner.ts', () => {
 
   it('should apply sticky when using the app prop', () => {
     const wrapper = mountFunction({
-      propsData: { app: true },
+      props: { app: true },
     })
 
     expect(wrapper.vm.isSticky).toBe(true)
@@ -219,7 +218,7 @@ describe('VBanner.ts', () => {
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({ sticky: false })
+    wrapper.setProps({ app: false, sticky: false })
 
     expect(wrapper.vm.isSticky).toBe(false)
 

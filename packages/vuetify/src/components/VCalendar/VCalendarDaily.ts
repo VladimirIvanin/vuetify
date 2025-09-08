@@ -19,7 +19,6 @@ import { CalendarTimestamp } from 'vuetify/types'
 export default defineComponent({
   name: 'v-calendar-daily',
 
-  directives: { Resize },
 
   extends: CalendarWithIntervals,
 

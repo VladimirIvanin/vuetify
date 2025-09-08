@@ -31,7 +31,6 @@ interface options extends ExtractVue<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-expansion-panel-header',
 
-  directives: { ripple },
 
   props: {
     disableIconRotate: Boolean,
