@@ -31,6 +31,8 @@ export default mixins(
 
   inheritAttrs: false,
 
+  emits: ['update:modelValue', 'click:icon'],
+
   props: {
     app: Boolean,
     icon: String,
