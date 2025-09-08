@@ -42,6 +42,8 @@ export default baseMixins.extend({
 
   inheritAttrs: false,
 
+  emits: ['change', 'focus', 'blur'],
+
   props: {
     disabled: {
       type: Boolean,

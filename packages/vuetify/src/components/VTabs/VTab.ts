@@ -33,6 +33,8 @@ interface options extends ExtractVue<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-tab',
 
+  emits: ['change', 'click', 'keydown'],
+
   props: {
     ripple: {
       type: [Boolean, Object],
