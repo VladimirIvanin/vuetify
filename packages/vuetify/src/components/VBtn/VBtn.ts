@@ -31,7 +31,7 @@ const baseMixins = mixins(
   Positionable,
   Sizeable,
   GroupableFactory('btnToggle'),
-  ToggleableFactory('inputValue')
+  ToggleableFactory()
   /* @vue/component */
 )
 interface options extends ExtractVue<typeof baseMixins> {
@@ -66,7 +66,7 @@ export default baseMixins.extend({
     value: null as any as PropType<any>,
   },
 
-  emits: ['click'],
+  emits: ['click', 'change', 'update:modelValue'],
 
   data: () => ({
     proxyClass: 'v-btn--active',
@@ -210,6 +210,7 @@ export default baseMixins.extend({
 
     // Apply color styling but preserve Vue's automatic attribute inheritance
     const finalData = this.disabled ? data : setColor(this.color, data)
+    console.log('finalData', this.$attrs)
 
     const vnode = typeof tag === 'string'
       ? h(tag, finalData, children)
