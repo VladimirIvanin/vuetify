@@ -32,10 +32,6 @@ type ListTile = { item: any, disabled?: null | boolean, value?: boolean, index: 
 export default mixins(Colorable, Themeable).extend({
   name: 'v-select-list',
 
-  // https://github.com/vuejs/vue/issues/6872
-  directives: {
-    ripple,
-  },
 
   props: {
     action: Boolean,

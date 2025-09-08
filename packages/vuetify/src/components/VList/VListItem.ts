@@ -41,9 +41,6 @@ interface options extends ExtractVue<typeof baseMixins> {
 export default baseMixins.extend({
   name: 'v-list-item',
 
-  directives: {
-    Ripple,
-  },
 
   inject: {
     isInGroup: {
@@ -81,7 +78,12 @@ export default baseMixins.extend({
     modelValue: null as any as PropType<any>,
   },
 
-  emits: ['click', 'keydown', 'change', 'update:modelValue'],
+  emits: [
+    'click',
+    'keydown',
+    'change',
+    'update:modelValue',
+  ],
 
   data: () => ({
     proxyClass: 'v-list-item--active',
