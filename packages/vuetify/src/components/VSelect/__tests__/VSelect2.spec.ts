@@ -8,7 +8,7 @@ import VSelect from '../VSelect'
 import { keyCodes } from '../../../util/helpers'
 import {
   mount,
-  Wrapper,
+  VueWrapper,
   enableAutoUnmount,
 } from '@vue/test-utils'
 import { waitAnimationFrame } from '../../../../test'
@@ -29,7 +29,7 @@ const createMountFunction = () => (options = {}) => mount(VSelect, {
 // eslint-disable-next-line max-statements
 describe('VSelect.ts', () => {
   type Instance = InstanceType<typeof VSelect>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  let mountFunction: (options?: object) => VueWrapper<Instance>
   let el
 
   beforeEach(() => {
@@ -45,47 +45,58 @@ describe('VSelect.ts', () => {
 
   enableAutoUnmount(afterEach)
 
-  it('should use slotted prepend-item', () => {
+  it('should use slotted prepend-item', async () => {
     const wrapper = mountFunction({
       props: {
         eager: true,
+        attach: false,
         items: ['foo'],
       },
       slots: {
-        'prepend-item': [{
-          render: h => h('div', 'foo'),
-        }],
+        'prepend-item': () => h('div', 'foo'),
       },
     })
 
-    const list = wrapper.find('.v-list')
+    // Активируем меню через клик на слот
+    const slot = wrapper.find('.v-input__slot')
+    slot.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // Список рендерится в document.body через Teleport/Portal
+    const bodyList = document.querySelector('.v-list')
 
     expect(wrapper.vm.$slots['prepend-item']).toBeTruthy()
-    expect(list.html()).toMatchSnapshot()
+    expect(bodyList).toBeTruthy()
+    expect(bodyList.outerHTML).toMatchSnapshot()
   })
 
-  it('should use slotted append-item', () => {
+  it('should use slotted append-item', async () => {
     const wrapper = mountFunction({
       props: {
         eager: true,
         items: ['foo'],
       },
       slots: {
-        'append-item': [{
-          render: h => h('div', 'foo'),
-        }],
+        'append-item': () => h('div', 'foo'),
       },
     })
 
-    const list = wrapper.find('.v-list')
+    // Активируем меню через клик на слот
+    const slot = wrapper.find('.v-input__slot')
+    slot.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // Список рендерится в document.body через Teleport/Portal
+    const bodyList = document.querySelector('.v-list')
 
     expect(wrapper.vm.$slots['append-item']).toBeTruthy()
-    expect(list.html()).toMatchSnapshot()
+    expect(bodyList).toBeTruthy()
+    expect(bodyList.outerHTML).toMatchSnapshot()
   })
 
   it('should use scoped slot for selection generation', () => {
     const wrapper = mountFunction({
-      render (h) {
+      render () {
         return h(VSelect, {
           props: {
             items: ['foo', 'bar'],
@@ -176,14 +187,14 @@ describe('VSelect.ts', () => {
 
     expect(wrapper.vm.computedCounterValue).toBe(3)
 
-    wrapper.setProps({
+    await wrapper.setProps({
       multiple: true,
       modelValue: ['foo'],
     })
 
     expect(wrapper.vm.computedCounterValue).toBe(1)
 
-    wrapper.setProps({
+    await wrapper.setProps({
       counterValue: (value?: string): number => 2,
       multiple: false,
       modelValue: undefined,
@@ -249,12 +260,12 @@ describe('VSelect.ts', () => {
 
     wrapper.vm.selectItem(itemA)
     await wrapper.vm.$nextTick()
-    let emitted = wrapper.emitted('input')
+    let emitted = wrapper.emitted('update:modelValue')
     expect(emitted).toBeFalsy()
 
     wrapper.vm.selectItem(itemB)
     await wrapper.vm.$nextTick()
-    emitted = wrapper.emitted('input')
+    emitted = wrapper.emitted('update:modelValue')
     expect(emitted).toHaveLength(1)
   })
 
@@ -323,7 +334,7 @@ describe('VSelect.ts', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.internalValue).toBeNull()
-    const emitted = wrapper.emitted('input')
+    const emitted = wrapper.emitted('update:modelValue')
     expect(emitted).toBeTruthy()
     expect(emitted[0]).toEqual([null])
   })
@@ -442,9 +453,18 @@ describe('VSelect.ts', () => {
     })
 
     expect(wrapper.vm.selectedItems).toHaveLength(1)
-    wrapper.trigger('click')
-    const item = wrapper.find('div.v-list-item__action')
-    item.trigger('click')
+
+    // Активируем меню через клик на слот
+    const slot = wrapper.find('.v-input__slot')
+    slot.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // Элементы рендерятся в document.body через Teleport/Portal
+    // Для multiple select кликаем на первый элемент списка (который уже выбран)
+    const listItem = document.querySelector('.v-list-item')
+    expect(listItem).toBeTruthy()
+
+    listItem.click()
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.selectedItems).toHaveLength(0)
   })
