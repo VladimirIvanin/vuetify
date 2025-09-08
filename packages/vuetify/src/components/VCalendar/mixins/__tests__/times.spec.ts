@@ -1,28 +1,29 @@
 import Times from '../times'
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
 } from '@vue/test-utils'
-import { ExtractVue } from '../../../../util/mixins'
 import { CalendarTimestamp } from 'vuetify/types'
+import { defineComponent, h } from 'vue'
 
-const Mock = Times.extend({
-  render: h => h('div'),
+const Mock = defineComponent({
+  ...Times,
+  render: () => h('div'),
 })
 
 describe('times.ts', () => {
-  type Instance = ExtractVue<typeof Mock>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  type Instance = InstanceType<typeof Mock>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(Mock, options)
     }
   })
 
   it('should parse timestamp', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         now: '2019-02-08',
       },
     })

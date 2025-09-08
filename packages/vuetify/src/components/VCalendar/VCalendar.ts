@@ -1,9 +1,9 @@
-import {h} from 'vue'
+import { h, defineComponent, VNode, Component, withDirectives } from 'vue'
 // Styles
 // import '../../stylus/components/_calendar-daily.styl'
 
-// Types
-import { VNode, Component, defineComponent } from 'vue'
+// Directives
+import Resize from '../../directives/resize'
 
 // Mixins
 import CalendarWithEvents from './mixins/calendar-with-events'
@@ -51,6 +51,11 @@ interface VCalendarRenderProps {
 /* @vue/component */
 export default defineComponent({
   name: 'v-calendar',
+
+  directives: {
+    Resize,
+  },
+
   extends: CalendarWithEvents,
 
   props: {
@@ -59,6 +64,8 @@ export default defineComponent({
     ...props.intervals,
     ...props.category,
   },
+
+  emits: ['change', 'update:modelValue', 'moved', 'click:date'],
 
   data: () => ({
     lastStart: null as CalendarTimestamp | null,
@@ -236,11 +243,11 @@ export default defineComponent({
       updateRelative(moved, this.times.now)
 
       if (this.value instanceof Date) {
-        this.$emit('input', timestampToDate(moved))
+        this.$emit('update:modelValue', timestampToDate(moved))
       } else if (typeof this.value === 'number') {
-        this.$emit('input', timestampToDate(moved).getTime())
+        this.$emit('update:modelValue', timestampToDate(moved).getTime())
       } else {
-        this.$emit('input', moved.date)
+        this.$emit('update:modelValue', moved.date)
       }
 
       this.$emit('moved', moved)
@@ -252,7 +259,7 @@ export default defineComponent({
       this.move(-amount)
     },
     timeToY (time: VTime, clamp = true): number | false {
-      const c = this.$children[0] as any
+      const c = this.$refs.calendarChild as any
 
       if (c && c.timeToY) {
         return c.timeToY(time, clamp)
@@ -261,7 +268,7 @@ export default defineComponent({
       }
     },
     timeDelta (time: VTime): number | false {
-      const c = this.$children[0] as any
+      const c = this.$refs.calendarChild as any
 
       if (c && c.timeDelta) {
         return c.timeDelta(time)
@@ -270,7 +277,7 @@ export default defineComponent({
       }
     },
     minutesToPixels (minutes: number): number {
-      const c = this.$children[0] as any
+      const c = this.$refs.calendarChild as any
 
       if (c && c.minutesToPixels) {
         return c.minutesToPixels(minutes)
@@ -279,7 +286,7 @@ export default defineComponent({
       }
     },
     scrollToTime (time: VTime): boolean {
-      const c = this.$children[0] as any
+      const c = this.$refs.calendarChild as any
 
       if (c && c.scrollToTime) {
         return c.scrollToTime(time)
@@ -350,32 +357,30 @@ export default defineComponent({
   render (): VNode {
     const { start, end, maxDays, component, weekdays, categories } = this.renderProps
 
-    return h(component, {
+    // Only pass categories prop to VCalendarCategory component
+    const props: any = {
+      ref: 'calendarChild',
       class: ['v-calendar', {
         'v-calendar-events': !this.noEvents,
       }],
-      ...this.$props,
       start: start.date,
       end: end.date,
       maxDays,
       weekdays,
-      categories,
       role: 'grid',
-      directives: [{
-        modifiers: { quiet: true },
-        name: 'resize',
-        value: this.updateEventVisibility,
-      }],
-      ...this.$listeners,
       'onClick:date': (day: CalendarTimestamp, e?: MouseEvent) => {
-        if (this.$listeners.input) {
-          this.$emit('input', day.date)
-        }
-        if (this.$listeners['click:date']) {
-          this.$emit('click:date', day, e)
-        }
+        this.$emit('update:modelValue', day.date)
+        this.$emit('click:date', day, e)
       },
-      scopedSlots: this.getScopedSlots(),
-    })
+    }
+
+    // Only add categories prop for VCalendarCategory component
+    if (component.name === 'v-calendar-category') {
+      props.categories = categories
+    }
+
+    return withDirectives(h(component, props, this.getScopedSlots()), [
+      [Resize, this.updateEventVisibility, '', { quiet: true }],
+    ])
   },
 })

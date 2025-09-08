@@ -1,8 +1,10 @@
+import { h, defineComponent } from 'vue'
+
 // Styles
 import './VCalendarCategory.sass'
 
 // Types
-import { VNode, defineComponent } from 'vue'
+import { VNode } from 'vue'
 
 // Mixins
 import VCalendarDaily from './VCalendarDaily'
@@ -59,7 +61,7 @@ export default defineComponent({
       const headerTitle = typeof scope.category === 'object' ? scope.category.categoryName : scope.category
       return h('div', {
         class: 'v-calendar-category__column-header',
-        on: this.getDefaultMouseEventHandlers(':day-category', e => {
+        ...this.getDefaultMouseEventHandlers(':day-category', e => {
           return this.getCategoryScope(this.getSlotScope(day), scope.category)
         }),
       }, [
@@ -85,9 +87,8 @@ export default defineComponent({
       const category = this.parsedCategories[categoryIndex]
       return h('div', {
         key: day.date + '-' + categoryIndex,
-        class: 'v-calendar-daily__day',
-        class: this.getRelativeClasses(day),
-        on: this.getDefaultMouseEventHandlers(':time', e => {
+        class: ['v-calendar-daily__day', this.getRelativeClasses(day)],
+        ...this.getDefaultMouseEventHandlers(':time', e => {
           return this.getSlotScope(this.getTimestampAtEvent(e, day))
         }),
       }, [
@@ -111,7 +112,7 @@ export default defineComponent({
         },
       }
 
-      const children = getSlot(this, 'interval', () =>
+      const children = getSlot(this, 'interval',
         this.getCategoryScope(this.getSlotScope(interval), category)
       )
 
@@ -129,12 +130,12 @@ export default defineComponent({
     genDayBodyCategory (day: CalendarTimestamp, category: CalendarCategory): VNode {
       const data = {
         class: 'v-calendar-category__column',
-        on: this.getDefaultMouseEventHandlers(':time-category', e => {
+        ...this.getDefaultMouseEventHandlers(':time-category', e => {
           return this.getCategoryScope(this.getSlotScope(this.getTimestampAtEvent(e, day)), category)
         }),
       }
 
-      const children = getSlot(this, 'day-body', () => this.getCategoryScope(this.getSlotScope(day), category))
+      const children = getSlot(this, 'day-body', this.getCategoryScope(this.getSlotScope(day), category))
 
       return h('div', data, children)
     },

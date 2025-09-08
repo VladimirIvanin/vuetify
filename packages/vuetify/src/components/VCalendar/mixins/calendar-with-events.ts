@@ -2,7 +2,7 @@
 import './calendar-with-events.sass'
 
 // Types
-import { VNode, VNodeData, defineComponent } from 'vue'
+import { VNode, VNodeData, defineComponent, h, withDirectives } from 'vue'
 
 // Directives
 import ripple from '../../../directives/ripple'
@@ -75,11 +75,11 @@ const MINUTES_IN_DAY = 1440
 export default defineComponent({
   name: 'calendar-with-events',
 
-  extends: CalendarBase,
-
   directives: {
     ripple,
   },
+
+  extends: CalendarBase,
 
   props: {
     ...props.events,
@@ -250,22 +250,18 @@ export default defineComponent({
       const scope = { eventParsed: event, day, start, end, timed: false }
 
       return this.genEvent(event, scope, false, {
-        class: 'v-event',
-        class: {
+        class: ['v-event', {
           'v-event-start': start,
           'v-event-end': end,
-        },
+        }],
         style: {
           height: `${eventHeight}px`,
           width: `${width}%`,
           'margin-bottom': `${eventMarginBottom}px`,
         },
-        attrs: {
-          'data-date': day.date,
-        },
+        'data-date': day.date,
         key: event.index,
         ref: 'events',
-        refInFor: true,
       })
     },
     genTimedEvent ({ event, left, width }: CalendarEventVisual, day: CalendarDayBodySlotScope): VNode | false {
@@ -336,20 +332,18 @@ export default defineComponent({
         eventSummary,
       }
 
-      return h('div',
+      return withDirectives(h('div',
         this.setTextColor(text,
           this.setBackgroundColor(background, {
-            on: this.getDefaultMouseEventHandlers(':event', nativeEvent => ({ ...scope, nativeEvent })),
-            directives: [{
-              name: 'ripple',
-              value: this.eventRipple ?? true,
-            }],
+            ...this.getDefaultMouseEventHandlers(':event', nativeEvent => ({ ...scope, nativeEvent })),
             ...data,
           })
         ), slot
           ? slot(scope)
           : [this.genName(eventSummary)]
-      )
+      ), [
+        [ripple, this.eventRipple ?? true],
+      ])
     },
     genName (eventSummary: () => string | VNode): VNode {
       return h('div', {
@@ -363,42 +357,32 @@ export default defineComponent({
         style: {
           height: `${height}px`,
         },
-        attrs: {
-          'data-date': day.date,
-        },
+        'data-date': day.date,
         ref: 'events',
-        refInFor: true,
       })
     },
     genMore (day: CalendarDaySlotScope): VNode {
       const eventHeight = this.eventHeight
       const eventMarginBottom = this.eventMarginBottom
 
-      return h('div', {
-        class: 'v-event-more pl-1',
-        class: {
+      return withDirectives(h('div', {
+        class: ['v-event-more pl-1', {
           'v-outside': day.outside,
-        },
-        attrs: {
-          'data-date': day.date,
-          'data-more': 1,
-        },
-        directives: [{
-          name: 'ripple',
-          value: this.eventRipple ?? true,
         }],
-        on: this.getDefaultMouseEventHandlers(':more', nativeEvent => {
+        'data-date': day.date,
+        'data-more': 1,
+        ...this.getDefaultMouseEventHandlers(':more', nativeEvent => {
           return { nativeEvent, ...day }
         }),
-
         style: {
           display: 'none',
           height: `${eventHeight}px`,
           'margin-bottom': `${eventMarginBottom}px`,
         },
         ref: 'events',
-        refInFor: true,
-      })
+      }), [
+        [ripple, this.eventRipple ?? true],
+      ])
     },
     getVisibleEvents (): CalendarEventParsed[] {
       const start = getDayIdentifier(this.days[0])

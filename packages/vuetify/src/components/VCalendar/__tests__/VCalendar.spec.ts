@@ -2,23 +2,22 @@ import { parseDate } from '../util/timestamp'
 import VCalendar from '../VCalendar'
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
 } from '@vue/test-utils'
-import { ExtractVue } from '../../../util/mixins'
 
 describe('VCalendar', () => {
-  type Instance = ExtractVue<typeof VCalendar>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  type Instance = InstanceType<typeof VCalendar>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(VCalendar, {
-        // https://github.com/vuejs/vue-test-utils/issues/1130
-        sync: false,
-        mocks: {
-          $vuetify: {
-            lang: {
-              current: 'en-US',
+        global: {
+          mocks: {
+            $vuetify: {
+              lang: {
+                current: 'en-US',
+              },
             },
           },
         },
@@ -29,14 +28,11 @@ describe('VCalendar', () => {
 
   it('should render day view', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         type: 'day',
         start: '2018-01-29',
         end: '2018-02-04',
         now: '2019-02-17',
-      },
-      methods: {
-        getNow: () => parseDate(new Date('2019-02-17')),
       },
     })
 
@@ -46,14 +42,11 @@ describe('VCalendar', () => {
 
   it('should render 4-day view', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         type: '4day',
         start: '2018-01-29',
         end: '2018-02-04',
         now: '2019-02-17',
-      },
-      methods: {
-        getNow: () => parseDate(new Date('2019-02-17')),
       },
     })
 
@@ -63,14 +56,11 @@ describe('VCalendar', () => {
 
   it('should render week view', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         type: 'week',
         start: '2018-01-29',
         end: '2018-02-04',
         now: '2019-02-17',
-      },
-      methods: {
-        getNow: () => parseDate(new Date('2019-02-17')),
       },
     })
 
@@ -80,14 +70,11 @@ describe('VCalendar', () => {
 
   it('should render month view', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         type: 'month',
         start: '2018-01-29',
         end: '2018-02-04',
         now: '2019-02-17',
-      },
-      methods: {
-        getNow: () => parseDate(new Date('2019-02-17')),
       },
     })
 
@@ -97,7 +84,7 @@ describe('VCalendar', () => {
 
   it('should parse value', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: '2019-02-02',
         start: '2019-01-29',
         end: '2019-02-04',
@@ -109,7 +96,7 @@ describe('VCalendar', () => {
 
   it('should parse start', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-04',
       },
@@ -120,15 +107,12 @@ describe('VCalendar', () => {
 
   it('should go to correct day when using next/prev public functions', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: '2019-01-11',
         type: 'day',
         weekdays: [1, 2, 3, 4, 5],
       },
     })
-
-    const input = jest.fn(value => wrapper.setProps({ value }))
-    wrapper.vm.$on('input', input)
 
     expect(wrapper.html()).toMatchSnapshot()
 

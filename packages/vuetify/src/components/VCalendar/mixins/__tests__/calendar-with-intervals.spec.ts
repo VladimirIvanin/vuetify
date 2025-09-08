@@ -3,13 +3,14 @@ import { CalendarTimestamp } from 'vuetify/types'
 import { parseTimestamp } from '../../util/timestamp'
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
 } from '@vue/test-utils'
-import { ExtractVue } from '../../../../util/mixins'
+import { defineComponent, h } from 'vue'
 
-const Mock = CalendarWithIntervals.extend({
-  render: h => h('div'),
+const Mock = defineComponent({
+  ...CalendarWithIntervals,
+  render: () => h('div'),
 })
 
 const createMouseEvent = (x, y) => ({
@@ -26,16 +27,18 @@ const createTouchEvent = (x, y) => ({
 })
 
 describe('calendar-with-intervals.ts', () => {
-  type Instance = ExtractVue<typeof Mock>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  type Instance = InstanceType<typeof Mock>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(Mock, {
         ...options,
-        mocks: {
-          $vuetify: {
-            lang: {
-              current: 'en-US',
+        global: {
+          mocks: {
+            $vuetify: {
+              lang: {
+                current: 'en-US',
+              },
             },
           },
         },
@@ -45,7 +48,7 @@ describe('calendar-with-intervals.ts', () => {
 
   it('should parse all data', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         firstInterval: '1',
         intervalMinutes: '30',
         intervalCount: '10',
@@ -65,7 +68,7 @@ describe('calendar-with-intervals.ts', () => {
 
   it('should generate firstMinute', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         firstInterval: '2',
         intervalMinutes: '30',
       },
@@ -77,7 +80,7 @@ describe('calendar-with-intervals.ts', () => {
 
   it('should generate bodyHeight', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         intervalCount: '10',
         intervalHeight: '20',
       },
@@ -89,7 +92,7 @@ describe('calendar-with-intervals.ts', () => {
 
   it('should generate days', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-04',
       },
@@ -101,7 +104,7 @@ describe('calendar-with-intervals.ts', () => {
     expect(wrapper.vm.days[6].date).toBe('2019-02-04')
     expect(wrapper.vm.days).toMatchSnapshot()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       start: '2019-01-29',
       end: '2019-02-02',
     })
@@ -115,7 +118,7 @@ describe('calendar-with-intervals.ts', () => {
 
   it('should generate intervals', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-04',
       },
@@ -128,7 +131,7 @@ describe('calendar-with-intervals.ts', () => {
     expect(wrapper.vm.intervals[6][0].date).toBe('2019-02-04')
     expect(wrapper.vm.intervals).toMatchSnapshot()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       start: '2019-01-29',
       end: '2019-02-02',
     })
@@ -163,7 +166,7 @@ describe('calendar-with-intervals.ts', () => {
   it('should return intervalFormat if has one', async () => {
     const intervalFormat = x => x
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         intervalFormat,
       },
     })
@@ -197,7 +200,7 @@ describe('calendar-with-intervals.ts', () => {
     expect(wrapper.vm.timeToY('09:30')).toBe(456)
     expect(Math.round(wrapper.vm.timeToY('23:50') || 0)).toBe(1144)
 
-    wrapper.setProps({
+    await wrapper.setProps({
       firstInterval: 5,
       intervalCount: 5,
       intervalMinutes: 10,
@@ -225,7 +228,7 @@ describe('calendar-with-intervals.ts', () => {
     expect(wrapper.vm.timeDelta('09:30')).toBe((9 * 60 + 30) / 1440)
     expect(Math.round(wrapper.vm.timeDelta('23:50') || 0)).toBe(1)
 
-    wrapper.setProps({
+    await wrapper.setProps({
       firstInterval: 5,
       intervalCount: 5,
       intervalMinutes: 10,
@@ -243,7 +246,7 @@ describe('calendar-with-intervals.ts', () => {
 
   it('should convert minutes to pixels', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         intervalMinutes: 5,
         bodyHeight: 200,
       },
@@ -257,7 +260,7 @@ describe('calendar-with-intervals.ts', () => {
     expect(wrapper.vm.minutesToPixels(10)).toBe(96)
     expect(wrapper.vm.minutesToPixels(50)).toBe(480)
 
-    wrapper.setProps({
+    await wrapper.setProps({
       intervalMinutes: 10,
       bodyHeight: 400,
     })
@@ -269,7 +272,7 @@ describe('calendar-with-intervals.ts', () => {
 
   it('should scroll to time', async () => {
     const wrapper = mountFunction({
-      render: h => h('div', [
+      render: () => h('div', [
         h('div', {
           ref: 'scrollArea',
         }),
@@ -283,7 +286,7 @@ describe('calendar-with-intervals.ts', () => {
     wrapper.vm.scrollToTime('20:00')
     expect((wrapper.vm.$refs.scrollArea as any).scrollTop).toBe(960)
 
-    wrapper.setProps({
+    await wrapper.setProps({
       intervalMinutes: 5,
       bodyHeight: 200,
     })
@@ -295,7 +298,7 @@ describe('calendar-with-intervals.ts', () => {
     wrapper.vm.scrollToTime('20:30')
     expect((wrapper.vm.$refs.scrollArea as any).scrollTop).toBe(1152)
 
-    wrapper.setProps({
+    await wrapper.setProps({
       intervalMinutes: 30,
       bodyHeight: 1700,
     })
@@ -340,7 +343,7 @@ describe('calendar-with-intervals.ts', () => {
 
   it('should show interval label', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         start: '2019-01-29',
         end: '2019-02-04',
         firstInterval: 5,

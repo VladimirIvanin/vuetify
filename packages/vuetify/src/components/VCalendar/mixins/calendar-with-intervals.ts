@@ -1,3 +1,4 @@
+import { defineComponent } from 'vue'
 
 // Mixins
 import CalendarBase from './calendar-base'
@@ -15,7 +16,6 @@ import {
   MINUTES_IN_DAY,
 } from '../util/timestamp'
 import { CalendarTimestamp, CalendarFormatter, CalendarDayBodySlotScope } from 'vuetify/types'
-import { defineComponent } from 'vue'
 
 /* @vue/component */
 export default defineComponent({
