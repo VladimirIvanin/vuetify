@@ -86,7 +86,6 @@ describe('VSelect.ts', () => {
     slot.trigger('click')
     await wrapper.vm.$nextTick()
 
-    // Список рендерится в document.body через Teleport/Portal
     const bodyList = document.querySelector('.v-list')
 
     expect(wrapper.vm.$slots['append-item']).toBeTruthy()
