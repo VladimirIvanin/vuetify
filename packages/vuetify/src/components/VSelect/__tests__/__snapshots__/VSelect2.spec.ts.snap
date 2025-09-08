@@ -120,7 +120,7 @@ exports[`VSelect.ts should use scoped slot for selection generation 1`] = `
     <div role="button"
          aria-haspopup="listbox"
          aria-expanded="false"
-         aria-owns="list-2"
+         aria-owns="list-32"
          class="v-input__slot"
     >
       <div class="v-select__slot">
@@ -130,7 +130,7 @@ exports[`VSelect.ts should use scoped slot for selection generation 1`] = `
           </div>
           <input aria-readonly="false"
                  autocomplete="off"
-                 id="input-2"
+                 id="input-32"
                  readonly
                  type="text"
           >

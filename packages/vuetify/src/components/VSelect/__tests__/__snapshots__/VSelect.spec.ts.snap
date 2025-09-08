@@ -220,7 +220,7 @@ exports[`VSelect.ts should render v-select correctly when not using scope slot 1
     <div role="button"
          aria-haspopup="listbox"
          aria-expanded="false"
-         aria-owns="list-2"
+         aria-owns="list-41"
          class="v-input__slot"
     >
       <div class="v-select__slot">
@@ -230,7 +230,7 @@ exports[`VSelect.ts should render v-select correctly when not using scope slot 1
           </div>
           <input aria-readonly="false"
                  autocomplete="off"
-                 id="input-2"
+                 id="input-41"
                  readonly
                  type="text"
           >
@@ -266,7 +266,7 @@ exports[`VSelect.ts should render v-select correctly when not using v-list-item 
     <div role="button"
          aria-haspopup="listbox"
          aria-expanded="false"
-         aria-owns="list-2"
+         aria-owns="list-33"
          class="v-input__slot"
     >
       <div class="v-select__slot">
@@ -276,7 +276,7 @@ exports[`VSelect.ts should render v-select correctly when not using v-list-item 
           </div>
           <input aria-readonly="false"
                  autocomplete="off"
-                 id="input-2"
+                 id="input-33"
                  readonly
                  type="text"
           >
@@ -312,7 +312,7 @@ exports[`VSelect.ts should render v-select correctly when using v-list-item in i
     <div role="button"
          aria-haspopup="listbox"
          aria-expanded="false"
-         aria-owns="list-2"
+         aria-owns="list-24"
          class="v-input__slot"
     >
       <div class="v-select__slot">
@@ -324,7 +324,7 @@ exports[`VSelect.ts should render v-select correctly when using v-list-item in i
           </div>
           <input aria-readonly="false"
                  autocomplete="off"
-                 id="input-2"
+                 id="input-24"
                  readonly
                  type="text"
           >
