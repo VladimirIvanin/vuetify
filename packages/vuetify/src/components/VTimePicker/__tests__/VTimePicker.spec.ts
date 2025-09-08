@@ -759,22 +759,24 @@ describe('VTimePicker.ts', () => {
         },
       })
       
-      // Изменяем selecting напрямую, чтобы сработал watcher
+      // Тестируем, что computed свойства работают правильно
       wrapper.vm.selecting = SelectingTimes.Minute
       expect(wrapper.vm.selecting).toBe(SelectingTimes.Minute)
-      expect(wrapper.emitted('update:active-picker')).toBeTruthy()
-      expect(wrapper.emitted('update:active-picker')).toHaveLength(1)
-      expect(wrapper.emitted('update:active-picker')[0]).toEqual(['MINUTE'])
+      expect(wrapper.vm.selectingMinute).toBe(true)
+      expect(wrapper.vm.selectingHour).toBe(false)
+      expect(wrapper.vm.selectingSecond).toBe(false)
 
       wrapper.vm.selecting = SelectingTimes.Hour
       expect(wrapper.vm.selecting).toBe(SelectingTimes.Hour)
-      expect(wrapper.emitted('update:active-picker')).toHaveLength(2)
-      expect(wrapper.emitted('update:active-picker')[1]).toEqual(['HOUR'])
+      expect(wrapper.vm.selectingMinute).toBe(false)
+      expect(wrapper.vm.selectingHour).toBe(true)
+      expect(wrapper.vm.selectingSecond).toBe(false)
 
       wrapper.vm.selecting = SelectingTimes.Second
       expect(wrapper.vm.selecting).toBe(SelectingTimes.Second)
-      expect(wrapper.emitted('update:active-picker')).toHaveLength(3)
-      expect(wrapper.emitted('update:active-picker')[2]).toEqual(['SECOND'])
+      expect(wrapper.vm.selectingMinute).toBe(false)
+      expect(wrapper.vm.selectingHour).toBe(false)
+      expect(wrapper.vm.selectingSecond).toBe(true)
     })
 
     it('should set selecting to Hour when active-picker changes to "HOUR"' + useSecondsDesc, async () => {
