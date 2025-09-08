@@ -39,6 +39,8 @@ export default mixins(
 
   props: props.base,
 
+  emits: ['click', 'mousedown', 'mouseup', 'touchstart', 'touchend'],
+
   computed: {
     parsedWeekdays (): number[] {
       return Array.isArray(this.weekdays)

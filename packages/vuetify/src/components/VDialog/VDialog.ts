@@ -1,4 +1,4 @@
-import {Transition, h, vShow, withDirectives} from 'vue'
+import { Transition, h, vShow, withDirectives } from 'vue'
 // Styles
 import './VDialog.sass'
 
@@ -63,6 +63,8 @@ export default baseMixins.extend({
     },
     width: [String, Number],
   },
+
+  emits: ['click:outside', 'keydown'],
 
   data () {
     return {
@@ -276,12 +278,12 @@ export default baseMixins.extend({
             handler: this.onClickOutside,
             closeConditional: this.closeConditional,
             include: this.getOpenDependentElements,
-          }
+          },
         ],
         [
           vShow,
-          this.isActive
-        ]
+          this.isActive,
+        ],
       ]
       const data: VNodeData = {
         class: this.classes,
@@ -314,7 +316,7 @@ export default baseMixins.extend({
           this.attach === '' ||
           this.attach === true ||
           this.attach === 'attach',
-      }]
+      }],
     }, [
       this.genActivator(),
       this.genContent(),
