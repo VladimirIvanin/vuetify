@@ -81,4 +81,8 @@ export default mixins(
   GroupableFactory('itemGroup', 'v-item', 'v-item-group')
 ).extend({
   name: 'v-item',
+
+  emits: [
+    'change',
+  ],
 })
