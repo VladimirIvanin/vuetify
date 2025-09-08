@@ -273,20 +273,20 @@ export default mixins(
       } else {
         const match = value
           .trim()
-          .toLowerCase()
-          .match(/^(\d+):(\d+)(:(\d+))?([ap]m)?$/)
+          .match(/^(\d+):(\d+)(:(\d+))?\s*([ap]m)?$/i)
 
         if (match) {
           const [, hour, minute, , second, period] = match
-          this.inputHour = period
-            ? this.convert12to24(parseInt(hour, 10), period as Period)
+          const normalizedPeriod = period ? period.toLowerCase() as Period : null
+          this.inputHour = normalizedPeriod
+            ? this.convert12to24(parseInt(hour, 10), normalizedPeriod)
             : parseInt(hour, 10)
           this.inputMinute = parseInt(minute, 10)
           this.inputSecond = parseInt(second || 0, 10)
 
           // Устанавливаем период только если он был указан в строке
-          if (period) {
-            this.period = period as Period
+          if (normalizedPeriod) {
+            this.period = normalizedPeriod
           } else if (this.inputHour != null) {
             this.period = this.inputHour < 12 ? 'am' : 'pm'
           }

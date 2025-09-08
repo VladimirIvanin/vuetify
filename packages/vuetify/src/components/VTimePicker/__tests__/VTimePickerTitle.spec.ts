@@ -4,13 +4,13 @@ import { Lang } from '../../../services/lang'
 import { preset } from '../../../presets/default'
 import {
   mount,
-  Wrapper,
+  VueWrapper,
   MountOptions,
 } from '@vue/test-utils'
 
 describe('VTimePickerTitle.ts', () => {
   type Instance = InstanceType<typeof VTimePickerTitle>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountOptions<Instance>) => VueWrapper<Instance>
   beforeEach(() => {
     mountFunction = (options?: MountOptions<Instance>) => {
       return mount(VTimePickerTitle, {

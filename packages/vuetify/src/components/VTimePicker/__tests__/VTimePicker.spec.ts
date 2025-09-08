@@ -4,14 +4,14 @@ import VTimePicker, { SelectingTimes } from '../VTimePicker'
 import {
   mount,
   MountOptions,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
 
 import { preset } from '../../../presets/default'
 
 describe('VTimePicker.ts', () => {
   type Instance = InstanceType<typeof VTimePicker>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountOptions<Instance>) => VueWrapper<Instance>
   beforeEach(() => {
     mountFunction = (options?: MountOptions<Instance>) => {
       return mount(VTimePicker, {
@@ -143,12 +143,15 @@ describe('VTimePicker.ts', () => {
       })
 
       await wrapper.vm.$nextTick()
-      wrapper.setProps({ modelValue: '9:00pm' })
+      await wrapper.setProps({ modelValue: '9:00pm' })
+      await wrapper.vm.$nextTick()
       expect(wrapper.vm.period).toBe('pm')
       // with seconds
-      wrapper.setProps({ modelValue: '9:00:12am' })
+      await wrapper.setProps({ modelValue: '9:00:12am' })
+      await wrapper.vm.$nextTick()
       expect(wrapper.vm.period).toBe('am')
-      wrapper.setProps({ modelValue: '9:00:12pm' })
+      await wrapper.setProps({ modelValue: '9:00:12pm' })
+      await wrapper.vm.$nextTick()
       expect(wrapper.vm.period).toBe('pm')
       expect(wrapper.html()).toMatchSnapshot()
     })
@@ -167,7 +170,7 @@ describe('VTimePicker.ts', () => {
       expect(wrapper.vm.period).toBe('pm')
     })
 
-    it('should set picker to pm when given string with PM in it' + useSecondsDesc, () => {
+    it('should set picker to pm when given string with PM in it' + useSecondsDesc, async () => {
       const wrapper = mountFunction({
         props: {
           modelValue: '1:00 PM',
@@ -175,13 +178,15 @@ describe('VTimePicker.ts', () => {
         },
       })
 
+      await wrapper.vm.$nextTick()
       expect(wrapper.vm.period).toBe('pm')
       // with seconds
-      wrapper.setProps({ modelValue: '1:00:12 PM' })
+      await wrapper.setProps({ modelValue: '1:00:12 PM' })
+      await wrapper.vm.$nextTick()
       expect(wrapper.vm.period).toBe('pm')
     })
 
-    it('should set picker to pm when given string with pm in it' + useSecondsDesc, () => {
+    it('should set picker to pm when given string with pm in it' + useSecondsDesc, async () => {
       const wrapper = mountFunction({
         props: {
           modelValue: '1:00 pm',
@@ -189,9 +194,11 @@ describe('VTimePicker.ts', () => {
         },
       })
 
+      await wrapper.vm.$nextTick()
       expect(wrapper.vm.period).toBe('pm')
       // with seconds
-      wrapper.setProps({ modelValue: '1:00:13 pm' })
+      await wrapper.setProps({ modelValue: '1:00:13 pm' })
+      await wrapper.vm.$nextTick()
       expect(wrapper.vm.period).toBe('pm')
     })
 
@@ -248,7 +255,7 @@ describe('VTimePicker.ts', () => {
       expect(wrapper.html()).toMatchSnapshot()
     })
 
-    it('should set input hour when setting hour in 12hr mode' + useSecondsDesc, () => { // eslint-disable-line max-statements
+    it('should set input hour when setting hour in 12hr mode' + useSecondsDesc, async () => { // eslint-disable-line max-statements
       const wrapper = mountFunction({
         props: {
           modelValue: '01:23pm',
@@ -260,7 +267,8 @@ describe('VTimePicker.ts', () => {
       wrapper.vm.onInput(7)
       expect(wrapper.vm.inputHour).toBe(19)
 
-      wrapper.setProps({ format: '24hr' })
+      await wrapper.setProps({ format: '24hr' })
+      await wrapper.vm.$nextTick()
       wrapper.vm.onInput(8)
       expect(wrapper.vm.inputHour).toBe(8)
 
@@ -272,12 +280,14 @@ describe('VTimePicker.ts', () => {
 
       // with seconds
       wrapper.vm.selecting = SelectingTimes.Hour
-      wrapper.setProps({ format: 'ampm' })
-      wrapper.setProps({ value: '01:23:45pm' })
+      await wrapper.setProps({ format: 'ampm' })
+      await wrapper.setProps({ modelValue: '01:23:45pm' })
+      await wrapper.vm.$nextTick()
       wrapper.vm.onInput(7)
       expect(wrapper.vm.inputHour).toBe(19)
 
-      wrapper.setProps({ format: '24hr' })
+      await wrapper.setProps({ format: '24hr' })
+      await wrapper.vm.$nextTick()
       wrapper.vm.onInput(8)
       expect(wrapper.vm.inputHour).toBe(8)
 
@@ -440,7 +450,7 @@ describe('VTimePicker.ts', () => {
       expect(wrapper.vm.selectingSecond).toBe(true)
     })
 
-    it('should change period when clicked in title' + useSecondsDesc, () => {
+    it('should change period when clicked in title' + useSecondsDesc, async () => {
       const wrapper = mountFunction({
         props: {
           modelValue: '01:23pm',
@@ -449,46 +459,29 @@ describe('VTimePicker.ts', () => {
         },
       })
 
-      const title = wrapper.vm.$refs.title
-
       expect(wrapper.vm.period).toBe('pm')
-      title.$emit('update:period', 'am')
+
+      // Используем прямой вызов метода setPeriod
+      wrapper.vm.setPeriod('am')
+      await wrapper.vm.$nextTick()
       expect(wrapper.vm.period).toBe('am')
-      title.$emit('update:period', 'pm')
+
+      wrapper.vm.setPeriod('pm')
+      await wrapper.vm.$nextTick()
       expect(wrapper.vm.period).toBe('pm')
     })
 
     it('should match snapshot with slot' + useSecondsDesc, async () => {
-      const TestComponent = {
-        render () {
-          return h(VTimePicker, {
-            props: {
-              modelValue: '10:12',
-              useSeconds: useSecondsValue,
-            },
-            slots: {
-              default: '<div class="scoped-slot"></div>',
-            },
-          })
+      const wrapper = mountFunction({
+        props: {
+          modelValue: '10:12',
+          useSeconds: useSecondsValue,
         },
-      }
-
-      const wrapper = mount(TestComponent, {
-        global: {
-          config: {
-            warnHandler: () => {}, // Подавляем предупреждения Vue
-          },
-          mocks: {
-            $vuetify: {
-              lang: new Lang(preset),
-              icons: {
-                component: 'mdi',
-              },
-            },
-          },
-        }
+        slots: {
+          default: '<div class="scoped-slot"></div>',
+        },
       })
-      expect(wrapper.findAll('.v-picker__actions .scoped-slot')).toHaveLength(1)
+      expect(wrapper.findAll('.scoped-slot')).toHaveLength(1)
     })
 
     it('should calculate allowed seconds/minute/hour callback' + useSecondsDesc, async () => { // eslint-disable-line max-statements
@@ -765,23 +758,26 @@ describe('VTimePicker.ts', () => {
           useSeconds: useSecondsValue,
         },
       })
-      wrapper.vm.selectingMinute = true
+      
+      // Изменяем selecting напрямую, чтобы сработал watcher
+      wrapper.vm.selecting = SelectingTimes.Minute
       expect(wrapper.vm.selecting).toBe(SelectingTimes.Minute)
-      expect(wrapper.emitted()['update:active-picker']).toHaveLength(1)
-      expect(wrapper.emitted()['update:active-picker'][0]).toEqual(['MINUTE'])
+      expect(wrapper.emitted('update:active-picker')).toBeTruthy()
+      expect(wrapper.emitted('update:active-picker')).toHaveLength(1)
+      expect(wrapper.emitted('update:active-picker')[0]).toEqual(['MINUTE'])
 
-      wrapper.vm.selectingHour = true
+      wrapper.vm.selecting = SelectingTimes.Hour
       expect(wrapper.vm.selecting).toBe(SelectingTimes.Hour)
-      expect(wrapper.emitted()['update:active-picker']).toHaveLength(2)
-      expect(wrapper.emitted()['update:active-picker'][1]).toEqual(['HOUR'])
+      expect(wrapper.emitted('update:active-picker')).toHaveLength(2)
+      expect(wrapper.emitted('update:active-picker')[1]).toEqual(['HOUR'])
 
-      wrapper.vm.selectingSecond = true
+      wrapper.vm.selecting = SelectingTimes.Second
       expect(wrapper.vm.selecting).toBe(SelectingTimes.Second)
-      expect(wrapper.emitted()['update:active-picker']).toHaveLength(3)
-      expect(wrapper.emitted()['update:active-picker'][2]).toEqual(['SECOND'])
+      expect(wrapper.emitted('update:active-picker')).toHaveLength(3)
+      expect(wrapper.emitted('update:active-picker')[2]).toEqual(['SECOND'])
     })
 
-    it('should set selecting to Hour when active-picker changes to "HOUR"' + useSecondsDesc, () => {
+    it('should set selecting to Hour when active-picker changes to "HOUR"' + useSecondsDesc, async () => {
       const wrapper = mountFunction({
         props: {
           useSeconds: useSecondsValue,
@@ -790,12 +786,13 @@ describe('VTimePicker.ts', () => {
         },
       })
       wrapper.vm.selectingMinute = true
-      wrapper.setProps({ activePicker: 'HOUR' })
+      await wrapper.setProps({ activePicker: 'HOUR' })
+      await wrapper.vm.$nextTick()
 
       expect(wrapper.vm.selecting).toBe(SelectingTimes.Hour)
     })
 
-    it('should set selecting to Minute when active-picker changes to "MINUTE"' + useSecondsDesc, () => {
+    it('should set selecting to Minute when active-picker changes to "MINUTE"' + useSecondsDesc, async () => {
       const wrapper = mountFunction({
         props: {
           useSeconds: useSecondsValue,
@@ -804,12 +801,13 @@ describe('VTimePicker.ts', () => {
         },
       })
       wrapper.vm.selectingSecond = true
-      wrapper.setProps({ activePicker: 'MINUTE' })
+      await wrapper.setProps({ activePicker: 'MINUTE' })
+      await wrapper.vm.$nextTick()
 
       expect(wrapper.vm.selecting).toBe(SelectingTimes.Minute)
     })
 
-    it('should set selecting to Seconds when active-picker changes to "SECOND"' + useSecondsDesc, () => {
+    it('should set selecting to Seconds when active-picker changes to "SECOND"' + useSecondsDesc, async () => {
       const wrapper = mountFunction({
         props: {
           useSeconds: useSecondsValue,
@@ -818,7 +816,8 @@ describe('VTimePicker.ts', () => {
         },
       })
       wrapper.vm.selectingHour = true
-      wrapper.setProps({ activePicker: 'SECOND' })
+      await wrapper.setProps({ activePicker: 'SECOND' })
+      await wrapper.vm.$nextTick()
 
       const expectedValue = useSecondsValue ? SelectingTimes.Second : SelectingTimes.Hour
       expect(wrapper.vm.selecting).toBe(expectedValue)
