@@ -129,6 +129,7 @@ export default baseMixins.extend({
       selectedItems: [] as any[],
       keyboardLookupPrefix: '',
       keyboardLookupLastTime: 0,
+      detectedScopeId: null as string | null,
     }
   },
 
@@ -190,13 +191,7 @@ export default baseMixins.extend({
       return this.selectedItems.length > 0
     },
     listData (): object {
-      const scopeId = this.$vnode && (this.$vnode.context!.$options as { [key: string]: any })._scopeId
-      const attrs = scopeId ? {
-        [scopeId]: true,
-      } : {}
-
       return {
-        ...attrs,
         id: this.computedOwns,
         action: this.multiple,
         color: this.itemColor,
@@ -211,12 +206,27 @@ export default baseMixins.extend({
         onSelect: this.selectItem,
       }
     },
+    listAttrs (): object {
+      const scopeIdAttrs: Record<string, any> = {}
+
+      // Используем detectedScopeId из mounted hook
+      if (this.detectedScopeId) {
+        scopeIdAttrs[this.detectedScopeId] = ''
+      }
+
+      // scopeId успешно передается в VSelectList
+
+      return scopeIdAttrs
+    },
     staticList (): VNode {
       if (this.$slots['no-data'] || this.$slots['prepend-item'] || this.$slots['append-item']) {
         consoleError('assert: staticList should not be called if slots are used')
       }
 
-      return h(VSelectList, this.listData,  {
+      return h(VSelectList, {
+        ...this.listData,
+        ...this.listAttrs,
+      }, {
         item: this.$slots.item,
       })
     },
@@ -246,6 +256,22 @@ export default baseMixins.extend({
         ...normalisedProps,
       }
     },
+  },
+
+  mounted () {
+    this.$nextTick(() => {
+      if (this.$el && this.$el.attributes) {
+        const attrs = this.$el.attributes
+        for (let i = 0; i < attrs.length; i++) {
+          const attr = attrs[i]
+          if (attr.name.startsWith('data-v-')) {
+            this.detectedScopeId = attr.name
+            // scopeId найден и сохранен для использования в dropdown
+            break
+          }
+        }
+      }
+    })
   },
 
   watch: {
@@ -368,7 +394,7 @@ export default baseMixins.extend({
         tabindex: -1,
         close: this.deletableChips && isInteractive,
         disabled: isDisabled,
-        inputValue: index === this.selectedIndex,
+        modelValue: index === this.selectedIndex,
         small: this.smallChips,
         onClick: (e: MouseEvent) => {
           if (!isInteractive) return
@@ -506,7 +532,8 @@ export default baseMixins.extend({
       // as a referenced object
       return h(VSelectList, {
         ...this.listData,
-      }, {...slots,item: this.$slots.item})
+        ...this.listAttrs,
+      }, {...slots, item: this.$slots.item})
     },
     genMenu (): VNode {
       const props = this.$_menuProps as any

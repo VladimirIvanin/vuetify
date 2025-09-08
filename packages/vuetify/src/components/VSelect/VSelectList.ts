@@ -92,7 +92,7 @@ export default mixins(Colorable, Themeable).extend({
           color: this.color,
           modelValue: inputValue,
           ripple: false,
-          onInput: () => this.$emit('select', item)
+          onInput: () => this.$emit('select', item),
         }),
       ])
     },
@@ -157,7 +157,14 @@ export default mixins(Colorable, Themeable).extend({
         activeClass: this.tileActiveClass,
         disabled,
         ripple: true,
-        inputValue: value,
+        modelValue: value,
+        // Передаем scopeId атрибуты от родительского компонента
+        ...Object.keys(this.$attrs).reduce((acc, key) => {
+          if (key.startsWith('data-v-')) {
+            acc[key] = this.$attrs[key]
+          }
+          return acc
+        }, {} as Record<string, any>)
       }
 
       if (!this.$slots.item) {
@@ -176,7 +183,7 @@ export default mixins(Colorable, Themeable).extend({
         attrs: {
           ...tile.attrs,
           ...tile.props,
-          ...tile.on
+          ...tile.on,
         },
         on: tile.on,
       })
@@ -234,6 +241,7 @@ export default mixins(Colorable, Themeable).extend({
     this.$slots['append-item'] && children.push(this.$slots['append-item']())
 
     return h(VList, {
+      ...this.$attrs,
       class: ['v-select-list', this.themeClasses],
       role: 'listbox',
       tabindex: -1,
