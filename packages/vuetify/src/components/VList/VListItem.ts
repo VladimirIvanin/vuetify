@@ -160,6 +160,7 @@ export default baseMixins.extend({
         this.isActive = !this.isActive
       }
       this.$emit('change')
+      this.$emitLegacy('change')
     },
   },
 
