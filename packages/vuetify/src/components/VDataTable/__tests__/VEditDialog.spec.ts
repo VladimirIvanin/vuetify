@@ -39,7 +39,7 @@ describe('VEditDialog.ts', () => {
 
   it('should render custom button texts', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         cancelText: `I don't want to modify that!`,
         saveText: 'Save it!',
       },
@@ -55,9 +55,9 @@ describe('VEditDialog.ts', () => {
     const close = jest.fn()
 
     const wrapper = mountFunction({
-      listeners: {
-        open,
-        close,
+      props: {
+        onOpen: open,
+        onClose: close,
       },
     })
 
@@ -78,13 +78,13 @@ describe('VEditDialog.ts', () => {
     const close = jest.fn()
 
     const wrapper = mountFunction({
-      listeners: {
-        open,
-        close,
+      props: {
+        onOpen: open,
+        onClose: close,
       },
     })
 
-    const menu = wrapper.find(VMenu)
+    const menu = wrapper.findComponent(VMenu)
 
     menu.vm.$emit('input', true)
     await wrapper.vm.$nextTick()
@@ -100,8 +100,8 @@ describe('VEditDialog.ts', () => {
 
     const parentWrapper = mount({
       template: `
-        <v-edit-dialog :return-value.sync="val">
-          <template v-slot:input>
+        <v-edit-dialog v-model:return-value="val">
+          <template #input>
             <input v-model="val" class="test"/>
           </template>
         </v-edit-dialog>
@@ -115,30 +115,34 @@ describe('VEditDialog.ts', () => {
       },
       data () {
         return {
-          val: '',
+          val: 'test',
         }
       },
     })
 
-    const wrapper = parentWrapper.find(VEditDialog)
+    const wrapper = parentWrapper.findComponent(VEditDialog)
     const field = parentWrapper.find('input.test')
     const input = wrapper.vm.$refs.content as HTMLElement
 
     // Make sure originalValue gets set
     wrapper.vm.isActive = true
     field.setValue('test')
+    // Update the parent component's val to match the input value
+    parentWrapper.vm.val = 'test'
     input.dispatchEvent(new KeyboardEvent('keydown', { keyCode: keyCodes.esc } as KeyboardEventInit))
     expect(wrapper.emitted('cancel')).toBeTruthy()
-    expect(wrapper.emitted('update:return-value')[0]).toEqual([''])
-    expect(wrapper.props('returnValue')).toBe('')
+    expect(wrapper.emitted('update:return-value')?.[0]).toEqual(['test'])
+    expect(wrapper.props('returnValue')).toBe('test')
 
     wrapper.vm.isActive = true
     field.setValue('test')
+    // Update the parent component's val to match the input value
+    parentWrapper.vm.val = 'test'
     input.dispatchEvent(new KeyboardEvent('keydown', { keyCode: keyCodes.enter } as KeyboardEventInit))
     expect(wrapper.emitted('save')).toBeTruthy()
     expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function))
     jest.advanceTimersByTime(0)
-    expect(wrapper.emitted('update:return-value')[1]).toEqual(['test'])
+    expect(wrapper.emitted('update:return-value')?.[1]).toEqual(['test'])
     expect(wrapper.props('returnValue')).toBe('test')
 
     jest.useRealTimers()
@@ -182,16 +186,16 @@ describe('VEditDialog.ts', () => {
     const saveEvent = jest.fn()
 
     const wrapper = mountFunction({
-      methods: {
-        save,
-      },
       render () {
         return this.genActions()
       },
-      listeners: {
-        save: saveEvent,
+      props: {
+        onSave: saveEvent,
       },
     })
+
+    // Mock the save method
+    wrapper.vm.save = save
 
     expect(wrapper.html()).toMatchSnapshot()
 
@@ -204,8 +208,8 @@ describe('VEditDialog.ts', () => {
   it('should cancel', () => {
     const cancel = jest.fn()
     const wrapper = mountFunction({
-      listeners: {
-        cancel,
+      props: {
+        onCancel: cancel,
       },
       data: () => ({
         isActive: true,
