@@ -138,10 +138,11 @@ export default baseMixins.extend({
       return withDirectives(h(VListItem, {
         'aria-expanded': String(this.isActive),
         role: 'button',
-        class: {
+        customClasses: {
           'v-list-group__header': true,
           [this.activeClass]: this.isActive,
         },
+        link: true,
         modelValue: this.isActive,
         ...this.listeners$,
         onClick: this.click

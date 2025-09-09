@@ -13,8 +13,8 @@ import { factory as ToggleableFactory } from '../../mixins/toggleable'
 import Ripple from '../../directives/ripple'
 
 // Utilities
-import { getSlot, keyCodes } from './../../util/helpers'
-import mergeData from './../../util/mergeData'
+import { getSlot, keyCodes, normalizeClasses } from './../../util/helpers'
+import mergeData, { mergeClasses } from './../../util/mergeData'
 import { ExtractVue } from './../../util/mixins'
 import { removed } from '../../util/console'
 
@@ -76,6 +76,7 @@ export default baseMixins.extend({
     threeLine: Boolean,
     twoLine: Boolean,
     modelValue: null as any as PropType<any>,
+    customClasses: [String, Object, Array] as PropType<any>,
   },
 
   emits: [
@@ -97,7 +98,7 @@ export default baseMixins.extend({
       return this.listItemGroup.activeClass
     },
     classes (): object {
-      return {
+      const baseClasses = {
         'v-list-item': true,
         ...Routable.computed.classes.call(this),
         'v-list-item--dense': this.dense,
@@ -107,6 +108,11 @@ export default baseMixins.extend({
         'v-list-item--three-line': this.threeLine,
         'v-list-item--two-line': this.twoLine,
         ...this.themeClasses,
+      }
+
+      return {
+        ...baseClasses,
+        ...normalizeClasses(this.customClasses)
       }
     },
     isClickable (): boolean {
@@ -199,6 +205,8 @@ export default baseMixins.extend({
     })
 
     const nodeData = this.isActive ? this.setTextColor(this.color, data) : data
+
+    nodeData.class = this.classes
 
     const node = typeof tag === 'string'
       ? h(tag, nodeData, children)
