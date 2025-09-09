@@ -1,4 +1,4 @@
-import {Transition, h, withDirectives} from 'vue'
+import { Transition, h, withDirectives, defineComponent } from 'vue'
 // Mixins
 import Measurable from '../../mixins/measurable'
 import Toggleable from '../../mixins/toggleable'
@@ -76,8 +76,7 @@ export default mixins(
   render (): VNode {
     return withDirectives(h(this.tag, {
       class: 'v-lazy',
-      attrs: this.$attrs,
-      on: this.$listeners,
+      ...this.$attrs,
       style: this.styles,
     }, [this.genContent()]), [
       [intersect, {
