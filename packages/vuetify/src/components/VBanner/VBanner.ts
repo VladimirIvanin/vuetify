@@ -144,7 +144,7 @@ export default mixins(
   render (): VNode {
     const data = {
       class: ['v-banner', this.classes],
-      attrs: this.attrs$,
+      ...this.$attrs,
       style: this.styles,
     }
 

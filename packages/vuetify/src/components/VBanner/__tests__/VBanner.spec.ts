@@ -200,7 +200,7 @@ describe('VBanner.ts', () => {
     expect(wrapper.classes('v-banner--is-mobile')).toBeTruthy()
   })
 
-  it('should apply sticky when using the app prop', () => {
+  it('should apply sticky when using the app prop', async () => {
     const wrapper = mountFunction({
       props: { app: true },
     })
@@ -209,7 +209,7 @@ describe('VBanner.ts', () => {
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       app: false,
       sticky: true,
     })
@@ -218,7 +218,7 @@ describe('VBanner.ts', () => {
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({ app: false, sticky: false })
+    await wrapper.setProps({ app: false, sticky: false })
 
     expect(wrapper.vm.isSticky).toBe(false)
 
