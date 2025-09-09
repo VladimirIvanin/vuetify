@@ -1,15 +1,10 @@
-import {h} from 'vue'
+import { h, defineComponent, PropType, VNode, getCurrentInstance } from 'vue'
 // Mixins
 import Colorable from '../../mixins/colorable'
 
 // Utilities
-import mixins, { ExtractVue } from '../../util/mixins'
 import { genPoints, genBars } from './helpers/core'
 import { genPath } from './helpers/path'
-
-// Types
-import Vue, { VNode } from 'vue'
-import { Prop, PropValidator } from 'vue/types/options'
 
 export type SparklineItem = number | { value: number }
 
@@ -38,22 +33,9 @@ export interface Bar {
   value: number
 }
 
-interface options extends Vue {
-  $refs: {
-    path: SVGPathElement
-  }
-}
-
-export default mixins<options &
-/* eslint-disable indent */
-  ExtractVue<[
-    typeof Colorable
-  ]>
-/* eslint-enable indent */
->(
-  Colorable
-).extend({
-  name: 'VSparkline',
+export default defineComponent({
+  name: 'v-sparkline',
+  mixins: [Colorable],
 
   inheritAttrs: false,
 
@@ -80,11 +62,11 @@ export default mixins<options &
       default: false,
     },
     gradient: {
-      type: Array,
+      type: Array as PropType<string[]>,
       default: () => ([]),
-    } as PropValidator<string[]>,
+    },
     gradientDirection: {
-      type: String as Prop<'top' | 'bottom' | 'left' | 'right'>,
+      type: String as PropType<'top' | 'bottom' | 'left' | 'right'>,
       validator: (val: string) => ['top', 'bottom', 'left', 'right'].includes(val),
       default: 'top',
     },
@@ -93,9 +75,9 @@ export default mixins<options &
       default: 75,
     },
     labels: {
-      type: Array,
+      type: Array as PropType<SparklineItem[]>,
       default: () => ([]),
-    } as PropValidator<SparklineItem[]>,
+    },
     labelSize: {
       type: [Number, String],
       default: 7,
@@ -114,14 +96,14 @@ export default mixins<options &
       default: false,
     },
     type: {
-      type: String as Prop<'trend' | 'bar'>,
+      type: String as PropType<'trend' | 'bar'>,
       default: 'trend',
       validator: (val: string) => ['trend', 'bar'].includes(val),
     },
     value: {
-      type: Array,
+      type: Array as PropType<SparklineItem[]>,
       default: () => ([]),
-    } as PropValidator<SparklineItem[]>,
+    },
     width: {
       type: [Number, String],
       default: 300,
@@ -274,23 +256,20 @@ export default mixins<options &
       const len = Math.max(gradient.length - 1, 1)
       const stops = gradient.reverse().map((color, index) =>
         h('stop', {
-          attrs: {
-            offset: index / len,
-            'stop-color': color || 'currentColor',
-          },
+          offset: index / len,
+          'stop-color': color || 'currentColor',
         })
       )
 
+      const instance = getCurrentInstance()
       return h('defs', [
         h('linearGradient', {
-          attrs: {
-            id: this.$.uid,
-            gradientUnits: 'userSpaceOnUse',
-            x1: gradientDirection === 'left' ? '100%' : '0',
-            y1: gradientDirection === 'top' ? '100%' : '0',
-            x2: gradientDirection === 'right' ? '100%' : '0',
-            y2: gradientDirection === 'bottom' ? '100%' : '0',
-          },
+          id: instance?.uid,
+          gradientUnits: 'userSpaceOnUse',
+          x1: gradientDirection === 'left' ? '100%' : '0',
+          y1: gradientDirection === 'top' ? '100%' : '0',
+          x2: gradientDirection === 'right' ? '100%' : '0',
+          y2: gradientDirection === 'bottom' ? '100%' : '0',
         }, stops),
       ])
     },
@@ -301,29 +280,26 @@ export default mixins<options &
           textAnchor: 'middle',
           dominantBaseline: 'mathematical',
           fill: 'currentColor',
-        } as object, // TODO: TS 3.5 is too eager with the array type here
+        },
       }, children)
     },
     genPath () {
       const points = genPoints(this.normalizedValues, this.boundary)
+      const instance = getCurrentInstance()
 
       return h('path', {
-        attrs: {
-          d: genPath(points, this._radius, this.fill, this.parsedHeight),
-          fill: this.fill ? `url(#${this.$.uid})` : 'none',
-          stroke: this.fill ? 'none' : `url(#${this.$.uid})`,
-        },
+        d: genPath(points, this._radius, this.fill, this.parsedHeight),
+        fill: this.fill ? `url(#${instance?.uid})` : 'none',
+        stroke: this.fill ? 'none' : `url(#${instance?.uid})`,
         ref: 'path',
       })
     },
     genLabels (offsetX: number) {
       const children = this.parsedLabels.map((item, i) => (
         h('text', {
-          attrs: {
-            x: item.x + offsetX + this._lineWidth / 2,
-            y: this.textY + (this.parsedLabelSize * 0.75),
-            'font-size': Number(this.labelSize) || 7,
-          },
+          x: item.x + offsetX + this._lineWidth / 2,
+          y: this.textY + (this.parsedLabelSize * 0.75),
+          'font-size': Number(this.labelSize) || 7,
         }, [this.genLabel(item, i)])
       ))
 
@@ -341,27 +317,21 @@ export default mixins<options &
       const offsetX = (Math.abs(bars[0].x - bars[1].x) - this._lineWidth) / 2
 
       return h('svg', {
-        attrs: {
-          display: 'block',
-          viewBox: `0 0 ${this.totalWidth} ${this.totalHeight}`,
-        },
+        display: 'block',
+        viewBox: `0 0 ${this.totalWidth} ${this.totalHeight}`,
       }, [
         this.genGradient(),
-        this.genClipPath(bars, offsetX, this._lineWidth, 'sparkline-bar-' + this.$.uid),
+        this.genClipPath(bars, offsetX, this._lineWidth, 'sparkline-bar-' + getCurrentInstance()?.uid),
         this.hasLabels ? this.genLabels(offsetX) : undefined as never,
         h('g', {
-          attrs: {
-            'clip-path': `url(#sparkline-bar-${this.$.uid}-clip)`,
-            fill: `url(#${this.$.uid})`,
-          },
+          'clip-path': `url(#sparkline-bar-${getCurrentInstance()?.uid}-clip)`,
+          fill: `url(#${getCurrentInstance()?.uid})`,
         }, [
           h('rect', {
-            attrs: {
-              x: 0,
-              y: 0,
-              width: this.totalWidth,
-              height: this.height,
-            },
+            x: 0,
+            y: 0,
+            width: this.totalWidth,
+            height: this.height,
           }),
         ]),
       ])
@@ -372,40 +342,32 @@ export default mixins<options &
         : this.smooth ? 2 : 0
 
       return h('clipPath', {
-        attrs: {
-          id: `${id}-clip`,
-        },
+        id: `${id}-clip`,
       }, bars.map(item => {
         return h('rect', {
-          attrs: {
-            x: item.x + offsetX,
-            y: item.y,
-            width: lineWidth,
-            height: item.height,
-            rx: rounding,
-            ry: rounding,
-          },
+          x: item.x + offsetX,
+          y: item.y,
+          width: lineWidth,
+          height: item.height,
+          rx: rounding,
+          ry: rounding,
         }, [
           this.autoDraw ? h('animate', {
-            attrs: {
-              attributeName: 'height',
-              from: 0,
-              to: item.height,
-              dur: `${this.autoDrawDuration}ms`,
-              fill: 'freeze',
-            },
+            attributeName: 'height',
+            from: 0,
+            to: item.height,
+            dur: `${this.autoDrawDuration}ms`,
+            fill: 'freeze',
           }) : undefined as never,
         ])
       }))
     },
     genTrend () {
       return h('svg', this.setTextColor(this.color, {
-        attrs: {
-          ...this.$attrs,
-          display: 'block',
-          'stroke-width': this._lineWidth || 1,
-          viewBox: `0 0 ${this.width} ${this.totalHeight}`,
-        },
+        ...this.$attrs,
+        display: 'block',
+        'stroke-width': this._lineWidth || 1,
+        viewBox: `0 0 ${this.width} ${this.totalHeight}`,
       }), [
         this.genGradient(),
         this.hasLabels && this.genLabels(-(this._lineWidth / 2)),

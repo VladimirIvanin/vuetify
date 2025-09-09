@@ -4,24 +4,22 @@ import VSparkline from '../VSparkline'
 // Utilities
 import {
   mount,
-  Wrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
+import { nextTick } from 'vue'
 
 describe('VSparkline.ts', () => {
-  type Instance = InstanceType<typeof VSparkline>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  enableAutoUnmount(afterEach)
 
-  beforeEach(() => {
-    mountFunction = (options = {}) => {
-      return mount(VSparkline, {
-        ...options,
-      })
-    }
-  })
+  const mountFunction = (options = {}) => {
+    return mount(VSparkline, {
+      ...options,
+    })
+  }
 
   it('should render component and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
       },
     })
@@ -31,7 +29,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with padding and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         padding: 20,
       },
@@ -42,7 +40,7 @@ describe('VSparkline.ts', () => {
 
   it('should render smooth component and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         smooth: 20,
       },
@@ -53,7 +51,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with line width and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         lineWidth: 42,
       },
@@ -64,7 +62,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with gradient and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         gradient: ['#000', 'red', 'rgba(80, 160, 240, 0.5)'],
       },
@@ -75,7 +73,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with string labels and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         showLabels: true,
         value: [1, 7, 42],
       },
@@ -83,7 +81,7 @@ describe('VSparkline.ts', () => {
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       value: [
         {
           value: 2,
@@ -99,7 +97,7 @@ describe('VSparkline.ts', () => {
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       labels: ['foo', 'bar', 'baz'],
     })
 
@@ -108,7 +106,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with bars and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         type: 'bar',
       },
@@ -119,7 +117,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with bars and negative and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [-1, 1, 7, 42],
         type: 'bar',
       },
@@ -130,7 +128,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with bars and gradient and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         gradient: ['#000', 'red', 'rgba(80, 160, 240, 0.5)'],
         type: 'bar',
@@ -142,7 +140,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with bars and labels and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         labels: ['Value 1', 'Value 2', 'Value 3'],
         type: 'bar',
@@ -154,7 +152,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with bars and auto-line-width and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         type: 'bar',
         autoLineWidth: true,
@@ -166,7 +164,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with bars and line width and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         type: 'bar',
         lineWidth: 8,
@@ -178,7 +176,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with bars and custom padding and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         type: 'bar',
         padding: 12,
@@ -190,7 +188,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with bars and auto-line-width with custom padding and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         type: 'bar',
         autoLineWidth: true,
@@ -203,7 +201,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with bars and custom label size and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         labels: ['Value 1', 'Value 2', 'Value 3'],
         labelSize: 15,
@@ -216,7 +214,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with trend and equal values and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 1, 1],
         type: 'trend',
       },
@@ -227,7 +225,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with label size and match a snapshot', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         showLabels: true,
         labelSize: 14,
@@ -239,7 +237,7 @@ describe('VSparkline.ts', () => {
 
   it('should position labels correctly', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 7, 42],
         showLabels: true,
         lineWidth: 20,
@@ -251,7 +249,7 @@ describe('VSparkline.ts', () => {
 
   it('should render component with bars and correct bar lengths', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [1, 2],
         type: 'bar',
       },
@@ -259,17 +257,17 @@ describe('VSparkline.ts', () => {
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       value: [-1, -2],
     })
-    await wrapper.vm.$nextTick()
+    await nextTick()
 
     expect(wrapper.html()).toMatchSnapshot()
   })
 
   it('should render bar component with all values 0', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: [0, 0, 0],
         type: 'bar',
       },
