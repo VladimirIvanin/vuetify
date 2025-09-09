@@ -92,9 +92,7 @@ export default defineComponent({
     genHead (): VNode {
       return h('div', {
         class: 'v-calendar-weekly__head',
-        attrs: {
-          role: 'row',
-        },
+        role: 'row',
       }, this.genHeadDays())
     },
     genHeadDays (): VNode[] {
@@ -139,9 +137,7 @@ export default defineComponent({
       return h('div', {
         key: week[0].date,
         class: 'v-calendar-weekly__week',
-        attrs: {
-          role: 'row',
-        },
+        role: 'row',
       }, weekNodes)
     },
     getWeekNumber (determineDay: CalendarTimestamp) {
