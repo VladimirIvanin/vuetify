@@ -2,12 +2,13 @@
 
 exports[`VLazy.ts should conditionally render content 1`] = `
 <div class="v-lazy">
+  false
 </div>
 `;
 
 exports[`VLazy.ts should conditionally render content 2`] = `
 <div class="v-lazy">
-  <div>
+  <div class="fade-transition-enter-from fade-transition-enter-active">
     foobar
   </div>
 </div>

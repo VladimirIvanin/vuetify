@@ -6,11 +6,14 @@ import {
   mount,
   MountOptions,
   Wrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 
 describe('VLazy.ts', () => {
   type Instance = InstanceType<typeof VLazy>
   let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
@@ -29,16 +32,14 @@ describe('VLazy.ts', () => {
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({ value: true })
-
-    await wrapper.vm.$nextTick()
+    await wrapper.setProps({ modelValue: true })
 
     expect(wrapper.html()).toMatchSnapshot()
   })
 
   it('should set a minimum height', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         minHeight: 200,
       },
     })
