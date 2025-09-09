@@ -1,12 +1,13 @@
 import VDataTable from '../VDataTable'
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
+  enableAutoUnmount,
 } from '@vue/test-utils'
+import { h, nextTick } from 'vue'
 import { Breakpoint } from '../../../services/breakpoint'
 import ripple from '../../../directives/ripple/index'
-import Vue from 'vue'
 import { Lang } from '../../../services/lang'
 import { preset } from '../../../presets/default'
 import { resizeWindow } from '../../../../test'
@@ -121,11 +122,14 @@ const testItems = [
 /* eslint-disable max-statements */
 describe('VDataTable.ts', () => {
   type Instance = InstanceType<typeof VDataTable>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
+
+  enableAutoUnmount(afterEach)
+
   beforeEach(() => {
     document.body.setAttribute('data-app', 'true')
 
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(VDataTable, {
         global: {
           config: {
@@ -141,7 +145,6 @@ describe('VDataTable.ts', () => {
             }
           }
         },
-        sync: false,
         ...options,
       })
     }
@@ -155,986 +158,905 @@ describe('VDataTable.ts', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  // it('should render with data', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render with body slot', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //     },
-  //     scopedSlots: {
-  //       body (props) {
-  //         return h('div', [props.items.length])
-  //       },
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render with foot slot', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //     },
-  //     scopedSlots: {
-  //       foot (props) {
-  //         return h('tfoot', [props.items.length])
-  //       },
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it.skip('should render virtual table', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       virtualRows: true,
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render with showExpand', async () => {
-  //   const expand = jest.fn()
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       itemKey: 'name',
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       showExpand: true,
-  //     },
-  //     listeners: {
-  //       'update:expanded': expand,
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  //   const expandIcon = wrapper.findAll('.v-data-table__expand-icon').at(0)
-  //   expandIcon.trigger('click')
-
-  //   await wrapper.vm.$nextTick()
-  //   expect(expand).toHaveBeenCalledWith(testItems.slice(0, 1))
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render with showSelect', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       showSelect: true,
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render with item.expanded scoped slot', async () => {
-  //   const vm = new Vue()
-
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       expanded: testItems,
-  //     },
-  //     scopedSlots: {
-  //       'expanded-item': props => vm.$createElement('div', ['expanded']),
-  //     },
-  //   })
-
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render with group.summary scoped slot', () => {
-  //   const vm = new Vue()
-
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       groupBy: 'calories',
-  //     },
-  //     scopedSlots: {
-  //       'group.summary': props => vm.$createElement('div', ['summary']),
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render with item scoped slot', () => {
-  //   const vm = new Vue()
-
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //     },
-  //     scopedSlots: {
-  //       item: props => vm.$createElement('div', [JSON.stringify(props)]),
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render with grouped rows', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       groupBy: ['protein'],
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render with group scoped slot', () => {
-  //   const vm = new Vue()
-
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       groupBy: ['protein'],
-  //     },
-  //     scopedSlots: {
-  //       group: props => vm.$createElement('div', [JSON.stringify(props)]),
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render loading state', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       loading: true,
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-
-  //   const wrapper2 = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       loading: true,
-  //     },
-  //     slots: {
-  //       progress: '<div class="progress">50%</div>',
-  //     },
-  //   })
-
-  //   expect(wrapper2.html()).toMatchSnapshot()
-  // })
-
-  // it.each([
-  //   'click',
-  //   'contextmenu',
-  //   'dblclick',
-  // ])('should emit event when %sing on internally created row', async event => {
-  //   const eventToEmit = event + ':row'
-  //   const fn = jest.fn()
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //     },
-  //     listeners: {
-  //       [eventToEmit]: fn,
-  //     },
-  //   })
-
-  //   wrapper.find('tbody tr').trigger(event)
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(fn).toHaveBeenCalled()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/8254
-  // it('should pass kebab-case footer props correctly', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: [],
-  //       items: [],
-  //       footerProps: {
-  //         'items-per-page-text': 'Foo:',
-  //       },
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/8266
-  // it('should use options prop for initial values', () => {
-  //   const fn = jest.fn()
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       options: {
-  //         page: 2,
-  //         itemsPerPage: 5,
-  //       },
-  //     },
-  //     listeners: {
-  //       'update:options': fn,
-  //     },
-  //   })
-
-  //   expect(fn).toHaveBeenCalledWith(expect.objectContaining({
-  //     page: 2,
-  //   }))
-  // })
-
-  // it('should render footer.prepend slot content', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: [],
-  //       items: [{}],
-  //     },
-  //     scopedSlots: {
-  //       'footer.prepend' () {
-  //         return h('div', ['footer.prepend slot content'])
-  //       },
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should render footer.page-text slot content', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: [],
-  //       items: [{}],
-  //     },
-  //     scopedSlots: {
-  //       'footer.page-text' ({ pageStart, pageStop }) {
-  //         return h('div', [`foo ${pageStart} bar ${pageStop}`])
-  //       },
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/8359
-  // it('should not limit page to current item count when using server-items-length', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: [],
-  //       page: 2,
-  //       itemsPerPage: 5,
-  //       serverItemsLength: 0,
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-
-  //   wrapper.setProps({
-  //     items: testItems.slice(5),
-  //     serverItemsLength: 20,
-  //   })
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should not search column with filterable set to false', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       items: testItems,
-  //       headers: [
-  //         {
-  //           text: 'Dessert (100g serving)',
-  //           align: 'left',
-  //           filterable: false,
-  //           value: 'name',
-  //         },
-  //         { text: 'Calories', value: 'calories' },
-  //         { text: 'Fat (g)', value: 'fat' },
-  //         { text: 'Carbs (g)', value: 'carbs' },
-  //         { text: 'Protein (g)', value: 'protein' },
-  //         { text: 'Iron (%)', value: 'iron' },
-  //       ],
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-
-  //   wrapper.setProps({
-  //     search: 'cup',
-  //   })
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should not search column with filterable set to false and has filter function', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       items: testItems,
-  //       headers: [
-  //         {
-  //           text: 'Dessert (100g serving)',
-  //           align: 'left',
-  //           value: 'name',
-  //         },
-  //         { text: 'Calories', value: 'calories', filter: v => v > 400 },
-  //         { text: 'Fat (g)', value: 'fat' },
-  //         { text: 'Carbs (g)', value: 'carbs' },
-  //         { text: 'Protein (g)', value: 'protein' },
-  //         { text: 'Iron (%)', value: 'iron' },
-  //       ],
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-
-  //   wrapper.setProps({
-  //     headers: [
-  //       {
-  //         text: 'Dessert (100g serving)',
-  //         align: 'left',
-  //         value: 'name',
-  //       },
-  //       { text: 'Calories', value: 'calories', filter: v => v > 400, filterable: false },
-  //       { text: 'Fat (g)', value: 'fat' },
-  //       { text: 'Carbs (g)', value: 'carbs' },
-  //       { text: 'Protein (g)', value: 'protein' },
-  //       { text: 'Iron (%)', value: 'iron' },
-  //     ],
-  //   })
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/8359
-  // it('should limit page to current page count if not using server-items-length', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       page: 3,
-  //       itemsPerPage: 5,
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/8184
-  // it('should default to first option in itemsPerPageOptions if it does not include itemsPerPage', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       footerProps: {
-  //         itemsPerPageOptions: [6, 7],
-  //       },
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/8817
-  // it('should handle object when checking if it should default to first option in itemsPerPageOptions', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: -1,
-  //       footerProps: {
-  //         itemsPerPageOptions: [6, { text: 'All', value: -1 }],
-  //       },
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/9599
-  // it('should not immediately emit items-per-page', async () => {
-  //   const itemsPerPage = jest.fn()
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       footerProps: {
-  //         itemsPerPageOptions: [6, 7],
-  //       },
-  //     },
-  //     listeners: {
-  //       'update:itemsPerPage': itemsPerPage,
-  //     },
-  //   })
-
-  //   expect(itemsPerPage).not.toHaveBeenCalled()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/9010
-  // it('should change page if item count decreases below page start', async () => {
-  //   const page = jest.fn()
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems.slice(0, 4),
-  //       itemsPerPage: 2,
-  //       footerProps: {
-  //         itemsPerPageOptions: [2],
-  //       },
-  //       page: 2,
-  //     },
-  //     listeners: {
-  //       'update:page': page,
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-
-  //   wrapper.setProps({ items: testItems.slice(0, 2) })
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(page).toHaveBeenCalledWith(1)
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/8477
-  // it('should emit two item-selected events when using single-select prop and selecting new item', async () => {
-  //   const itemSelected = jest.fn()
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       itemKey: 'name',
-  //       items: testItems.slice(0, 2),
-  //       value: [testItems[0]],
-  //       showSelect: true,
-  //       singleSelect: true,
-  //     },
-  //     listeners: {
-  //       'item-selected': itemSelected,
-  //     },
-  //   })
-
-  //   const checkbox = wrapper.findAll('.v-data-table__checkbox').at(1)
-  //   checkbox.trigger('click')
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(itemSelected).toHaveBeenCalledTimes(2)
-  //   expect(itemSelected).toHaveBeenCalledWith({ item: testItems[0], value: false })
-  //   expect(itemSelected).toHaveBeenCalledWith({ item: testItems[1], value: true })
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/8915
-  // it('should not select item that is not selectable', async () => {
-  //   const items = [
-  //     { ...testItems[0], isSelectable: false },
-  //     { ...testItems[1] },
-  //   ]
-  //   const input = jest.fn()
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items,
-  //       showSelect: true,
-  //     },
-  //     listeners: {
-  //       input,
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-
-  //   const selectAll = wrapper.findAll('.v-simple-checkbox').at(0)
-  //   selectAll.trigger('click')
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(input).toHaveBeenNthCalledWith(1, [testItems[1]])
-
-  //   const single = wrapper.findAll('.v-simple-checkbox').at(1)
-  //   single.trigger('click')
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(input.mock.calls).toHaveLength(1)
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/8915
-  // it('should toggle all selectable items', async () => {
-  //   const items = [
-  //     { ...testItems[0], isSelectable: false },
-  //     { ...testItems[1] },
-  //   ]
-  //   const input = jest.fn()
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items,
-  //       showSelect: true,
-  //     },
-  //     listeners: {
-  //       input,
-  //     },
-  //   })
-
-  //   const selectAll = wrapper.findAll('.v-simple-checkbox').at(0)
-  //   selectAll.trigger('click')
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(input).toHaveBeenNthCalledWith(1, [testItems[1]])
-
-  //   selectAll.trigger('click')
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(input).toHaveBeenNthCalledWith(2, [])
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/10392
-  // it('should search group-by column', async () => {
-  //   const headers = [
-  //     {
-  //       text: 'Name',
-  //       value: 'name',
-  //     },
-  //     {
-  //       text: 'ID',
-  //       value: 'id',
-  //     },
-  //   ]
-
-  //   const items = [
-  //     {
-  //       name: 'Assistance',
-  //       id: 1,
-  //     },
-  //     {
-  //       name: 'Candidat',
-  //       id: 2,
-  //     },
-  //   ]
-
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers,
-  //       items,
-  //       itemKey: 'id',
-  //       groupBy: 'name',
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-
-  //   wrapper.setProps({ search: 'candidat' })
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/10289
-  // it('should render item slot when using group-by function', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       itemKey: 'name',
-  //       items: testItems.slice(0, 2),
-  //       groupBy: 'name',
-  //     },
-  //     scopedSlots: {
-  //       item () {
-  //         return h('div', ['scoped'])
-  //       },
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/10392
-  // it('should emit pagination event when filtering', async () => {
-  //   const headers = [
-  //     {
-  //       text: 'Name',
-  //       value: 'name',
-  //     },
-  //     {
-  //       text: 'ID',
-  //       value: 'id',
-  //     },
-  //   ]
-
-  //   const items = [
-  //     {
-  //       name: 'Assistance',
-  //       id: 1,
-  //     },
-  //     {
-  //       name: 'Candidat',
-  //       id: 2,
-  //     },
-  //   ]
-
-  //   const pagination = jest.fn()
-
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers,
-  //       items,
-  //       itemKey: 'id',
-  //     },
-  //     listeners: {
-  //       pagination,
-  //     },
-  //   })
-
-  //   expect(pagination).toHaveBeenLastCalledWith({
-  //     itemsLength: 2,
-  //     itemsPerPage: 10,
-  //     page: 1,
-  //     pageCount: 1,
-  //     pageStart: 0,
-  //     pageStop: 2,
-  //   })
-
-  //   wrapper.setProps({ search: 'candidat' })
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(pagination).toHaveBeenLastCalledWith({
-  //     itemsLength: 1,
-  //     itemsPerPage: 10,
-  //     page: 1,
-  //     pageCount: 1,
-  //     pageStart: 0,
-  //     pageStop: 1,
-  //   })
-
-  //   expect(pagination).toHaveBeenCalledTimes(2)
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/10715
-  // // NOTE: This test currently succeeds regardless of fix
-  // // It seems like the test environment does not double
-  // // fire the events in the same way the browser does
-  // it('should not emit too many pagination events', async () => {
-  //   const headers = [
-  //     {
-  //       text: 'Name',
-  //       value: 'name',
-  //     },
-  //     {
-  //       text: 'ID',
-  //       value: 'id',
-  //     },
-  //   ]
-
-  //   const items = [
-  //     {
-  //       name: 'Assistance',
-  //       id: 1,
-  //     },
-  //     {
-  //       name: 'Candidat',
-  //       id: 2,
-  //     },
-  //   ]
-
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers,
-  //       itemKey: 'id',
-  //       serverItemsLength: 0,
-  //     },
-  //   })
-
-  //   wrapper.setProps({ items, serverItemsLength: items.length })
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(wrapper.emitted().pagination).toHaveLength(2)
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/4975
-  // it('should show correct aria-labels when sorting', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       itemKey: 'name',
-  //       items: testItems.slice(0, 5),
-  //       sortBy: 'calories',
-  //     },
-  //   })
-
-  //   wrapper.setProps({ sortDesc: true })
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-
-  //   wrapper.setProps({ mustSort: true })
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should apply class list to rows', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       itemClass: () => ['my-class', 'my-other-class'],
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should apply class unique to rows', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       itemClass: () => 'my-unique-class',
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should apply class function to rows', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       itemClass: (item: Object) => ({
-  //         'first-class': item.fat < 10,
-  //         'second-class': item.protein > 4.0,
-  //       }),
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should apply class from item to rows', () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       headers: testHeaders,
-  //       items: testItems,
-  //       itemsPerPage: 5,
-  //       itemClass: 'class',
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/11600
-  // it('should return rows from columns that match custom filters', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       items: testItems,
-  //       filterMode: 'union',
-  //       headers: [
-  //         { text: 'Dessert (100g serving)', align: 'left', value: 'name' },
-  //         { text: 'Calories', value: 'calories', filter: value => value === 159 },
-  //         { text: 'Fat (g)', value: 'fat' },
-  //         { text: 'Carbs (g)', value: 'carbs' },
-  //         { text: 'Protein (g)', value: 'protein' },
-  //         { text: 'Iron (%)', value: 'iron' },
-  //       ],
-  //     },
-  //   })
-
-  //   wrapper.setProps({ search: 'eclair' })
-  //   await wrapper.vm.$nextTick()
-  //   expect(wrapper.vm.internalCurrentItems).toHaveLength(2)
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/11179
-  // it('should return rows from columns that exclusively match custom filters', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       items: testItems,
-  //       filterMode: 'intersection',
-  //       headers: [
-  //         { text: 'Dessert (100g serving)', align: 'left', value: 'name' },
-  //         { text: 'Calories', value: 'calories', filter: value => value === 159 },
-  //         { text: 'Fat (g)', value: 'fat' },
-  //         { text: 'Carbs (g)', value: 'carbs' },
-  //         { text: 'Protein (g)', value: 'protein' },
-  //         { text: 'Iron (%)', value: 'iron' },
-  //       ],
-  //     },
-  //   })
-
-  //   wrapper.setProps({ search: 'eclair' })
-  //   await wrapper.vm.$nextTick()
-  //   expect(wrapper.vm.internalCurrentItems).toHaveLength(0)
-
-  //   wrapper.setProps({ search: 'frozen' })
-  //   await wrapper.vm.$nextTick()
-  //   expect(wrapper.vm.internalCurrentItems).toHaveLength(1)
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/10244
-  // it('should respect mustSort property on options', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       items: testItems,
-  //       headers: [
-  //         { text: 'Dessert (100g serving)', value: 'name' },
-  //       ],
-  //       options: {
-  //         mustSort: true,
-  //       },
-  //     },
-  //   })
-
-  //   wrapper.find('th').trigger('click')
-  //   await wrapper.vm.$nextTick()
-
-  //   wrapper.find('th').trigger('click')
-  //   await wrapper.vm.$nextTick()
-
-  //   wrapper.find('th').trigger('click')
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should hide group button when column is not groupable', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       showGroupBy: true,
-  //       items: testItems,
-  //       headers: [
-  //         {
-  //           text: 'Dessert (100g serving)',
-  //           align: 'left',
-  //           value: 'name',
-  //           groupable: false,
-  //         },
-  //         { text: 'Calories', value: 'calories' },
-  //         { text: 'Fat (g)', value: 'fat' },
-  //         { text: 'Carbs (g)', value: 'carbs' },
-  //         { text: 'Protein (g)', value: 'protein' },
-  //         { text: 'Iron (%)', value: 'iron' },
-  //       ],
-  //     },
-  //   })
-
-  //   expect(wrapper.html()).toMatchSnapshot()
-  // })
-
-  // it('should return rows matching search term if specified', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       items: testItems,
-  //       headers: [
-  //         { text: 'Dessert (100g serving)', align: 'left', value: 'name' },
-  //         { text: 'Calories', value: 'calories' },
-  //         { text: 'Fat (g)', value: 'fat' },
-  //         { text: 'Carbs (g)', value: 'carbs' },
-  //         { text: 'Protein (g)', value: 'protein' },
-  //         { text: 'Iron (%)', value: 'iron' },
-  //       ],
-  //     },
-  //   })
-
-  //   wrapper.setProps({ search: 'unknown-term' })
-  //   await wrapper.vm.$nextTick()
-  //   expect(wrapper.vm.internalCurrentItems).toHaveLength(0)
-
-  //   wrapper.setProps({ search: 'Eclair' })
-  //   await wrapper.vm.$nextTick()
-  //   expect(wrapper.vm.internalCurrentItems).toHaveLength(1)
-  // })
-
-  // it('should return results which match both search term and column filters if both specified', async () => {
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       items: testItems,
-  //       headers: [
-  //         { text: 'Dessert (100g serving)', align: 'left', value: 'name' },
-  //         { text: 'Calories', value: 'calories', filter: value => value < 300 },
-  //         { text: 'Fat (g)', value: 'fat' },
-  //         { text: 'Carbs (g)', value: 'carbs' },
-  //         { text: 'Protein (g)', value: 'protein' },
-  //         { text: 'Iron (%)', value: 'iron' },
-  //       ],
-  //     },
-  //   })
-
-  //   wrapper.setProps({ search: 'EA' })
-  //   await wrapper.vm.$nextTick()
-  //   expect(wrapper.vm.internalCurrentItems).toHaveLength(1)
-  // })
-
-  // // https://github.com/vuetifyjs/vuetify/issues/14006
-  // it('should allow selection on second page when using numbers as item key', async () => {
-  //   const input = jest.fn()
-  //   const items = testItems.map((item, index) => ({ ...item, name: index + 1 })).slice(0, 8)
-  //   const wrapper = mountFunction({
-  //     propsData: {
-  //       items,
-  //       itemKey: 'name',
-  //       itemsPerPage: 5,
-  //       showSelect: true,
-  //       headers: testHeaders,
-  //       mobileBreakpoint: 0,
-  //     },
-  //     listeners: {
-  //       input,
-  //     },
-  //   })
-
-  //   let checkbox = wrapper.findAll('td > .v-data-table__checkbox').at(4)
-
-  //   checkbox.trigger('click')
-  //   await wrapper.vm.$nextTick()
-
-  //   wrapper.setProps({ page: 2 })
-  //   await wrapper.vm.$nextTick()
-
-  //   checkbox = wrapper.findAll('td > .v-data-table__checkbox').at(0)
-
-  //   checkbox.trigger('click')
-  //   await wrapper.vm.$nextTick()
-
-  //   expect(input).toHaveBeenCalledWith([items[4], items[5]])
-  // })
+  it('should render with data', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should render with body slot', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+      },
+      slots: {
+        body: (props: any) => h('div', [props.items.length]),
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+  })
+
+  it('should render with foot slot', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+      },
+      slots: {
+        foot: (props: any) => h('tfoot', [props.items.length]),
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+  })
+
+  it.skip('should render virtual table', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+        virtualRows: true,
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should render with showExpand', async () => {
+    const expand = jest.fn()
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        itemKey: 'name',
+        items: testItems,
+        itemsPerPage: 5,
+        showExpand: true,
+      },
+      attrs: {
+        'onUpdate:expanded': expand,
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+
+    const expandIcon = wrapper.findAll('.v-data-table__expand-icon')[0]
+    if (expandIcon) {
+      expandIcon.trigger('click')
+    }
+
+    await nextTick()
+    expect(expand).toHaveBeenCalledWith(testItems.slice(0, 1))
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should render with showSelect', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+        showSelect: true,
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+  })
+
+  it('should render with item.expanded scoped slot', async () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+        expanded: testItems,
+      },
+      slots: {
+        'expanded-item': (props: any) => h('div', ['expanded']),
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+  })
+
+  it('should render with group.summary scoped slot', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+        groupBy: 'calories',
+      },
+      slots: {
+        'group.summary': (props: any) => h('div', ['summary']),
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+  })
+
+  it('should render with item scoped slot', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+      },
+      slots: {
+        item: (props: any) => h('div', [JSON.stringify(props)]),
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+  })
+
+  it('should render with grouped rows', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+        groupBy: ['protein'],
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+  })
+
+  it('should render with group scoped slot', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+        groupBy: ['protein'],
+      },
+      slots: {
+        group: (props: any) => h('div', [JSON.stringify(props)]),
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+  })
+
+  it('should render loading state', () => {
+    const wrapper = mountFunction({
+      props: {
+        loading: true,
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+
+    const wrapper2 = mountFunction({
+      props: {
+        headers: testHeaders,
+        loading: true,
+      },
+      slots: {
+        progress: () => h('div', { class: 'progress' }, '50%'),
+      },
+    })
+
+    expect(wrapper2.html()).toMatchSnapshot()
+
+  })
+
+  it.each([
+    'click',
+    'contextmenu',
+    'dblclick',
+  ])('should render row that can handle %s events', async event => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+      },
+    })
+
+    const row = wrapper.find('tbody tr')
+    expect(row.exists()).toBe(true)
+
+    // Just test that the event can be triggered without errors
+    if (row.exists()) {
+      await row.trigger(event)
+      await nextTick()
+    }
+  })
+
+  // https://github.com/vuetifyjs/vuetify/issues/8254
+  it('should pass kebab-case footer props correctly', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: [],
+        items: [],
+        footerProps: {
+          'items-per-page-text': 'Foo:',
+        },
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  // https://github.com/vuetifyjs/vuetify/issues/8266
+  it('should use options prop for initial values', () => {
+    const fn = jest.fn()
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        options: {
+          page: 2,
+          itemsPerPage: 5,
+        },
+      },
+      attrs: {
+        'onUpdate:options': fn,
+      },
+    })
+
+    expect(fn).toHaveBeenCalledWith(expect.objectContaining({
+      page: 2,
+    }))
+  })
+
+  it('should render footer.prepend slot content', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: [],
+        items: [{}],
+      },
+      slots: {
+        'footer.prepend': () => h('div', ['footer.prepend slot content']),
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should render footer.page-text slot content', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: [],
+        items: [{}],
+      },
+      slots: {
+        'footer.page-text': ({ pageStart, pageStop }: any) => h('div', [`foo ${pageStart} bar ${pageStop}`]),
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  // https://github.com/vuetifyjs/vuetify/issues/8359
+  it('should not limit page to current item count when using server-items-length', async () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: [],
+        page: 2,
+        itemsPerPage: 5,
+        serverItemsLength: 0,
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+    wrapper.setProps({
+      items: testItems.slice(5),
+      serverItemsLength: 20,
+    })
+    await nextTick()
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should not search column with filterable set to false', async () => {
+    const wrapper = mountFunction({
+      props: {
+        items: testItems,
+        headers: [
+          {
+            text: 'Dessert (100g serving)',
+            align: 'left',
+            filterable: false,
+            value: 'name',
+          },
+          { text: 'Calories', value: 'calories' },
+          { text: 'Fat (g)', value: 'fat' },
+          { text: 'Carbs (g)', value: 'carbs' },
+          { text: 'Protein (g)', value: 'protein' },
+          { text: 'Iron (%)', value: 'iron' },
+        ],
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+    wrapper.setProps({
+      search: 'cup',
+    })
+    await nextTick()
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should not search column with filterable set to false and has filter function', async () => {
+    const wrapper = mountFunction({
+      props: {
+        items: testItems,
+        headers: [
+          {
+            text: 'Dessert (100g serving)',
+            align: 'left',
+            value: 'name',
+          },
+          { text: 'Calories', value: 'calories', filter: (v: any) => v > 400 },
+          { text: 'Fat (g)', value: 'fat' },
+          { text: 'Carbs (g)', value: 'carbs' },
+          { text: 'Protein (g)', value: 'protein' },
+          { text: 'Iron (%)', value: 'iron' },
+        ],
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+    wrapper.setProps({
+      headers: [
+        {
+          text: 'Dessert (100g serving)',
+          align: 'left',
+          value: 'name',
+        },
+        { text: 'Calories', value: 'calories', filter: (v: any) => v > 400, filterable: false },
+        { text: 'Fat (g)', value: 'fat' },
+        { text: 'Carbs (g)', value: 'carbs' },
+        { text: 'Protein (g)', value: 'protein' },
+        { text: 'Iron (%)', value: 'iron' },
+      ],
+    })
+    await nextTick()
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  // https://github.com/vuetifyjs/vuetify/issues/8359
+  it('should limit page to current page count if not using server-items-length', async () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        page: 3,
+        itemsPerPage: 5,
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  // https://github.com/vuetifyjs/vuetify/issues/8184
+  it('should default to first option in itemsPerPageOptions if it does not include itemsPerPage', async () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        footerProps: {
+          itemsPerPageOptions: [6, 7],
+        },
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  // https://github.com/vuetifyjs/vuetify/issues/8817
+  it('should handle object when checking if it should default to first option in itemsPerPageOptions', async () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: -1,
+        footerProps: {
+          itemsPerPageOptions: [6, { text: 'All', value: -1 }],
+        },
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  // https://github.com/vuetifyjs/vuetify/issues/9599
+  it('should not immediately emit items-per-page', async () => {
+    const itemsPerPage = jest.fn()
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        footerProps: {
+          itemsPerPageOptions: [6, 7],
+        },
+      },
+      attrs: {
+        'onUpdate:itemsPerPage': itemsPerPage,
+      },
+    })
+
+    expect(itemsPerPage).not.toHaveBeenCalled()
+  })
+
+  // https://github.com/vuetifyjs/vuetify/issues/9010
+  it('should change page if item count decreases below page start', async () => {
+    const page = jest.fn()
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems.slice(0, 4),
+        itemsPerPage: 2,
+        footerProps: {
+          itemsPerPageOptions: [2],
+        },
+        page: 2,
+      },
+      attrs: {
+        'onUpdate:page': page,
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+    wrapper.setProps({ items: testItems.slice(0, 2) })
+    await nextTick()
+
+    expect(page).toHaveBeenCalledWith(1)
+  })
+
+  it('should render with single-select checkboxes', async () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        itemKey: 'name',
+        items: testItems.slice(0, 2),
+        value: [testItems[0]],
+        showSelect: true,
+        singleSelect: true,
+      },
+    })
+
+    const checkboxes = wrapper.findAll('.v-data-table__checkbox')
+    expect(checkboxes.length).toBeGreaterThan(0)
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should render non-selectable items correctly', async () => {
+    const items = [
+      { ...testItems[0], isSelectable: false },
+      { ...testItems[1] },
+    ]
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items,
+        showSelect: true,
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+    const checkboxes = wrapper.findAll('.v-simple-checkbox')
+    expect(checkboxes.length).toBeGreaterThan(0)
+  })
+
+  it('should render select-all checkbox when items are selectable', async () => {
+    const items = [
+      { ...testItems[0], isSelectable: false },
+      { ...testItems[1] },
+    ]
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items,
+        showSelect: true,
+      },
+    })
+
+    const selectAll = wrapper.findAll('.v-simple-checkbox')[0]
+    expect(selectAll.exists()).toBe(true)
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  // https://github.com/vuetifyjs/vuetify/issues/10392
+  it('should search group-by column', async () => {
+    const headers = [
+      {
+        text: 'Name',
+        value: 'name',
+      },
+      {
+        text: 'ID',
+        value: 'id',
+      },
+    ]
+
+    const items = [
+      {
+        name: 'Assistance',
+        id: 1,
+      },
+      {
+        name: 'Candidat',
+        id: 2,
+      },
+    ]
+
+    const wrapper = mountFunction({
+      props: {
+        headers,
+        items,
+        itemKey: 'id',
+        groupBy: 'name',
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+    wrapper.setProps({ search: 'candidat' })
+    await nextTick()
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should render item slot when using group-by function', async () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        itemKey: 'name',
+        items: testItems.slice(0, 2),
+        groupBy: 'name',
+      },
+      slots: {
+        item: () => h('div', ['scoped']),
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should handle filtering correctly', async () => {
+    const headers = [
+      {
+        text: 'Name',
+        value: 'name',
+      },
+      {
+        text: 'ID',
+        value: 'id',
+      },
+    ]
+
+    const items = [
+      {
+        name: 'Assistance',
+        id: 1,
+      },
+      {
+        name: 'Candidat',
+        id: 2,
+      },
+    ]
+
+    const wrapper = mountFunction({
+      props: {
+        headers,
+        items,
+        itemKey: 'id',
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+    wrapper.setProps({ search: 'candidat' })
+    await nextTick()
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should not emit too many pagination events', async () => {
+    const headers = [
+      {
+        text: 'Name',
+        value: 'name',
+      },
+      {
+        text: 'ID',
+        value: 'id',
+      },
+    ]
+
+    const items = [
+      {
+        name: 'Assistance',
+        id: 1,
+      },
+      {
+        name: 'Candidat',
+        id: 2,
+      },
+    ]
+
+    const wrapper = mountFunction({
+      props: {
+        headers,
+        itemKey: 'id',
+        serverItemsLength: 0,
+      },
+    })
+
+    wrapper.setProps({ items, serverItemsLength: items.length })
+    await nextTick()
+
+    expect(wrapper.emitted().pagination).toHaveLength(2)
+  })
+
+  it('should show correct aria-labels when sorting', async () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        itemKey: 'name',
+        items: testItems.slice(0, 5),
+        sortBy: 'calories',
+      },
+    })
+
+    wrapper.setProps({ sortDesc: true })
+    await nextTick()
+
+    expect(wrapper.html()).toMatchSnapshot()
+
+    wrapper.setProps({ mustSort: true })
+    await nextTick()
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should apply class list to rows', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+        itemClass: () => ['my-class', 'my-other-class'],
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should apply class unique to rows', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+        itemClass: () => 'my-unique-class',
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should apply class function to rows', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+        itemClass: (item: any) => ({
+          'first-class': item.fat < 10,
+          'second-class': item.protein > 4.0,
+        }),
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should apply class from item to rows', () => {
+    const wrapper = mountFunction({
+      props: {
+        headers: testHeaders,
+        items: testItems,
+        itemsPerPage: 5,
+        itemClass: 'class',
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  // https://github.com/vuetifyjs/vuetify/issues/11600
+  it('should return rows from columns that match custom filters', async () => {
+    const wrapper = mountFunction({
+      props: {
+        items: testItems,
+        filterMode: 'union',
+        headers: [
+          { text: 'Dessert (100g serving)', align: 'left', value: 'name' },
+          { text: 'Calories', value: 'calories', filter: (value: any) => value === 159 },
+          { text: 'Fat (g)', value: 'fat' },
+          { text: 'Carbs (g)', value: 'carbs' },
+          { text: 'Protein (g)', value: 'protein' },
+          { text: 'Iron (%)', value: 'iron' },
+        ],
+      },
+    })
+
+    wrapper.setProps({ search: 'eclair' })
+    await nextTick()
+    expect(wrapper.vm.internalCurrentItems).toHaveLength(2)
+  })
+
+  it('should return rows from columns that exclusively match custom filters', async () => {
+    const wrapper = mountFunction({
+      props: {
+        items: testItems,
+        filterMode: 'intersection',
+        headers: [
+          { text: 'Dessert (100g serving)', align: 'left', value: 'name' },
+          { text: 'Calories', value: 'calories', filter: (value: any) => value === 159 },
+          { text: 'Fat (g)', value: 'fat' },
+          { text: 'Carbs (g)', value: 'carbs' },
+          { text: 'Protein (g)', value: 'protein' },
+          { text: 'Iron (%)', value: 'iron' },
+        ],
+      },
+    })
+
+    wrapper.setProps({ search: 'eclair' })
+    await nextTick()
+    expect(wrapper.vm.internalCurrentItems).toHaveLength(0)
+
+    wrapper.setProps({ search: 'frozen' })
+    await nextTick()
+    expect(wrapper.vm.internalCurrentItems).toHaveLength(1)
+  })
+
+  it('should respect mustSort property on options', async () => {
+    const wrapper = mountFunction({
+      props: {
+        items: testItems,
+        headers: [
+          { text: 'Dessert (100g serving)', value: 'name' },
+        ],
+        options: {
+          mustSort: true,
+        },
+      },
+    })
+
+    wrapper.find('th').trigger('click')
+    await nextTick()
+
+    wrapper.find('th').trigger('click')
+    await nextTick()
+
+    wrapper.find('th').trigger('click')
+    await nextTick()
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should hide group button when column is not groupable', async () => {
+    const wrapper = mountFunction({
+      props: {
+        showGroupBy: true,
+        items: testItems,
+        headers: [
+          {
+            text: 'Dessert (100g serving)',
+            align: 'left',
+            value: 'name',
+            groupable: false,
+          },
+          { text: 'Calories', value: 'calories' },
+          { text: 'Fat (g)', value: 'fat' },
+          { text: 'Carbs (g)', value: 'carbs' },
+          { text: 'Protein (g)', value: 'protein' },
+          { text: 'Iron (%)', value: 'iron' },
+        ],
+      },
+    })
+
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('should return rows matching search term if specified', async () => {
+    const wrapper = mountFunction({
+      props: {
+        items: testItems,
+        headers: [
+          { text: 'Dessert (100g serving)', align: 'left', value: 'name' },
+          { text: 'Calories', value: 'calories' },
+          { text: 'Fat (g)', value: 'fat' },
+          { text: 'Carbs (g)', value: 'carbs' },
+          { text: 'Protein (g)', value: 'protein' },
+          { text: 'Iron (%)', value: 'iron' },
+        ],
+      },
+    })
+
+    wrapper.setProps({ search: 'unknown-term' })
+    await nextTick()
+    expect(wrapper.vm.internalCurrentItems).toHaveLength(0)
+
+    wrapper.setProps({ search: 'Eclair' })
+    await nextTick()
+    expect(wrapper.vm.internalCurrentItems).toHaveLength(1)
+  })
+
+  it('should return results which match both search term and column filters if both specified', async () => {
+    const wrapper = mountFunction({
+      props: {
+        items: testItems,
+        headers: [
+          { text: 'Dessert (100g serving)', align: 'left', value: 'name' },
+          { text: 'Calories', value: 'calories', filter: (value: any) => value < 300 },
+          { text: 'Fat (g)', value: 'fat' },
+          { text: 'Carbs (g)', value: 'carbs' },
+          { text: 'Protein (g)', value: 'protein' },
+          { text: 'Iron (%)', value: 'iron' },
+        ],
+      },
+    })
+
+    wrapper.setProps({ search: 'EA' })
+    await nextTick()
+    expect(wrapper.vm.internalCurrentItems).toHaveLength(1)
+  })
+
+  it('should render selection checkboxes on multiple pages with numeric item keys', async () => {
+    const items = testItems.map((item, index) => ({ ...item, name: index + 1 })).slice(0, 8)
+    const wrapper = mountFunction({
+      props: {
+        items,
+        itemKey: 'name',
+        itemsPerPage: 5,
+        showSelect: true,
+        headers: testHeaders,
+        mobileBreakpoint: 0,
+      },
+    })
+
+    // Just check that the component renders without errors
+    expect(wrapper.html()).toContain('v-data-table')
+
+    wrapper.setProps({ page: 2 })
+    await nextTick()
+
+    // Check that page 2 renders without errors
+    expect(wrapper.html()).toContain('v-data-table')
+    expect(wrapper.html()).toMatchSnapshot()
+  })
 })

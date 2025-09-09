@@ -1,32 +1,30 @@
 import MobileRow from '../MobileRow'
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  MountingOptions,
 } from '@vue/test-utils'
-import Vue from 'vue'
+import { h } from 'vue'
 
 describe('MobileRow', () => {
   type Instance = InstanceType<typeof MobileRow>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: MountingOptions<Instance>) => {
       return mount(MobileRow, options)
     }
   })
 
   it('should render without slots', () => {
     const wrapper = mountFunction({
-      context: {
-        props: {
-          headers: [
-            { text: 'Petrol', value: 'petrol' },
-            { text: 'Diesel', value: 'diesel' },
-          ],
-          item: {
-            petrol: 0.68,
-            diesel: 0.65,
-          },
+      props: {
+        headers: [
+          { text: 'Petrol', value: 'petrol' },
+          { text: 'Diesel', value: 'diesel' },
+        ],
+        item: {
+          petrol: 0.68,
+          diesel: 0.65,
         },
       },
     })
@@ -38,25 +36,23 @@ describe('MobileRow', () => {
 
   it('should render non-string values', () => {
     const wrapper = mountFunction({
-      context: {
-        props: {
-          headers: [
-            { value: 'string' },
-            { value: 'number' },
-            { value: 'array' },
-            { value: 'boolean' },
-            { value: 'object' },
-            { value: 'undefined' },
-            { value: 'null' },
-          ],
-          item: {
-            string: 'string',
-            number: 12.34,
-            array: [1, 2],
-            boolean: false,
-            object: { foo: 'bar' },
-            null: null,
-          },
+      props: {
+        headers: [
+          { value: 'string' },
+          { value: 'number' },
+          { value: 'array' },
+          { value: 'boolean' },
+          { value: 'object' },
+          { value: 'undefined' },
+          { value: 'null' },
+        ],
+        item: {
+          string: 'string',
+          number: 12.34,
+          array: [1, 2],
+          boolean: false,
+          object: { foo: 'bar' },
+          null: null,
         },
       },
     })
@@ -66,13 +62,11 @@ describe('MobileRow', () => {
 
   it('should render with regular slots', () => {
     const wrapper = mountFunction({
-      context: {
-        props: {
-          headers: [
-            { text: 'Petrol', value: 'petrol' },
-            { text: 'Diesel', value: 'diesel' },
-          ],
-        },
+      props: {
+        headers: [
+          { text: 'Petrol', value: 'petrol' },
+          { text: 'Diesel', value: 'diesel' },
+        ],
       },
       slots: {
         petrol: '<p class="test">$0.68</p>',
@@ -87,23 +81,20 @@ describe('MobileRow', () => {
   })
 
   it('should render with scoped slots', () => {
-    const vm = new Vue()
     const wrapper = mountFunction({
-      context: {
-        props: {
-          headers: [
-            { text: 'Petrol', value: 'petrol' },
-            { text: 'Diesel', value: 'diesel' },
-          ],
-          item: {
-            petrol: 0.68,
-            diesel: 0.65,
-          },
+      props: {
+        headers: [
+          { text: 'Petrol', value: 'petrol' },
+          { text: 'Diesel', value: 'diesel' },
+        ],
+        item: {
+          petrol: 0.68,
+          diesel: 0.65,
         },
       },
-      scopedSlots: {
-        petrol: props => vm.$createElement('p', { class: `test ${props.header.value}` }, [props.value]),
-        diesel: props => vm.$createElement('p', { class: `test ${props.header.value}` }, [props.value]),
+      slots: {
+        petrol: (props: any) => h('p', { class: `test ${props.header.value}` }, [props.value]),
+        diesel: (props: any) => h('p', { class: `test ${props.header.value}` }, [props.value]),
       },
     })
 
@@ -115,17 +106,15 @@ describe('MobileRow', () => {
 
   it('should render without header when hideDefaultHeader: true', () => {
     const wrapper = mountFunction({
-      context: {
-        props: {
-          headers: [
-            { text: 'Petrol', value: 'petrol' },
-            { text: 'Diesel', value: 'diesel' },
-          ],
-          hideDefaultHeader: true,
-          item: {
-            petrol: 0.68,
-            diesel: 0.65,
-          },
+      props: {
+        headers: [
+          { text: 'Petrol', value: 'petrol' },
+          { text: 'Diesel', value: 'diesel' },
+        ],
+        hideDefaultHeader: true,
+        item: {
+          petrol: 0.68,
+          diesel: 0.65,
         },
       },
     })

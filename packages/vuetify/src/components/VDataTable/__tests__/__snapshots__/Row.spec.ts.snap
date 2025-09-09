@@ -35,6 +35,36 @@ exports[`Table Row should render with cellClass 1`] = `
 </tr>
 `;
 
+exports[`Table Row should render with regular slots 1`] = `
+<tr>
+  <td class="text-start">
+    <p class="test">
+      $0.68
+    </p>
+  </td>
+  <td class="text-start">
+    <p class="test">
+      $0.65
+    </p>
+  </td>
+</tr>
+`;
+
+exports[`Table Row should render with scoped slots 1`] = `
+<tr>
+  <td class="text-start">
+    <p class="test petrol">
+      0.68
+    </p>
+  </td>
+  <td class="text-start">
+    <p class="test diesel">
+      0.65
+    </p>
+  </td>
+</tr>
+`;
+
 exports[`Table Row should render without slots 1`] = `
 <tr>
   <td class="text-start">

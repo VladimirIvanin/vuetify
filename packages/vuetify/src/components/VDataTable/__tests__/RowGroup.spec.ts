@@ -1,15 +1,17 @@
 import RowGroup from '../RowGroup'
 import {
   mount,
-  Wrapper,
-  MountOptions,
+  VueWrapper,
+  enableAutoUnmount,
 } from '@vue/test-utils'
 
 describe('Table RowGroup', () => {
-  type Instance = InstanceType<typeof RowGroup>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: any) => VueWrapper<any>
+
+  enableAutoUnmount(afterEach)
+
   beforeEach(() => {
-    mountFunction = (options?: MountOptions<Instance>) => {
+    mountFunction = (options?: any) => {
       return mount(RowGroup, options)
     }
   })

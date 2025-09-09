@@ -4,12 +4,12 @@ import VApp from '../VApp'
 // Utilities
 import {
   mount,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
 
 describe('VApp.ts', () => {
   type Instance = InstanceType<typeof VApp>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  let mountFunction: (options?: object) => VueWrapper<Instance>
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
@@ -21,11 +21,13 @@ describe('VApp.ts', () => {
 
   it('should match a snapshot', () => {
     const wrapper = mountFunction({
-      mocks: {
-        $vuetify: {
-          rtl: false,
-          theme: {
-            dark: false,
+      global: {
+        mocks: {
+          $vuetify: {
+            rtl: false,
+            theme: {
+              dark: false,
+            },
           },
         },
       },
@@ -36,11 +38,13 @@ describe('VApp.ts', () => {
 
   it('should have data-app attribute', () => {
     const wrapper = mountFunction({
-      mocks: {
-        $vuetify: {
-          rtl: false,
-          theme: {
-            dark: false,
+      global: {
+        mocks: {
+          $vuetify: {
+            rtl: false,
+            theme: {
+              dark: false,
+            },
           },
         },
       },
@@ -52,14 +56,16 @@ describe('VApp.ts', () => {
 
   it('should allow a custom id', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         id: 'inspire',
       },
-      mocks: {
-        $vuetify: {
-          rtl: false,
-          theme: {
-            dark: false,
+      global: {
+        mocks: {
+          $vuetify: {
+            rtl: false,
+            theme: {
+              dark: false,
+            },
           },
         },
       },
