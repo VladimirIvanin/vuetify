@@ -4,13 +4,13 @@ import VLayout from '../VLayout'
 // Utilities
 import {
   mount,
-  MountOptions,
-  Wrapper,
+  MountingOptions,
+  VueWrapper,
 } from '@vue/test-utils'
 
 describe('VLayout.ts', () => {
   type Instance = InstanceType<typeof VLayout>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
 
   beforeEach(() => {
     mountFunction = (options = {}) => {

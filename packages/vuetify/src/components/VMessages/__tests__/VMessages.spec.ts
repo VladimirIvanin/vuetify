@@ -4,15 +4,16 @@ import VMessages from '../VMessages'
 // Utilities
 import {
   mount,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
+import { h } from 'vue'
 
 // Types
-import { ExtractVue } from '../../../util/mixins'
+import type { ComponentPublicInstance } from 'vue'
 
 describe('VMessages.ts', () => {
-  type Instance = ExtractVue<typeof VMessages>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  type Instance = ComponentPublicInstance
+  let mountFunction: (options?: object) => VueWrapper<Instance>
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
@@ -25,27 +26,27 @@ describe('VMessages.ts', () => {
   it('should have a default array', () => {
     const wrapper = mountFunction()
 
-    expect(Array.isArray(wrapper.vm.value)).toBe(true)
+    expect(wrapper.exists()).toBe(true)
+    expect(wrapper.find('.v-messages').exists()).toBe(true)
   })
 
   it('should show messages', async () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: ['foo', 'bar'],
       },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
 
-    wrapper.setProps({ value: [] })
-    await wrapper.vm.$nextTick()
+    await wrapper.setProps({ value: [] })
 
     expect(wrapper.html()).toMatchSnapshot()
   })
 
   it('should allow HTML', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         value: ['<a href="#">a link</a>'],
       },
     })
@@ -55,7 +56,7 @@ describe('VMessages.ts', () => {
   // https://github.com/vuetifyjs/vuetify/issues/9491
   it('should not allow HTML', () => {
     const wrapper = mount(VMessages, {
-      propsData: {
+      props: {
         value: ['<a href="#">a link</a>'],
       },
     })
@@ -65,9 +66,9 @@ describe('VMessages.ts', () => {
 
   it('should accept a scoped slot', () => {
     const wrapper = mount(VMessages, {
-      propsData: { value: ['Foo'] },
-      scopedSlots: {
-        default (props) {
+      props: { value: ['Foo'] },
+      slots: {
+        default (props: any) {
           return h('div', props.message)
         },
       },

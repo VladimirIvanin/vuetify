@@ -4,13 +4,13 @@ import VFlex from '../VFlex'
 // Utilities
 import {
   mount,
-  MountOptions,
-  Wrapper,
+  MountingOptions,
+  VueWrapper,
 } from '@vue/test-utils'
 
 describe('VFlex.ts', () => {
   type Instance = InstanceType<typeof VFlex>
-  let mountFunction: (options?: MountOptions<Instance>) => Wrapper<Instance>
+  let mountFunction: (options?: MountingOptions<Instance>) => VueWrapper<Instance>
 
   beforeEach(() => {
     mountFunction = (options = {}) => {

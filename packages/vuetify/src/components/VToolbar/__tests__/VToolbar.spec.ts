@@ -1,28 +1,32 @@
 // Libraries
-import Vue from 'vue'
+import { h, nextTick } from 'vue'
 
 // Components
 import VToolbar from '../VToolbar'
-import { ExtractVue } from '../../../util/mixins'
 
 // Utilities
 import {
   mount,
-  Wrapper,
+  VueWrapper,
 } from '@vue/test-utils'
+import { enableAutoUnmount } from '@vue/test-utils'
 
 describe('VToolbar.ts', () => {
-  type Instance = ExtractVue<typeof VToolbar>
-  let mountFunction: (options?: object) => Wrapper<Instance>
+  type Instance = InstanceType<typeof VToolbar>
+  let mountFunction: (options?: object) => VueWrapper<Instance>
+
+  enableAutoUnmount(afterEach)
 
   beforeEach(() => {
     mountFunction = (options = {}) => {
       return mount(VToolbar, {
-        // https://github.com/vuejs/vue-test-utils/issues/1130
-        sync: false,
-        mocks: {
-          $vuetify: {
-            breakpoint: {},
+        global: {
+          mocks: {
+            $vuetify: {
+              breakpoint: {
+                smAndDown: false,
+              },
+            },
           },
         },
         ...options,
@@ -32,7 +36,7 @@ describe('VToolbar.ts', () => {
 
   it('should render an extended toolbar', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         extended: true,
       },
     })
@@ -42,7 +46,7 @@ describe('VToolbar.ts', () => {
 
   it('should render an extended toolbar with specific height', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         extended: true,
         extensionHeight: 42,
       },
@@ -51,41 +55,61 @@ describe('VToolbar.ts', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it('should properly calculate content height', () => {
+  it('should properly calculate content height', async () => {
     const wrapper = mountFunction()
 
-    wrapper.setProps({
+    await wrapper.setProps({
       height: 999,
     })
     expect(wrapper.vm.computedContentHeight).toBe(999)
 
-    wrapper.setProps({
-      height: null,
+    await wrapper.setProps({
+      height: undefined,
       dense: true,
     })
     expect(wrapper.vm.computedContentHeight).toBe(48)
 
-    wrapper.setProps({
-      height: null,
+    await wrapper.setProps({
+      height: undefined,
       dense: false,
       prominent: true,
     })
     expect(wrapper.vm.computedContentHeight).toBe(128)
 
-    wrapper.setProps({
-      height: null,
+    await wrapper.setProps({
+      height: undefined,
       dense: false,
       prominent: false,
     })
-    Vue.set(wrapper.vm.$vuetify.breakpoint, 'smAndDown', true)
-    expect(wrapper.vm.computedContentHeight).toBe(56)
-    Vue.set(wrapper.vm.$vuetify.breakpoint, 'smAndDown', false)
+
+    // Проверяем значение по умолчанию (smAndDown: false)
     expect(wrapper.vm.computedContentHeight).toBe(64)
+
+    // Создаем новый wrapper с smAndDown: true
+    const wrapperMobile = mountFunction({
+      global: {
+        mocks: {
+          $vuetify: {
+            breakpoint: {
+              smAndDown: true,
+            },
+          },
+        },
+      },
+    })
+
+    await wrapperMobile.setProps({
+      height: undefined,
+      dense: false,
+      prominent: false,
+    })
+
+    expect(wrapperMobile.vm.computedContentHeight).toBe(56)
   })
 
   it('should have a custom extension height', () => {
     const wrapper = mountFunction({
-      propsData: { tabs: true },
+      props: { tabs: true },
     })
 
     expect(wrapper.vm.extensionHeight).toBe(48)
@@ -93,7 +117,7 @@ describe('VToolbar.ts', () => {
 
   it('should set height equal to both height and extensionHeight', () => {
     const wrapper = mountFunction({
-      propsData: {
+      props: {
         height: 112,
         extended: true,
         extensionHeight: 64,
