@@ -10,7 +10,7 @@ export default defineComponent({
   render (): VNode {
     const data = this.$attrs
     data.class = data.class ? `v-list-item__action ${data.class}` : 'v-list-item__action'
-    const children = this.$slots.default()
+    const children = this.$slots.default || []
 
     const filteredChild = children.filter(VNode => {
       return VNode.isComment === false && VNode.text !== ' '
