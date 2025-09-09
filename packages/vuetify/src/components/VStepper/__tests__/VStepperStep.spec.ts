@@ -31,6 +31,13 @@ describe('VStepperStep.ts', () => {
               },
             },
           },
+          provide: {
+            stepClick: jest.fn(),
+            stepper: {
+              register: jest.fn(),
+              unregister: jest.fn(),
+            },
+          },
         },
         ...options,
       })
@@ -70,11 +77,15 @@ describe('VStepperStep.ts', () => {
       global: {
         provide: {
           stepClick,
+          stepper: {
+            register: jest.fn(),
+            unregister: jest.fn(),
+          },
         },
       },
     })
 
-    await wrapper.find('.v-stepper__step').trigger('click')
+    await wrapper.find('.v-stepper__step--editable').trigger('click')
     expect(wrapper.emitted('click')).toBeTruthy()
     expect(stepClick).toHaveBeenCalledWith(wrapper.vm.step)
   })
@@ -101,9 +112,16 @@ describe('VStepperStep.ts', () => {
 
   it('should render step with error', async () => {
     const wrapper = mountFunction({
+      props: {
+        rules: [() => 'Error message'],
+      },
       global: {
-        computed: {
-          hasError: () => true,
+        provide: {
+          stepClick: jest.fn(),
+          stepper: {
+            register: jest.fn(),
+            unregister: jest.fn(),
+          },
         },
       },
     })

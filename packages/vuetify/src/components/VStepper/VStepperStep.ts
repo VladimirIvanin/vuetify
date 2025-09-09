@@ -70,6 +70,7 @@ export default baseMixins.extend({
   computed: {
     classes (): object {
       return {
+        'v-stepper__step': true,
         'v-stepper__step--active': this.isActive,
         'v-stepper__step--editable': this.editable,
         'v-stepper__step--inactive': this.isInactive,
@@ -145,14 +146,10 @@ export default baseMixins.extend({
 
   render (): VNode {
     return withDirectives(h('div', {
-      attrs: {
-        tabindex: this.editable ? 0 : -1,
-      },
+      tabindex: this.editable ? 0 : -1,
       class: this.classes,
-      on: {
-        click: this.click,
-        keydown: this.keyboardClick,
-      },
+      onClick: this.click,
+      onKeydown: this.keyboardClick,
     }, [
       this.genStep(),
       this.genLabel(),
