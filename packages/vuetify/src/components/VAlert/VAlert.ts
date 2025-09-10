@@ -76,7 +76,7 @@ export default mixins(
         ].includes(val)
       },
     },
-    value: {
+    modelValue: {
       type: Boolean,
       default: true,
     },
@@ -114,7 +114,9 @@ export default mixins(
       }, [
         h(VIcon, {
           color,
-        }, this.closeIcon),
+        }, {
+          default: () => this.closeIcon
+        }),
       ])
     },
     __cachedIcon (): VNode | null {
@@ -123,7 +125,9 @@ export default mixins(
       return h(VIcon, {
         class: 'v-alert__icon',
         color: this.iconColor,
-      }, this.computedIcon)
+      }, {
+        default: () => this.computedIcon
+      })
     },
     classes (): object {
       const classes: Record<string, boolean> = {

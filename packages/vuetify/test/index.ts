@@ -4,6 +4,7 @@ import { legacyEventsMixin } from '../src/util/legacyEventsMixin'
 import toHaveBeenWarnedInit from './util/to-have-been-warned'
 
 import mdiIcons from '../src/services/icons/presets/mdi'
+import en from '../src/locale/en'
 
 // Configure global mixins for all tests
 // This provides $on, $off, and $emitLegacy methods to all components in tests
@@ -31,6 +32,33 @@ config.global.mocks = {
       },
     },
     rtl: false,
+    lang: {
+      t: (key: string, ...params: any[]) => {
+        if (key.startsWith('$vuetify.')) {
+          const translationKey = key.replace('$vuetify.', '')
+          const keys = translationKey.split('.')
+          let translation: any = en
+
+          for (const k of keys) {
+            if (translation && typeof translation === 'object' && k in translation) {
+              translation = translation[k]
+            } else {
+              return key
+            }
+          }
+
+          if (typeof translation === 'string' && params.length > 0) {
+            return translation.replace(/\{(\d+)\}/g, (match: string, index: string) => {
+              return String(params[+index] || match)
+            })
+          }
+
+          return typeof translation === 'string' ? translation : key
+        }
+
+        return key
+      },
+    },
     icons: {
       component: null,
       values: mdiIcons,

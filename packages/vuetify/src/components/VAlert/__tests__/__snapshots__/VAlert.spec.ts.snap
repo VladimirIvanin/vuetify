@@ -1,22 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`VAlert.ts should be dismissible 1`] = `
-<div role="alert"
-     class="v-alert v-sheet theme--light"
+<div class="v-alert v-sheet theme--light"
+     role="alert"
      style="display: none;"
 >
   <div class="v-alert__wrapper">
     <div class="v-alert__content">
     </div>
-    <button type="button"
-            class="v-alert__dismissible v-btn v-btn--icon v-btn--round theme--light v-size--small"
-            aria-label="$vuetify.close"
+    <button class="v-btn v-btn--icon v-btn--round theme--light v-size--small v-alert__dismissible"
+            type="button"
+            aria-label="Close"
     >
       <span class="v-btn__content">
         <i aria-hidden="true"
-           class="v-icon notranslate material-icons theme--light"
+           class="v-icon notranslate mdi mdi-close-circle theme--light"
         >
-          $cancel
         </i>
       </span>
     </button>
@@ -25,8 +24,8 @@ exports[`VAlert.ts should be dismissible 1`] = `
 `;
 
 exports[`VAlert.ts should be open by default 1`] = `
-<div role="alert"
-     class="v-alert v-sheet theme--light"
+<div class="v-alert v-sheet theme--light"
+     role="alert"
 >
   <div class="v-alert__wrapper">
     <div class="v-alert__content">
@@ -36,8 +35,8 @@ exports[`VAlert.ts should be open by default 1`] = `
 `;
 
 exports[`VAlert.ts should be open by default 2`] = `
-<div role="alert"
-     class="v-alert v-sheet theme--light"
+<div class="v-alert v-sheet theme--light"
+     role="alert"
      style="display: none;"
 >
   <div class="v-alert__wrapper">
@@ -48,21 +47,20 @@ exports[`VAlert.ts should be open by default 2`] = `
 `;
 
 exports[`VAlert.ts should have a close icon 1`] = `
-<div role="alert"
-     class="v-alert v-sheet theme--light"
+<div class="v-alert v-sheet theme--light"
+     role="alert"
 >
   <div class="v-alert__wrapper">
     <div class="v-alert__content">
     </div>
-    <button type="button"
-            class="v-alert__dismissible v-btn v-btn--icon v-btn--round theme--light v-size--small"
-            aria-label="$vuetify.close"
+    <button class="v-btn v-btn--icon v-btn--round theme--light v-size--small v-alert__dismissible"
+            type="button"
+            aria-label="Close"
     >
       <span class="v-btn__content">
         <i aria-hidden="true"
-           class="v-icon notranslate material-icons theme--light"
+           class="v-icon notranslate mdi mdi-close-circle theme--light"
         >
-          $cancel
         </i>
       </span>
     </button>
