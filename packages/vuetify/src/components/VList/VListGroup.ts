@@ -24,6 +24,7 @@ import { VExpandTransition } from '../transitions'
 // Utils
 import mixins, { ExtractVue } from '../../util/mixins'
 import { getSlot } from '../../util/helpers'
+import { breaking } from '../../util/console'
 
 // Types
 import { Route } from 'vue-router'
@@ -85,17 +86,18 @@ export default baseMixins.extend({
     },
   },
 
-  watch: {
-    isActive (val: boolean) {
-      /* istanbul ignore else */
-      if (!this.subGroup && val) {
-        this.list && this.list.listClick(this.$.uid)
-      }
-    },
-    $route: 'onRouteChange',
-  },
-
   created () {
+    const breakingProps = [
+      ['value', 'modelValue'],
+      ['inputValue', 'modelValue'],
+      ['onInput', 'onUpdate:modelValue'],
+    ]
+
+    /* istanbul ignore next */
+    breakingProps.forEach(([original, replacement]) => {
+      if (this.$attrs.hasOwnProperty(original)) breaking(original, replacement, this)
+    })
+
     this.list && this.list.register(this)
 
     if (this.group &&
@@ -104,6 +106,16 @@ export default baseMixins.extend({
     ) {
       this.isActive = this.matchRoute(this.$route.path)
     }
+  },
+
+  watch: {
+    isActive (val: boolean) {
+      /* istanbul ignore else */
+      if (!this.subGroup && val) {
+        this.list && this.list.listClick(this.$.uid)
+      }
+    },
+    $route: 'onRouteChange',
   },
 
   beforeUnmount () {

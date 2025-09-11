@@ -16,7 +16,7 @@ import Ripple from '../../directives/ripple'
 import { getSlot, keyCodes } from './../../util/helpers'
 import mergeData, { mergeClasses } from './../../util/mergeData'
 import { ExtractVue } from './../../util/mixins'
-import { removed } from '../../util/console'
+import { removed, breaking } from '../../util/console'
 
 // Types
 import mixins from '../../util/mixins'
@@ -118,6 +118,15 @@ export default baseMixins.extend({
   },
 
   created () {
+    const breakingProps = [
+      ['value', 'modelValue'],
+    ]
+
+    /* istanbul ignore next */
+    breakingProps.forEach(([original, replacement]) => {
+      if (this.$attrs.hasOwnProperty(original)) breaking(original, replacement, this)
+    })
+
     /* istanbul ignore next */
     if (this.$attrs.hasOwnProperty('avatar')) {
       removed('avatar', this)

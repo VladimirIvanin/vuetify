@@ -13,6 +13,7 @@ import Themeable from '../../mixins/themeable'
 // Utilities
 import mergeData from '../../util/mergeData'
 import { wrapInArray } from '../../util/helpers'
+import { breaking } from '../../util/console'
 
 export default defineComponent({
   name: 'v-simple-checkbox',
@@ -43,6 +44,18 @@ export default defineComponent({
   },
 
   emits: ['input', 'update:modelValue'],
+
+  created () {
+    const breakingProps = [
+      ['value', 'modelValue'],
+      ['onInput', 'onUpdate:modelValue'],
+    ]
+
+    /* istanbul ignore next */
+    breakingProps.forEach(([original, replacement]) => {
+      if (this.$attrs.hasOwnProperty(original)) breaking(original, replacement, this)
+    })
+  },
 
   methods: {
     getIcon (): string {

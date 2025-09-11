@@ -1,4 +1,4 @@
-import {h, withDirectives} from 'vue'
+import { h, withDirectives } from 'vue'
 // Styles
 import './VNavigationDrawer.sass'
 
@@ -21,6 +21,7 @@ import Touch from '../../directives/touch'
 
 // Utilities
 import { convertToUnit, getSlot } from '../../util/helpers'
+import { breaking } from '../../util/console'
 import mixins from '../../util/mixins'
 
 // Types
@@ -49,7 +50,6 @@ const baseMixins = mixins(
 /* @vue/component */
 export default baseMixins.extend({
   name: 'v-navigation-drawer',
-
 
   provide (): object {
     return {
@@ -80,7 +80,7 @@ export default baseMixins.extend({
     },
     stateless: Boolean,
     tag: {
-      type: String
+      type: String,
     },
     temporary: Boolean,
     touchless: Boolean,
@@ -103,10 +103,10 @@ export default baseMixins.extend({
   }),
 
   computed: {
-    $tag() {
+    $tag () {
       return this.tag || this.app ? 'nav' : 'aside'
     },
-    $height() {
+    $height () {
       return this.height || (this.app ? '100vh' : '100%')
     },
     /**
@@ -286,6 +286,18 @@ export default baseMixins.extend({
     },
   },
 
+  created () {
+    const breakingProps = [
+      ['value', 'modelValue'],
+      ['onInput', 'onUpdate:modelValue'],
+    ]
+
+    /* istanbul ignore next */
+    breakingProps.forEach(([original, replacement]) => {
+      if (this.$attrs.hasOwnProperty(original)) breaking(original, replacement, this)
+    })
+  },
+
   beforeMount () {
     this.init()
   },
@@ -325,14 +337,14 @@ export default baseMixins.extend({
       }, [image])
     },
     genDirectives (): VNodeDirective[] {
-      const directives = [
+      return [
         [
           ClickOutside,
           {
             handler: () => { this.isActive = false },
             closeConditional: this.closeConditional,
             include: this.getOpenDependentElements,
-          }
+          },
         ],
         [
           Touch,
@@ -340,12 +352,10 @@ export default baseMixins.extend({
             parent: true,
             left: this.swipeLeft,
             right: this.swipeRight,
-            isDirActive: !this.touchless && !this.stateless
+            isDirActive: !this.touchless && !this.stateless,
           },
-        ]
+        ],
       ]
-
-      return directives
     },
     genListeners () {
       const on: Record<string, (e: Event) => void> = {
