@@ -1,0 +1,78 @@
+import { h } from 'vue'; // Extensions
+
+import { BaseSlideGroup } from '../VSlideGroup/VSlideGroup'; // Mixins
+
+import Themeable from '../../mixins/themeable';
+import SSRBootable from '../../mixins/ssr-bootable'; // Utilities
+
+import mixins from '../../util/mixins';
+export default mixins(BaseSlideGroup, SSRBootable, Themeable
+/* @vue/component */
+).extend({
+  name: 'v-tabs-bar',
+
+  provide() {
+    return {
+      tabsBar: this
+    };
+  },
+
+  computed: {
+    classes() {
+      return { ...BaseSlideGroup.computed.classes.call(this),
+        'v-tabs-bar': true,
+        'v-tabs-bar--is-mobile': this.isMobile,
+        // TODO: Remove this and move to v-slide-group
+        'v-tabs-bar--show-arrows': this.showArrows,
+        ...this.themeClasses
+      };
+    }
+
+  },
+  watch: {
+    items: 'callSlider',
+    internalValue: 'callSlider',
+    $route: 'onRouteChange'
+  },
+  methods: {
+    callSlider() {
+      if (!this.isBooted) return;
+      this.$emit('call:slider');
+    },
+
+    genContent() {
+      const render = BaseSlideGroup.methods.genContent.call(this);
+      render.props.class += ' v-tabs-bar__content';
+      return render;
+    },
+
+    onRouteChange(val, oldVal) {
+      /* istanbul ignore next */
+      if (this.mandatory) return;
+      const items = this.items;
+      const newPath = val.path;
+      const oldPath = oldVal.path;
+      let hasNew = false;
+      let hasOld = false;
+
+      for (const item of items) {
+        if (item.to === oldPath) hasOld = true;else if (item.to === newPath) hasNew = true;
+        if (hasNew && hasOld) break;
+      } // If we have an old item and not a new one
+      // it's assumed that the user navigated to
+      // a path that is not present in the items
+
+
+      if (!hasNew && hasOld) this.internalValue = undefined;
+    }
+
+  },
+
+  render() {
+    const render = BaseSlideGroup.render.call(this, h);
+    render.role = 'tablist';
+    return render;
+  }
+
+});
+//# sourceMappingURL=VTabsBar.js.map

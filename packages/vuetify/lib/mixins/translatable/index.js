@@ -1,0 +1,56 @@
+import { defineComponent } from 'vue';
+export default defineComponent({
+  name: 'translatable',
+  props: {
+    height: Number
+  },
+  data: () => ({
+    elOffsetTop: 0,
+    parallax: 0,
+    parallaxDist: 0,
+    percentScrolled: 0,
+    scrollTop: 0,
+    windowHeight: 0,
+    windowBottom: 0
+  }),
+  computed: {
+    imgHeight() {
+      return this.objHeight();
+    }
+
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('scroll', this.translate, false);
+    window.removeEventListener('resize', this.translate, false);
+  },
+
+  methods: {
+    calcDimensions() {
+      const offset = this.$el.getBoundingClientRect();
+      this.scrollTop = window.pageYOffset;
+      this.parallaxDist = this.imgHeight - this.height;
+      this.elOffsetTop = offset.top + this.scrollTop;
+      this.windowHeight = window.innerHeight;
+      this.windowBottom = this.scrollTop + this.windowHeight;
+    },
+
+    listeners() {
+      window.addEventListener('scroll', this.translate, false);
+      window.addEventListener('resize', this.translate, false);
+    },
+
+    /** @abstract **/
+    objHeight() {
+      throw new Error('Not implemented !');
+    },
+
+    translate() {
+      this.calcDimensions();
+      this.percentScrolled = (this.windowBottom - this.elOffsetTop) / (parseInt(this.height) + this.windowHeight);
+      this.parallax = Math.round(this.parallaxDist * this.percentScrolled);
+    }
+
+  }
+});
+//# sourceMappingURL=index.js.map

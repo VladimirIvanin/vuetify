@@ -1,0 +1,131 @@
+import { h } from 'vue'; // Styles
+
+import "../../../src/components/VBottomNavigation/VBottomNavigation.sass"; // Mixins
+
+import Applicationable from '../../mixins/applicationable';
+import ButtonGroup from '../../mixins/button-group';
+import Colorable from '../../mixins/colorable';
+import Measurable from '../../mixins/measurable';
+import Proxyable from '../../mixins/proxyable';
+import Scrollable from '../../mixins/scrollable';
+import Themeable from '../../mixins/themeable';
+import { factory as ToggleableFactory } from '../../mixins/toggleable'; // Utilities
+
+import mixins from '../../util/mixins';
+import { breaking } from '../../util/console';
+import { getSlot } from '../../util/helpers';
+export default mixins(Applicationable('bottom', ['height', 'modelValue']), Colorable, Measurable, ToggleableFactory(), Proxyable, Scrollable, Themeable
+/* @vue/component */
+).extend({
+  name: 'v-bottom-navigation',
+  props: {
+    activeClass: {
+      type: String,
+      default: 'v-btn--active'
+    },
+    backgroundColor: String,
+    grow: Boolean,
+    height: {
+      type: [Number, String],
+      default: 56
+    },
+    hideOnScroll: Boolean,
+    horizontal: Boolean,
+    modelValue: {
+      type: Boolean,
+      default: true
+    },
+    mandatory: Boolean,
+    shift: Boolean,
+    tag: {
+      type: String,
+      default: 'div'
+    }
+  },
+  emits: ['update:modelValue', 'change'],
+
+  data() {
+    return {
+      isActive: this.modelValue
+    };
+  },
+
+  computed: {
+    canScroll() {
+      return Scrollable.computed.canScroll.call(this) && (this.hideOnScroll || !this.modelValue);
+    },
+
+    classes() {
+      return {
+        'v-bottom-navigation--absolute': this.absolute,
+        'v-bottom-navigation--grow': this.grow,
+        'v-bottom-navigation--fixed': !this.absolute && (this.app || this.fixed),
+        'v-bottom-navigation--horizontal': this.horizontal,
+        'v-bottom-navigation--shift': this.shift
+      };
+    },
+
+    styles() {
+      return { ...this.measurableStyles,
+        transform: this.isActive ? 'none' : 'translateY(100%)'
+      };
+    }
+
+  },
+  watch: {
+    canScroll: 'onScroll'
+  },
+
+  created() {
+    /* istanbul ignore next */
+    if (this.$attrs.hasOwnProperty('active')) {
+      breaking('active.sync', 'value or v-model', this);
+    }
+  },
+
+  methods: {
+    thresholdMet() {
+      if (this.hideOnScroll) {
+        this.isActive = !this.isScrollingUp || this.currentScroll > this.computedScrollThreshold;
+        this.$emit('update:modelValue', this.isActive);
+      }
+
+      if (this.currentThreshold < this.computedScrollThreshold) return;
+      this.savedScroll = this.currentScroll;
+    },
+
+    updateApplication() {
+      return this.$el ? this.$el.clientHeight : 0;
+    },
+
+    updateValue(val) {
+      this.$emit('change', val);
+    }
+
+  },
+
+  render() {
+    const data = this.setBackgroundColor(this.backgroundColor, {
+      class: ['v-bottom-navigation', this.classes],
+      style: this.styles,
+      activeClass: this.activeClass,
+      mandatory: Boolean(this.mandatory || this.modelValue !== undefined),
+      tag: this.tag,
+      modelValue: this.internalValue,
+      onChange: this.updateValue
+    });
+
+    if (this.canScroll) {
+      data.directives = data.directives || [];
+      data.directives.push({
+        arg: this.scrollTarget,
+        name: 'scroll',
+        value: this.onScroll
+      });
+    }
+
+    return h(ButtonGroup, this.setTextColor(this.color, data), getSlot(this));
+  }
+
+});
+//# sourceMappingURL=VBottomNavigation.js.map

@@ -1,0 +1,10 @@
+import { defineComponent } from 'vue';
+export default defineComponent({
+    name: 'transitionable',
+    props: {
+        mode: String,
+        origin: String,
+        transition: String,
+    },
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi8uLi9zcmMvbWl4aW5zL3RyYW5zaXRpb25hYmxlL2luZGV4LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBQyxlQUFlLEVBQUMsTUFBTSxLQUFLLENBQUE7QUFFbkMsZUFBZSxlQUFlLENBQUM7SUFDN0IsSUFBSSxFQUFFLGdCQUFnQjtJQUV0QixLQUFLLEVBQUU7UUFDTCxJQUFJLEVBQUUsTUFBTTtRQUNaLE1BQU0sRUFBRSxNQUFNO1FBQ2QsVUFBVSxFQUFFLE1BQU07S0FDbkI7Q0FDRixDQUFDLENBQUEiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQge2RlZmluZUNvbXBvbmVudH0gZnJvbSAndnVlJ1xuXG5leHBvcnQgZGVmYXVsdCBkZWZpbmVDb21wb25lbnQoe1xuICBuYW1lOiAndHJhbnNpdGlvbmFibGUnLFxuXG4gIHByb3BzOiB7XG4gICAgbW9kZTogU3RyaW5nLFxuICAgIG9yaWdpbjogU3RyaW5nLFxuICAgIHRyYW5zaXRpb246IFN0cmluZyxcbiAgfSxcbn0pXG4iXX0=

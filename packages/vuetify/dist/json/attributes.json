@@ -1,0 +1,690 @@
+{
+  "v-autocomplete/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-autocomplete/items": {
+    "type": "",
+    "description": "Can be an array of objects or array of strings. When using objects, will look for a text, value and disabled keys. This can be changed using the **item-text**, **item-value** and **item-disabled** props.  Objects that have a **header** or **divider** property are considered special cases and generate a list header or divider; these items are not selectable."
+  },
+  "v-autocomplete/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-autocomplete/menu-props": {
+    "type": "",
+    "description": "Pass props through to the `v-menu` component. Accepts either a string for boolean props `menu-props=\"auto, overflowY\"`, or an object `:menu-props=\"{ auto: true, overflowY: true }\"`"
+  },
+  "v-autocomplete/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-autocomplete/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-autocomplete/value-comparator": {
+    "type": "",
+    "description": "The comparison algorithm used for values. [More info](https://github.com/vuetifyjs/vuetify/blob/v2-stable/packages/vuetify/src/util/helpers.ts)"
+  },
+  "v-breadcrumbs/items": {
+    "type": "",
+    "description": "An array of objects for each breadcrumb."
+  },
+  "v-checkbox/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-checkbox/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-checkbox/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-checkbox/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-combobox/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-combobox/items": {
+    "type": "",
+    "description": "Can be an array of objects or array of strings. When using objects, will look for a text, value and disabled keys. This can be changed using the **item-text**, **item-value** and **item-disabled** props.  Objects that have a **header** or **divider** property are considered special cases and generate a list header or divider; these items are not selectable."
+  },
+  "v-combobox/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-combobox/menu-props": {
+    "type": "",
+    "description": "Pass props through to the `v-menu` component. Accepts either a string for boolean props `menu-props=\"auto, overflowY\"`, or an object `:menu-props=\"{ auto: true, overflowY: true }\"`"
+  },
+  "v-combobox/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-combobox/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-combobox/value-comparator": {
+    "type": "",
+    "description": "The comparison algorithm used for values. [More info](https://github.com/vuetifyjs/vuetify/blob/v2-stable/packages/vuetify/src/util/helpers.ts)"
+  },
+  "v-data-iterator/checkbox-color": {
+    "type": "string",
+    "description": ""
+  },
+  "v-data-iterator/custom-filter": {
+    "type": "",
+    "description": "Function to filter items"
+  },
+  "v-data-iterator/custom-group": {
+    "type": "",
+    "description": "Function used to group items"
+  },
+  "v-data-iterator/custom-sort": {
+    "type": "",
+    "description": "Function used to sort items"
+  },
+  "v-data-iterator/disable-filtering": {
+    "type": "",
+    "description": "Disables filtering completely"
+  },
+  "v-data-iterator/disable-pagination": {
+    "type": "",
+    "description": "Disables pagination completely"
+  },
+  "v-data-iterator/disable-sort": {
+    "type": "",
+    "description": "Disables sorting completely"
+  },
+  "v-data-iterator/expanded": {
+    "type": "",
+    "description": "Array of expanded items. Can be used with `.sync` modifier"
+  },
+  "v-data-iterator/footer-props": {
+    "type": "",
+    "description": "See the [`v-data-footer`](/api/v-data-footer) API for more information"
+  },
+  "v-data-iterator/group-by": {
+    "type": "",
+    "description": "Changes which item property should be used for grouping items. Currently only supports a single grouping in the format: `group` or `['group']`. When using an array, only the first element is considered. Can be used with `.sync` modifier"
+  },
+  "v-data-iterator/group-desc": {
+    "type": "",
+    "description": "Changes which direction grouping is done. Can be used with `.sync` modifier"
+  },
+  "v-data-iterator/hide-default-footer": {
+    "type": "",
+    "description": "Hides default footer"
+  },
+  "v-data-iterator/item-key": {
+    "type": "",
+    "description": "The property on each item that is used as a unique key"
+  },
+  "v-data-iterator/items": {
+    "type": "",
+    "description": "The array of items to display"
+  },
+  "v-data-iterator/items-per-page": {
+    "type": "",
+    "description": "Changes how many items per page should be visible. Can be used with `.sync` modifier. Setting this prop to `-1` will display all items on the page"
+  },
+  "v-data-iterator/loading": {
+    "type": "",
+    "description": "If `true` and no items are provided, then a loading text will be shown"
+  },
+  "v-data-iterator/loading-text": {
+    "type": "",
+    "description": "Text shown when `loading` is true and no items are provided"
+  },
+  "v-data-iterator/locale": {
+    "type": "",
+    "description": "Sets the locale used for sorting. This is passed into [`Intl.Collator()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator/Collator) in the default `customSort` function"
+  },
+  "v-data-iterator/multi-sort": {
+    "type": "",
+    "description": "If `true` then one can sort on multiple properties"
+  },
+  "v-data-iterator/must-sort": {
+    "type": "",
+    "description": "If `true` then one can not disable sorting, it will always switch between ascending and descending"
+  },
+  "v-data-iterator/no-data-text": {
+    "type": "",
+    "description": "Text shown when no items are provided to the component"
+  },
+  "v-data-iterator/no-results-text": {
+    "type": "",
+    "description": "Text shown when `search` prop is used and there are no results"
+  },
+  "v-data-iterator/options": {
+    "type": "dataoptions",
+    "description": ""
+  },
+  "v-data-iterator/page": {
+    "type": "",
+    "description": ""
+  },
+  "v-data-iterator/search": {
+    "type": "",
+    "description": "Text input used to filter items"
+  },
+  "v-data-iterator/server-items-length": {
+    "type": "",
+    "description": "Used only when data is provided by a server. Should be set to the total amount of items available on server so that pagination works correctly"
+  },
+  "v-data-iterator/single-expand": {
+    "type": "",
+    "description": "Changes expansion mode to single expand"
+  },
+  "v-data-iterator/single-select": {
+    "type": "",
+    "description": "Changes selection mode to single select"
+  },
+  "v-data-iterator/sort-by": {
+    "type": "",
+    "description": "Changes which item property (or properties) should be used for sort order. Can be used with `.sync` modifier"
+  },
+  "v-data-iterator/sort-desc": {
+    "type": "",
+    "description": "Changes which direction sorting is done. Can be used with `.sync` modifier"
+  },
+  "v-data-iterator/value": {
+    "type": "",
+    "description": "Used for controlling selected rows"
+  },
+  "v-data-footer/options": {
+    "type": "",
+    "description": "DataOptions"
+  },
+  "v-data-footer/pagination": {
+    "type": "",
+    "description": "DataPagination"
+  },
+  "v-data-table/checkbox-color": {
+    "type": "string",
+    "description": "Set the color of the checkboxes (showSelect must be used)"
+  },
+  "v-data-table/custom-filter": {
+    "type": "",
+    "description": "Function to filter items"
+  },
+  "v-data-table/custom-group": {
+    "type": "",
+    "description": "Function used to group items"
+  },
+  "v-data-table/custom-sort": {
+    "type": "",
+    "description": "Function used to sort items"
+  },
+  "v-data-table/disable-filtering": {
+    "type": "",
+    "description": "Disables filtering completely"
+  },
+  "v-data-table/disable-pagination": {
+    "type": "",
+    "description": "Disables pagination completely"
+  },
+  "v-data-table/disable-sort": {
+    "type": "",
+    "description": "Disables sorting completely"
+  },
+  "v-data-table/expanded": {
+    "type": "",
+    "description": "Array of expanded items. Can be used with `.sync` modifier"
+  },
+  "v-data-table/footer-props": {
+    "type": "",
+    "description": "See the [`v-data-footer`](/api/v-data-footer) API for more information"
+  },
+  "v-data-table/group-by": {
+    "type": "",
+    "description": "Changes which item property should be used for grouping items. Currently only supports a single grouping in the format: `group` or `['group']`. When using an array, only the first element is considered. Can be used with `.sync` modifier"
+  },
+  "v-data-table/group-desc": {
+    "type": "",
+    "description": "Changes which direction grouping is done. Can be used with `.sync` modifier"
+  },
+  "v-data-table/headers": {
+    "type": "datatableheader[]",
+    "description": "An array of objects that each describe a header column. See the example below for a definition of all properties"
+  },
+  "v-data-table/hide-default-footer": {
+    "type": "",
+    "description": "Hides default footer"
+  },
+  "v-data-table/item-key": {
+    "type": "",
+    "description": "The property on each item that is used as a unique key"
+  },
+  "v-data-table/items": {
+    "type": "",
+    "description": "The array of items to display"
+  },
+  "v-data-table/items-per-page": {
+    "type": "",
+    "description": "Changes how many items per page should be visible. Can be used with `.sync` modifier. Setting this prop to `-1` will display all items on the page"
+  },
+  "v-data-table/loading": {
+    "type": "",
+    "description": "If `true` and no items are provided, then a loading text will be shown"
+  },
+  "v-data-table/loading-text": {
+    "type": "",
+    "description": "Text shown when `loading` is true and no items are provided"
+  },
+  "v-data-table/locale": {
+    "type": "",
+    "description": "Sets the locale used for sorting. This is passed into [`Intl.Collator()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator/Collator) in the default `customSort` function"
+  },
+  "v-data-table/multi-sort": {
+    "type": "",
+    "description": "If `true` then one can sort on multiple properties"
+  },
+  "v-data-table/must-sort": {
+    "type": "",
+    "description": "If `true` then one can not disable sorting, it will always switch between ascending and descending"
+  },
+  "v-data-table/no-data-text": {
+    "type": "",
+    "description": "Text shown when no items are provided to the component"
+  },
+  "v-data-table/no-results-text": {
+    "type": "",
+    "description": "Text shown when `search` prop is used and there are no results"
+  },
+  "v-data-table/options": {
+    "type": "dataoptions",
+    "description": ""
+  },
+  "v-data-table/page": {
+    "type": "",
+    "description": "The current displayed page number (1-indexed)"
+  },
+  "v-data-table/search": {
+    "type": "",
+    "description": "Text input used to filter items"
+  },
+  "v-data-table/server-items-length": {
+    "type": "",
+    "description": "Used only when data is provided by a server. Should be set to the total amount of items available on server so that pagination works correctly"
+  },
+  "v-data-table/single-expand": {
+    "type": "",
+    "description": "Changes expansion mode to single expand"
+  },
+  "v-data-table/single-select": {
+    "type": "",
+    "description": "Changes selection mode to single select"
+  },
+  "v-data-table/sort-by": {
+    "type": "",
+    "description": "Changes which item property (or properties) should be used for sort order. Can be used with `.sync` modifier"
+  },
+  "v-data-table/sort-desc": {
+    "type": "",
+    "description": "Changes which direction sorting is done. Can be used with `.sync` modifier"
+  },
+  "v-data-table/value": {
+    "type": "",
+    "description": "Used for controlling selected rows"
+  },
+  "v-data-table-header/sort-by-text": {
+    "type": "string",
+    "description": "Sets the label text used by the default sort-by selector when `v-data-table` is rendering the mobile view"
+  },
+  "v-divider/dark": {
+    "type": "",
+    "description": "Applies the dark theme variant to the component. You can find more information on the Material Design documentation for [dark themes](https://material.io/design/color/dark-theme.html)."
+  },
+  "v-divider/light": {
+    "type": "",
+    "description": "Applies the light theme variant to the component."
+  },
+  "v-file-input/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-file-input/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-file-input/multiple": {
+    "type": "boolean",
+    "description": "Adds the **multiple** attribute to the input, allowing multiple file selections."
+  },
+  "v-file-input/value": {
+    "type": "any",
+    "description": "A single or array of [File objects](https://developer.mozilla.org/en-US/docs/Web/API/File)."
+  },
+  "v-layout/align-baseline": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/align-center": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/align-content-center": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/align-content-end": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/align-content-space-around": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/align-content-space-between": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/align-content-start": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/align-end": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/align-start": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/column": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/d-{type}": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/fill-height": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/justify-center": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/justify-end": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/justify-space-around": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/justify-space-between": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/justify-start": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/reverse": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/row": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-layout/tag": {
+    "type": "string",
+    "description": "Specify a custom tag used on the root element."
+  },
+  "v-layout/wrap": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-flex/(size)(1-12)": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-flex/align-self-baseline": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-flex/align-self-center": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-flex/align-self-end": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-flex/align-self-start": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-flex/grow": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-flex/offset-(size)(0-12)": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-flex/order-(size)(1-12)": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-flex/shrink": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-icon/dense": {
+    "type": "boolean",
+    "description": "Makes icon smaller (20px)"
+  },
+  "v-input/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-input/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-input/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-input/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-overflow-btn/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-overflow-btn/items": {
+    "type": "",
+    "description": "Can be an array of objects or array of strings. When using objects, will look for a text, value and disabled keys. This can be changed using the **item-text**, **item-value** and **item-disabled** props.  Objects that have a **header** or **divider** property are considered special cases and generate a list header or divider; these items are not selectable."
+  },
+  "v-overflow-btn/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-overflow-btn/menu-props": {
+    "type": "",
+    "description": "Pass props through to the `v-menu` component. Accepts either a string for boolean props `menu-props=\"auto, overflowY\"`, or an object `:menu-props=\"{ auto: true, overflowY: true }\"`"
+  },
+  "v-overflow-btn/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-overflow-btn/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-overflow-btn/value-comparator": {
+    "type": "",
+    "description": "The comparison algorithm used for values. [More info](https://github.com/vuetifyjs/vuetify/blob/v2-stable/packages/vuetify/src/util/helpers.ts)"
+  },
+  "v-sheet/tag": {
+    "type": "string",
+    "description": "Specify a custom tag used on the root element."
+  },
+  "v-sheet/tile": {
+    "type": "boolean",
+    "description": ""
+  },
+  "v-radio-group/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-radio-group/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-radio-group/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-radio-group/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-radio/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-radio/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-radio/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-radio/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-range-slider/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-range-slider/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-range-slider/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-range-slider/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-select/disabled": {
+    "type": "boolean",
+    "description": "Disables the input"
+  },
+  "v-select/items": {
+    "type": "",
+    "description": "Can be an array of objects or array of strings. When using objects, will look for a text, value and disabled keys. This can be changed using the **item-text**, **item-value** and **item-disabled** props.  Objects that have a **header** or **divider** property are considered special cases and generate a list header or divider; these items are not selectable."
+  },
+  "v-select/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-select/menu-props": {
+    "type": "",
+    "description": "Pass props through to the `v-menu` component. Accepts either a string for boolean props `menu-props=\"auto, overflowY\"`, or an object `:menu-props=\"{ auto: true, overflowY: true }\"`"
+  },
+  "v-select/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-select/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-select/value-comparator": {
+    "type": "",
+    "description": "The comparison algorithm used for values. [More info](https://github.com/vuetifyjs/vuetify/blob/v2-stable/packages/vuetify/src/util/helpers.ts)"
+  },
+  "v-skeleton-loader/type": {
+    "type": "",
+    "description": "A string delimited list of skeleton components to create such as `type=\"text@3\"` or `type=\"card, list-item\"`. Will recursively generate a corresponding skeleton from the provided string. Also supports short-hand for multiple elements such as **article@3** and **paragraph@2** which will generate 3 _article_ skeletons and 2 _paragraph_ skeletons. Please see below for a list of available pre-defined options."
+  },
+  "v-slider/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-slider/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-slider/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-slider/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-switch/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-switch/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-switch/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-switch/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-textarea/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-textarea/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-textarea/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-textarea/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-text-field/disabled": {
+    "type": "boolean",
+    "description": "Disable the input"
+  },
+  "v-text-field/label": {
+    "type": "string",
+    "description": "Sets input label"
+  },
+  "v-text-field/readonly": {
+    "type": "boolean",
+    "description": "Puts input in readonly state"
+  },
+  "v-text-field/value": {
+    "type": "any",
+    "description": "The input's value"
+  },
+  "v-window/touch": {
+    "type": "",
+    "description": "Provide a custom **left** and **right** function when swiped left or right."
+  }
+}

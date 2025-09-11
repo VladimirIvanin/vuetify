@@ -1,0 +1,227 @@
+import "../../../../src/components/VDatePicker/VDatePickerTable.sass"; // Directives
+
+import Touch from '../../../directives/touch'; // Mixins
+
+import Colorable from '../../../mixins/colorable';
+import Localable from '../../../mixins/localable';
+import Themeable from '../../../mixins/themeable'; // Utils
+
+import { createItemTypeNativeListeners, sanitizeDateString } from '../util';
+import isDateAllowed from '../util/isDateAllowed';
+import { mergeListeners } from '../../../util/mergeData';
+import mixins from '../../../util/mixins';
+import { throttle } from '../../../util/helpers'; // Types
+
+import { Transition, withDirectives, h } from 'vue';
+export default mixins(Colorable, Localable, Themeable
+/* @vue/component */
+).extend({
+  props: {
+    allowedDates: Function,
+    current: String,
+    disabled: Boolean,
+    format: Function,
+    events: {
+      type: [Array, Function, Object],
+      default: () => null
+    },
+    eventColor: {
+      type: [Array, Function, Object, String],
+      default: () => 'warning'
+    },
+    min: String,
+    max: String,
+    range: Boolean,
+    readonly: Boolean,
+    scrollable: Boolean,
+    tableDate: {
+      type: String,
+      required: true
+    },
+    modelValue: [String, Array]
+  },
+  data: () => ({
+    isReversing: false,
+    wheelThrottle: null
+  }),
+  computed: {
+    computedTransition() {
+      return this.isReversing === !this.$vuetify.rtl ? 'tab-reverse-transition' : 'tab-transition';
+    },
+
+    displayedMonth() {
+      return Number(this.tableDate.split('-')[1]) - 1;
+    },
+
+    displayedYear() {
+      return Number(this.tableDate.split('-')[0]);
+    },
+
+    // Vue 3 compatibility: use modelValue
+    currentValue() {
+      return this.modelValue;
+    }
+
+  },
+  watch: {
+    tableDate(newVal, oldVal) {
+      this.isReversing = newVal < oldVal;
+    }
+
+  },
+
+  mounted() {
+    this.wheelThrottle = throttle(this.wheel, 250);
+  },
+
+  methods: {
+    genButtonClasses(isAllowed, isFloating, isSelected, isCurrent, isFirst, isLast) {
+      return {
+        'v-size--default': !isFloating,
+        'v-date-picker-table__current': isCurrent,
+        'v-btn--active': isSelected,
+        'v-btn--flat': !isAllowed || this.disabled,
+        'v-btn--text': isSelected === isCurrent,
+        'v-btn--rounded': isFloating,
+        'v-btn--disabled': !isAllowed || this.disabled,
+        'v-btn--outlined': isCurrent && !isSelected,
+        'v-date-picker--first-in-range': isFirst,
+        'v-date-picker--last-in-range': isLast,
+        ...this.themeClasses
+      };
+    },
+
+    genButtonEvents(value, isAllowed, mouseEventType) {
+      if (this.disabled) return undefined;
+      return mergeListeners({
+        onClick: () => {
+          if (isAllowed && !this.readonly) {
+            this.$emit('update:modelValue', value);
+          }
+        }
+      }, createItemTypeNativeListeners(this, `:${mouseEventType}`, value));
+    },
+
+    genButton(value, isFloating, mouseEventType, formatter, isOtherMonth = false) {
+      const isAllowed = isDateAllowed(value, this.min, this.max, this.allowedDates);
+      const isSelected = this.isSelected(value) && isAllowed;
+      const isCurrent = value === this.current;
+      const setColor = isSelected ? this.setBackgroundColor : this.setTextColor;
+      const color = (isSelected || isCurrent) && (this.color || 'accent');
+      let isFirst = false;
+      let isLast = false;
+
+      if (this.range && !!this.currentValue && Array.isArray(this.currentValue)) {
+        isFirst = value === this.currentValue[0];
+        isLast = value === this.currentValue[this.currentValue.length - 1];
+      }
+
+      return h('button', setColor(color, {
+        class: ['v-btn', this.genButtonClasses(isAllowed && !isOtherMonth, isFloating, isSelected, isCurrent, isFirst, isLast)],
+        type: 'button',
+        disabled: this.disabled || !isAllowed || isOtherMonth,
+        ...this.genButtonEvents(value, isAllowed, mouseEventType)
+      }), [h('div', {
+        class: 'v-btn__content'
+      }, [formatter(value)]), this.genEvents(value)]);
+    },
+
+    getEventColors(date) {
+      const arrayize = v => Array.isArray(v) ? v : [v];
+
+      let eventData;
+      let eventColors = [];
+
+      if (Array.isArray(this.events)) {
+        eventData = this.events.includes(date);
+      } else if (this.events instanceof Function) {
+        eventData = this.events(date) || false;
+      } else if (this.events) {
+        eventData = this.events[date] || false;
+      } else {
+        eventData = false;
+      }
+
+      if (!eventData) {
+        return [];
+      } else if (eventData !== true) {
+        eventColors = arrayize(eventData);
+      } else if (typeof this.eventColor === 'string') {
+        eventColors = [this.eventColor];
+      } else if (typeof this.eventColor === 'function') {
+        eventColors = arrayize(this.eventColor(date));
+      } else if (Array.isArray(this.eventColor)) {
+        eventColors = this.eventColor;
+      } else {
+        eventColors = arrayize(this.eventColor[date]);
+      }
+
+      return eventColors.filter(v => v);
+    },
+
+    genEvents(date) {
+      const eventColors = this.getEventColors(date);
+      return eventColors.length ? h('div', {
+        class: 'v-date-picker-table__events'
+      }, eventColors.map(color => h('div', this.setBackgroundColor(color)))) : null;
+    },
+
+    isValidScroll(value, calculateTableDate) {
+      const tableDate = calculateTableDate(value); // tableDate is 'YYYY-MM' for DateTable and 'YYYY' for MonthTable
+
+      const sanitizeType = tableDate.split('-').length === 1 ? 'year' : 'month';
+      return value < 0 && (this.min ? tableDate >= sanitizeDateString(this.min, sanitizeType) : true) || value > 0 && (this.max ? tableDate <= sanitizeDateString(this.max, sanitizeType) : true);
+    },
+
+    wheel(e, calculateTableDate) {
+      this.$emit('update:table-date', calculateTableDate(e.deltaY));
+    },
+
+    touch(value, calculateTableDate) {
+      this.$emit('update:table-date', calculateTableDate(value));
+    },
+
+    genTable(staticClass, children, calculateTableDate) {
+      const transition = h(Transition, {
+        name: this.computedTransition
+      }, () => [h('table', {
+        key: this.tableDate
+      }, children)]);
+      const touchDirective = [Touch, {
+        left: e => e.offsetX < -15 && this.isValidScroll(1, calculateTableDate) && this.touch(1, calculateTableDate),
+        right: e => e.offsetX > 15 && this.isValidScroll(-1, calculateTableDate) && this.touch(-1, calculateTableDate)
+      }];
+      return withDirectives(h('div', {
+        class: {
+          [staticClass]: true,
+          'v-date-picker-table--disabled': this.disabled,
+          ...this.themeClasses
+        },
+        ...(!this.disabled && this.scrollable ? {
+          onWheel: e => {
+            e.preventDefault();
+
+            if (this.isValidScroll(e.deltaY, calculateTableDate)) {
+              this.wheelThrottle(e, calculateTableDate);
+            }
+          }
+        } : {})
+      }, [transition]), [touchDirective]);
+    },
+
+    isSelected(value) {
+      if (Array.isArray(this.currentValue)) {
+        if (this.range && this.currentValue.length === 2) {
+          const [from, to] = [...this.currentValue].sort();
+          return from <= value && value <= to;
+        } else {
+          return this.currentValue.indexOf(value) !== -1;
+        }
+      }
+
+      return value === this.currentValue;
+    }
+
+  }
+});
+//# sourceMappingURL=date-picker-table.js.map
