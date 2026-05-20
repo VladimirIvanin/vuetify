@@ -86,8 +86,8 @@ describe('VPicker.ts', () => {
     const wrapper = mountFunction({
       slots: {
         default: '<span>default</span>',
-        actions: () => [],
-      },
+        actions: () => []
+      }
     })
 
     expect(wrapper.find('.v-picker__actions').exists()).toBe(false)
@@ -97,8 +97,8 @@ describe('VPicker.ts', () => {
     const wrapper = mountFunction({
       slots: {
         default: '<span>default</span>',
-        actions: '<button type="button">OK</button>',
-      },
+        actions: '<button type="button">OK</button>'
+      }
     })
 
     expect(wrapper.find('.v-picker__actions button').exists()).toBe(true)

@@ -411,8 +411,8 @@ describe('VDatePicker.ts', () => { // eslint-disable-line max-statements
     const wrapper = mountFunction({
       props: {
         type: 'date',
-        modelValue: '2005-11-01',
-      },
+        modelValue: '2005-11-01'
+      }
     })
 
     expect(wrapper.find('.v-picker__actions').exists()).toBe(false)

@@ -446,7 +446,7 @@ export function flattenSlotContent (content: VNode | VNode[] | null | undefined)
 
   const items = Array.isArray(content) ? content : [content]
 
-  return items.flatMap((item) => {
+  return items.flatMap(item => {
     if (item == null || item.type === Comment) return []
     if (Array.isArray(item)) return flattenSlotContent(item)
     return [item]
